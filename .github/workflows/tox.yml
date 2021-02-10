@@ -31,6 +31,7 @@ jobs:
         pip check
         python -c 'import coscon'
         fits_info -h
+        pytest
     # - name: Tests
     #   run: |
     #     make test COVHTML='--cov-report=xml'
