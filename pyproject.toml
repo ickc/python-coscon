@@ -46,6 +46,7 @@ defopt = "^6"
 astropy = "^4"
 healpy = "^1"
 numpy = "^1"
+numba = ">=0.52"
 pandas = "^1"
 tabulate = "^0.8"
 
