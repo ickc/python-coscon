@@ -13,7 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 if TYPE_CHECKING:
-    from typing import Optional, Dict, Union
+    from typing import Optional, Dict, Tuple
 
 import coscon.fits_helper
 
@@ -260,3 +260,26 @@ class PowerSpectra:
         This is reproduced using CLASS but with an extended l-range
         """
         return cls.from_class(url='https://gist.github.com/ickc/cd6bb1753a44ee09f2d09c49b190d65f/raw/398497217109000c0d670bb57cfcc2cb9a617d63/base_2018_plikHM_TTTEEE_lowl_lowE_lensing_cl_lensed.dat')
+
+    def intersect(self, other: PowerSpectra) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        cols = np.intersect1d(self.names, other.names)
+        l = np.intersect1d(self.l_array, other.l_array)
+        return self.dataframe.loc[l, cols], other.dataframe.loc[l, cols]
+
+    def compare(self, other: PowerSpectra, self_name: str, other_name: str) -> pd.DataFrame:
+        """Return a tidy DataFrame comparing self and other.
+        """
+        df_all = pd.concat(
+            self.intersect(other),
+            keys=[self_name, other_name],
+            names=['case', 'l']
+        )
+        df_all.columns.name = 'spectra'
+        return df_all.stack().to_frame(self.scale).reset_index(level=(0, 1, 2))
+
+    def compare_plot(self, other: PowerSpectra, self_name: str, other_name: str):
+        import plotly.express as px
+
+        df_tidy = self.compare(other, self_name, other_name)
+        for name, group in df_tidy.groupby('spectra'):
+            px.line(group, x='l', y='Dl', color='case', title=name).show()
