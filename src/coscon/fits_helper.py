@@ -91,12 +91,35 @@ class FitsHelper:
         n_maps = self.n_maps
         # force 2D array
         # healpy tried to be smart and return 1D array only if there's only 1 map
-        m = hp.read_map(self.path).reshape(1, -1) if n_maps == 1 else hp.read_map(self.path, field=range(n_maps))
-        return m
+        return hp.read_map(self.path).reshape(1, -1) if n_maps == 1 else hp.read_map(self.path, field=range(n_maps))
 
     @cached_property
     def maps_dict(self) -> Dict[str, np.ndarray]:
         return dict(zip(map(lambda x: x[0], self.names), self.maps))
+
+    @cached_property
+    def spectra(self) -> np.ndarray:
+        """Use anafast to calculate the spectra
+        results are always 2D-array
+        """
+        res = hp.sphtfunc.anafast(self.maps)
+        # force 2D array
+        # healpy tried to be smart and return 1D array only if there's only 1 map
+        return res.reshape(1, -1) if self.n_maps == 1 else res
+
+    @cached_property
+    def spectra_dict(self) -> Dict[str, np.ndarray]:
+        n_maps = self.n_maps
+        if n_maps == 1:
+            return {'TT': self.spectra[0]}
+        elif n_maps == 3:
+            return dict(zip(['TT', 'EE', 'BB', 'TE', 'EB', 'TB'], self.spectra))
+        else:
+            raise ValueError(f'There are {n_maps} maps where I can only understand 1 map or 3 maps.')
+
+    @cached_property
+    def spectra_dataframe(self) -> pd.DataFrame:
+        return pd.DataFrame(self.spectra_dict)
 
     @staticmethod
     def _mollview(
