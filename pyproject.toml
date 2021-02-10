@@ -22,11 +22,9 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Utilities",
 ]
 homepage = "https://github.com/ickc/coscon"
@@ -43,7 +41,7 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = ">=3.8"
 defopt = "^6"
 astropy = "^4"
 healpy = "^1"
@@ -166,22 +164,17 @@ envlist =
     clean,
     check,
     docs,
-    {py37,py38,py39,pypy3},
+    {py38,py39},
     report
 ignore_basepython_conflict = true
 
 [gh-actions]
 python =
-    3.7: py37
     3.8: py38, mypy
     3.9: py39
-    pypy3: pypy3
 
 [testenv]
 basepython =
-    pypy: {env:TOXPYTHON:pypy}
-    pypy3: {env:TOXPYTHON:pypy3}
-    py37: {env:TOXPYTHON:python3.7}
     py38: {env:TOXPYTHON:python3.8}
     py39: {env:TOXPYTHON:python3.9}
     {bootstrap,clean,check,report,docs,codecov,coveralls}: {env:TOXPYTHON:python3}
