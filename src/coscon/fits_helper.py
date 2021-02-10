@@ -21,9 +21,7 @@ class FitsHelper:
     memmap: bool = True
 
     def __post_init__(self):
-        path = Path(self.path)
-        self.path = path
-        self.file = fits.open(path, memmap=self.memmap)
+        self.path = Path(self.path)
 
     def __str__(self) -> str:
         return '\n\n'.join((self.__info_str__, self.__infos_str__))
@@ -33,10 +31,11 @@ class FitsHelper:
 
     @cached_property
     def info(self) -> pd.DataFrame:
-        return pd.DataFrame(
-            (tup[:7] for tup in self.file.info(output=False)),
-            columns=['No.', 'Name', 'Ver', 'Type', 'Cards', 'Dimensions', 'Format'],
-        )
+        with fits.open(self.path, memmap=self.memmap) as file:
+            return pd.DataFrame(
+                (tup[:7] for tup in file.info(output=False)),
+                columns=['No.', 'Name', 'Ver', 'Type', 'Cards', 'Dimensions', 'Format'],
+            )
 
     @cached_property
     def __info_str__(self) -> str:
@@ -48,7 +47,8 @@ class FitsHelper:
 
     @cached_property
     def infos(self) -> List(pd.DataFrame):
-        return [pd.Series(datum.header).to_frame(datum.name) for datum in self.file]
+        with fits.open(self.path, memmap=self.memmap) as file:
+            return [pd.Series(datum.header).to_frame(datum.name) for datum in file]
 
     @cached_property
     def __infos_str__(self) -> str:
@@ -65,8 +65,7 @@ def _fits_info(*filenames: Path):
     :param Path filenames: Path to one or more FITS files. Wildcards are supported.
     """
     for filename in filenames:
-        fits_helper = FitsHelper(filename)
-        print(fits_helper)
+        print(FitsHelper(filename))
 
 
 def fits_info_cli():
