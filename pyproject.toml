@@ -44,6 +44,12 @@ include = [
 
 [tool.poetry.dependencies]
 python = ">=3.7"
+defopt = "^6"
+astropy = "^4"
+healpy = "^1"
+numpy = "^1"
+pandas = "^1"
+tabulate = "^0.8"
 
 # extras
 coloredlogs = {optional = true, version = ">=14,<16"}
