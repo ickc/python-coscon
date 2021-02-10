@@ -1,3 +1,5 @@
+setup.py
+
 *.py[cod]
 __pycache__
 

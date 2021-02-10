@@ -85,8 +85,8 @@ docs = [
     "sphinxcontrib-apidoc",
 ]
 
-# [tool.poetry.scripts]
-# coscon = 'coscon.cli:cli'
+[tool.poetry.scripts]
+fits_info = 'coscon.fits_helper:fits_info_cli'
 
 [tool.coverage.paths]
 source = [
