@@ -22,7 +22,8 @@ logger = getLogger('coscon')
 
 
 @dataclass
-class FitsHelper:
+class BaseFitsHelper:
+    """A class for general fits files"""
     path: Path = Path()
     memmap: bool = True
 
@@ -45,7 +46,7 @@ class FitsHelper:
 
     @cached_property
     def __info_str__(self) -> str:
-        return tabulate(self.info, tablefmt='fancy_grid', headers="keys", showindex=False)
+        return tabulate(self.info, tablefmt='psql', headers="keys", showindex=False)
 
     @cached_property
     def __info_html__(self) -> str:
@@ -58,11 +59,19 @@ class FitsHelper:
 
     @cached_property
     def __infos_str__(self) -> str:
-        return '\n\n'.join(tabulate(df, tablefmt='fancy_grid', headers="keys") for df in self.infos)
+        return '\n\n'.join(tabulate(df, tablefmt='psql', headers="keys") for df in self.infos)
 
     @cached_property
     def __infos_html__(self) -> str:
         return ''.join(df.to_html() for df in self.infos)
+
+
+@dataclass
+class CMBFitsHelper(BaseFitsHelper):
+    """Specialized in fits container typically used in CMB analysis"""
+    path: Path = Path()
+    memmap: bool = True
+    nest: bool = True
 
     @cached_property
     def n_maps(self) -> int:
@@ -72,6 +81,7 @@ class FitsHelper:
             for f in file:
                 if type(f) is BinTableHDU:
                     return f.header['TFIELDS']
+        raise TypeError(f"Is {self.path} really contains CMB maps?")
 
     @cached_property
     def names(self) -> List[str]:
@@ -82,6 +92,7 @@ class FitsHelper:
                 if type(f) is BinTableHDU:
                     # return [key for key in f.header if key.startswith('TTYPE')]
                     return [f.header[f'TTYPE{i}'] for i in range(1, self.n_maps + 1)]
+        raise TypeError(f"Is {self.path} really contains CMB maps?")
 
     @cached_property
     def maps(self) -> np.ndarray:
@@ -91,7 +102,11 @@ class FitsHelper:
         n_maps = self.n_maps
         # force 2D array
         # healpy tried to be smart and return 1D array only if there's only 1 map
-        return hp.read_map(self.path).reshape(1, -1) if n_maps == 1 else hp.read_map(self.path, field=range(n_maps))
+        return (
+            hp.read_map(self.path, nest=self.nest).reshape(1, -1)
+        ) if n_maps == 1 else (
+            hp.read_map(self.path, field=range(n_maps), nest=self.nest)
+        )
 
     @cached_property
     def maps_dict(self) -> Dict[str, np.ndarray]:
@@ -167,7 +182,7 @@ def _fits_info(*filenames: Path):
     :param Path filenames: Path to one or more FITS files. Wildcards are supported.
     """
     for filename in filenames:
-        print(FitsHelper(filename))
+        print(BaseFitsHelper(filename))
 
 
 def fits_info_cli():
