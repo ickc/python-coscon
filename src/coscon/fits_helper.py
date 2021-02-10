@@ -4,7 +4,7 @@ from pathlib import Path
 from logging import getLogger
 from dataclasses import dataclass
 from functools import cached_property
-from typing import List, TYPE_CHECKING
+from typing import List
 
 import defopt
 from astropy.io import fits
@@ -13,10 +13,8 @@ import healpy as hp
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
-import matplotlib.pyplot as plt
 
-if TYPE_CHECKING:
-    from typing import Optional, Dict
+import coscon.cmb
 
 logger = getLogger('coscon')
 
@@ -69,7 +67,7 @@ class BaseFitsHelper:
 @dataclass
 class CMBFitsHelper(BaseFitsHelper):
     """Specialized in fits container typically used in CMB analysis"""
-    path: Path = Path()
+    path: Path
     memmap: bool = True
     nest: bool = True
 
@@ -108,72 +106,10 @@ class CMBFitsHelper(BaseFitsHelper):
             hp.read_map(self.path, field=range(n_maps), nest=self.nest)
         )
 
-    @cached_property
-    def maps_dict(self) -> Dict[str, np.ndarray]:
-        return dict(zip(map(lambda x: x[0], self.names), self.maps))
-
-    @cached_property
-    def spectra(self) -> np.ndarray:
-        """Use anafast to calculate the spectra
-        results are always 2D-array
-        """
-        res = hp.sphtfunc.anafast(self.maps)
-        # force 2D array
-        # healpy tried to be smart and return 1D array only if there's only 1 map
-        return res.reshape(1, -1) if self.n_maps == 1 else res
-
-    @cached_property
-    def spectra_dict(self) -> Dict[str, np.ndarray]:
-        n_maps = self.n_maps
-        if n_maps == 1:
-            return {'TT': self.spectra[0]}
-        elif n_maps == 3:
-            return dict(zip(['TT', 'EE', 'BB', 'TE', 'EB', 'TB'], self.spectra))
-        else:
-            raise ValueError(f'There are {n_maps} maps where I can only understand 1 map or 3 maps.')
-
-    @cached_property
-    def spectra_dataframe(self) -> pd.DataFrame:
-        return pd.DataFrame(self.spectra_dict)
-
-    @staticmethod
-    def _mollview(
-        name: str,
-        m: np.ndarray,
-        n_std: Optional[int] = None,
-        fwhm: Optional[float] = None,
-    ):
-        if fwhm is not None:
-            m = hp.sphtfunc.smoothing(m, fwhm=fwhm * np.pi / 10800.)
-        if n_std is None:
-            min_ = None
-            max_ = None
-        else:
-            mean = m.mean()
-            std = m.std()
-            min_ = mean - n_std * std
-            max_ = mean + n_std * std
-        hp.mollview(m, title=name, min=min_, max=max_)
-        hp.graticule()
-        plt.show()
-
-    def mollview(
-        self,
-        n_std: Optional[int] = None,
-        fwhm: Optional[float] = None,
-    ):
-        """object wrap of healpy.mollview
-
-        :param n_std: if specified, set the range to be mean ± n_std * std
-        :param fwhm: if specified, smooth map to this number of arcmin
-        """
-        maps_dict = self.maps_dict
-        for name, m in maps_dict.items():
-            self._mollview(name, m, n_std=n_std, fwhm=fwhm)
-        if 'Q' in maps_dict and 'U' in maps_dict:
-            name = 'P'
-            m = np.sqrt(np.square(maps_dict['Q']) + np.square(maps_dict['U']))
-            self._mollview(name, m, n_std=n_std, fwhm=fwhm)
+    @property
+    def to_maps(self) -> coscon.cmb.Maps:
+        """package data in a Maps object"""
+        return coscon.cmb.Maps(self.names, self.maps)
 
 
 def _fits_info(*filenames: Path):
