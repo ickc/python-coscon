@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 from pathlib import Path
 from logging import getLogger
 from dataclasses import dataclass
@@ -12,7 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 if TYPE_CHECKING:
-    from typing import Optional, Dict
+    from typing import Optional, Dict, Union
 
 import coscon.fits_helper
 
@@ -174,3 +175,88 @@ class PowerSpectra:
         l = self.l
         index = pd.RangeIndex(self.l_min, self.l_max, name='l') if l is None else pd.Index(l, name='l')
         return pd.DataFrame(self.spectra.T, index=index, columns=self.names)
+
+    @classmethod
+    def from_dataframe(
+        cls,
+        df: pd.DataFrame,
+        scale: str = 'Dl',
+    ) -> PowerSpectra:
+        names = df.columns.tolist()
+        spectra = df.values.T
+        l = df.index.values
+        return cls(names, spectra, l=l, scale=scale)
+
+    @classmethod
+    def from_class(
+        cls,
+        path: Optional[Path] = None,
+        url: Optional[str] = None,
+        camb: bool = True,
+    ) -> PowerSpectra:
+        '''read from CLASS' .dat output
+
+        :param bool camb: if True, assumed ``format = camb`` is used when
+        generating the .dat from CLASS
+
+        To self: migrated from abx's convert_theory.py
+        '''
+        if path is None and url is None:
+            raise ValueError(f'either path or url has to be specified.')
+        if url is not None:
+            from astropy.utils.data import download_file
+
+            if path is not None:
+                logger.warn(f'Ignoring path as url is specified.')
+            logger.info(f'Downloading and caching using astropy: {url}')
+            path = download_file(url, cache=True)
+        # read once
+        with open(path, 'r') as f:
+            text = f.read()
+
+        # get last comment line
+        comment = None
+        for line in text.split('\n'):
+            if line.startswith('#'):
+                comment = line
+        # remove beginning '#'
+        comment = comment[1:]
+        # parse comment line: get name after ':'
+        names = [name.split(':')[1] for name in comment.strip().split()]
+
+        with io.StringIO(text) as f:
+            df = pd.read_csv(f, delim_whitespace=True, index_col=0, comment='#', header=None, names=names)
+        # to [microK]^2
+        if not camb:
+            df *= 1.e12
+        return cls.from_dataframe(df)
+
+    @classmethod
+    def from_planck_2018(cls) -> PowerSpectra:
+        """Use the Planck 2018 best-fit ΛCDM model
+
+        Officially released by Planck up to l equals 2508.
+        see http://pla.esac.esa.int/pla/#cosmology and its description
+        """
+        from astropy.utils.data import download_file
+
+        # see http://pla.esac.esa.int/pla/#cosmology and its description
+        file = download_file(
+            'http://pla.esac.esa.int/pla/aio/product-action?COSMOLOGY.FILE_ID=COM_PowerSpect_CMB-base-plikHM-TTTEEE-lowl-lowE-lensing-minimum-theory_R3.01.txt',
+            cache=True,
+        )
+        calPlanck = 0.1000442E+01
+
+        df = pd.read_csv(file, sep='\s+', names=['l', 'TT', 'TE', 'EE', 'BB', 'PP'], comment='#', index_col=0)
+        # planck's 2018 released spectra above 2500 has identically zero BB so it shouldn't be trusted
+        df = df.loc[pd.RangeIndex(2, 2501)]
+        df *= 1. / (calPlanck * calPlanck)
+        return cls.from_dataframe(df)
+
+    @classmethod
+    def from_planck_2018_extended(cls) -> PowerSpectra:
+        """Use the Planck 2018 best fit ΛCDM model with extended l-range up to 4902
+
+        This is reproduced using CLASS but with an extended l-range
+        """
+        return cls.from_class(url='https://gist.github.com/ickc/cd6bb1753a44ee09f2d09c49b190d65f/raw/398497217109000c0d670bb57cfcc2cb9a617d63/base_2018_plikHM_TTTEEE_lowl_lowE_lensing_cl_lensed.dat')
