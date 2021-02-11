@@ -1,12 +1,18 @@
 import numpy as np
 
-from coscon.cmb import PowerSpectra
+from coscon.cmb import Maps, PowerSpectra
+
+s1 = PowerSpectra.from_planck_2018()
 
 
-def test_sanity():
-    s1 = PowerSpectra.from_planck_2018()
+def test_planck_2018_extended():
     s2 = PowerSpectra.from_planck_2018_extended()
+    df1, df2 = s1.intersect(s2)
+    np.testing.assert_allclose(df2.values, df1.values, rtol=0.15, atol=0.1)
 
-    cols = ['TT', 'EE', 'BB', 'TE']
-    l = s1.l_array
-    np.testing.assert_allclose(s1.dataframe.loc[l, cols].values, s2.dataframe.loc[l, cols].values, rtol=0.17, atol=0.06)
+
+def test_pysm():
+    m = Maps.from_pysm(140, 128)
+    s2 = m.to_spectra
+    df1, df2 = s1.intersect(s2)
+    np.testing.assert_allclose(df2.values, df1.values, rtol=0.1, atol=1000.)

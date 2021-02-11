@@ -53,6 +53,24 @@ class Maps:
         )
         return fits_helper.to_maps
 
+    @classmethod
+    def from_pysm(
+        cls,
+        freq: float,
+        nside: int,
+        preset_strings: List[str] = ["c1"],
+    ) -> Maps:
+        import pysm3
+        import pysm3.units as u
+
+        sky = pysm3.Sky(nside=nside, preset_strings=preset_strings)
+        freq_u = freq * u.GHz
+        m = sky.get_emission(freq_u)
+        return cls(
+            ['T', 'Q', 'U'],
+            m.to(u.uK_CMB, equivalencies=u.cmb_equivalencies(freq_u)),
+        )
+
     @cached_property
     def maps_dict(self) -> Dict[str, np.ndarray]:
         return dict(zip(map(lambda x: x[0], self.names), self.maps))
