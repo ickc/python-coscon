@@ -366,7 +366,7 @@ def _simmap_planck2018(
     partial: bool = False,
     column_names: Optional[List[str]] = None,
     column_units: str = 'uK',
-    extra_header: list[str] = [],
+    extra_header: List[str] = [],
     overwrite: bool = False,
 ):
     if seed is not None:
