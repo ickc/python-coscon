@@ -16,3 +16,12 @@ def test_pysm():
     s2 = m.to_spectra
     df1, df2 = s1.intersect(s2)
     np.testing.assert_allclose(df2.values, df1.values, rtol=0.1, atol=1000.)
+
+def test_synfast():
+    nside = 64
+    # make this test func deterministic
+    np.random.seed(nside)
+    m = s1.to_maps(nside)
+    s2 = m.to_spectra
+    df1, df2 = s1.intersect(s2)
+    np.testing.assert_allclose(df2.values, df1.values, rtol=0.1, atol=1000.)

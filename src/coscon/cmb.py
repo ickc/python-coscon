@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from typing import Optional, Dict, Tuple
 
 import coscon.fits_helper
+from .util import from_Cl_to_Dl, from_Dl_to_Cl
 
 logger = getLogger('coscon')
 
@@ -163,8 +164,6 @@ class PowerSpectra:
         assert spectra.shape[0] == len(self.names)
 
         if self.scale == 'Cl':
-            from .util import from_Cl_to_Dl
-
             logger.info('Converting from Cl scale to Dl scale automatically.')
             self.spectra = from_Cl_to_Dl(self.spectra, self.l_array)
             self.scale = 'Dl'
@@ -283,6 +282,18 @@ class PowerSpectra:
         cols = np.intersect1d(self.names, other.names)
         l = np.intersect1d(self.l_array, other.l_array)
         return self.dataframe.loc[l, cols], other.dataframe.loc[l, cols]
+
+    def to_maps(self, nside: int, pixwin=False) -> Maps:
+        """Use synfast to generate random maps
+        """
+        # new order
+        cols = ['TT', 'EE', 'BB', 'TE']
+        spectra = self.dataframe[cols].values.T
+        l = self.l_array
+        cl = from_Dl_to_Cl(spectra, l)
+        ms = hp.sphtfunc.synfast(cl, nside, pixwin=pixwin, new=True)
+        return Maps(['T', 'Q', 'U'], ms)
+
 
     def compare(self, other: PowerSpectra, self_name: str, other_name: str) -> pd.DataFrame:
         """Return a tidy DataFrame comparing self and other.
