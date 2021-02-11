@@ -93,6 +93,7 @@ docs = [
 
 [tool.poetry.scripts]
 fits_info = 'coscon.fits_helper:fits_info_cli'
+simmap_planck2018 = 'coscon.cmb:simmap_planck2018_cli'
 
 [tool.coverage.paths]
 source = [

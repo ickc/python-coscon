@@ -5,15 +5,16 @@ from pathlib import Path
 from logging import getLogger
 from dataclasses import dataclass
 from functools import cached_property
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional, Union
 
 import healpy as hp
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import defopt
 
 if TYPE_CHECKING:
-    from typing import Optional, Dict, Tuple
+    from typing import Dict, Tuple
 
 import coscon.fits_helper
 from .util import from_Cl_to_Dl, from_Dl_to_Cl
@@ -26,7 +27,7 @@ class Maps:
     """A class for multiple healpix maps
     that wraps some healpy functions
 
-    In uK_RJ ($\\mathrm{\\mu K_{{RJ}}}$) unit.
+    In uK ($\\mathrm{\\mu K}$) unit.
     """
     names: List[str]
     maps: np.ndarray
@@ -113,6 +114,33 @@ class Maps:
         else:
             raise ValueError(f'There are {n_maps} maps where I can only understand 1 map or 3 maps.')
         return PowerSpectra(names, self.spectra, scale='Cl')
+
+    def write(
+        self,
+        path: Path,
+        nest: bool = True,
+        dtype: Optional[Union[np.dtype, List[np.dtype]]] = None,
+        fits_IDL: bool = True,
+        coord: str = 'G',
+        partial: bool = False,
+        column_names: Optional[Union[str, List[str]]] = None,
+        column_units: Union[str, List[str]] = 'uK',
+        extra_header: list = [],
+        overwrite: bool = False,
+    ):
+        hp.write_map(
+            path,
+            self.maps,
+            nest=nest,
+            dtype=dtype,
+            fits_IDL=fits_IDL,
+            coord=coord,
+            partial=partial,
+            column_names=column_names,
+            column_units=column_units,
+            extra_header=extra_header,
+            overwrite=overwrite,
+        )
 
     @staticmethod
     def _mollview(
@@ -325,3 +353,37 @@ class PowerSpectra:
         df_tidy = self.compare(other, self_name, other_name)
         for name, group in df_tidy.groupby('spectra'):
             px.line(group, x='l', y='Dl', color='case', title=name).show()
+
+
+def _simmap_planck2018(
+    path: Path,
+    nside: int,
+    *,
+    seed: Optional[int] = None,
+    nest: bool = True,
+    fits_IDL: bool = True,
+    coord: str = 'G',
+    partial: bool = False,
+    column_names: Optional[List[str]] = None,
+    column_units: str = 'uK',
+    extra_header: list[str] = [],
+    overwrite: bool = False,
+):
+    if seed is not None:
+        np.random.seed(seed)
+    m = Maps.from_planck_2018(nside)
+    m.write(
+        path=path,
+        nest=nest,
+        fits_IDL=fits_IDL,
+        coord=coord,
+        partial=partial,
+        column_names=column_names,
+        column_units=column_units,
+        extra_header=[tuple(header.split(':')) for header in extra_header],
+        overwrite=overwrite,
+    )
+
+
+def simmap_planck2018_cli():
+    defopt.run(_simmap_planck2018)
