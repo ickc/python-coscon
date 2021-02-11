@@ -72,6 +72,19 @@ class Maps:
             m.to(u.uK_CMB, equivalencies=u.cmb_equivalencies(freq_u)),
         )
 
+    @classmethod
+    def from_planck_2018(cls, nside: int) -> Maps:
+        """Use the Planck 2018 best-fit ΛCDM model to simulate a map
+
+        Use official release if nside is small enough.
+        """
+        if nside > 833:
+            logger.info(f'Using extended Planck 2018 spectra computed using CLASS.')
+            spectra = PowerSpectra.from_planck_2018_extended()
+        else:
+            spectra = PowerSpectra.from_planck_2018()
+        return spectra.to_maps(nside)
+
     @cached_property
     def maps_dict(self) -> Dict[str, np.ndarray]:
         return dict(zip(map(lambda x: x[0], self.names), self.maps))
