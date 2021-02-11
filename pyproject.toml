@@ -49,6 +49,7 @@ numpy = "^1"
 numba = ">=0.52"
 pandas = "^1"
 tabulate = "^0.8"
+pysm3 = "^3"
 
 # extras
 coloredlogs = {optional = true, version = ">=14,<16"}
