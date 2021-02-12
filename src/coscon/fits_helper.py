@@ -22,11 +22,14 @@ logger = getLogger('coscon')
 @dataclass
 class BaseFitsHelper:
     """A class for general fits files"""
-    path: Path = Path()
+    path: Path
     memmap: bool = True
+    name: str = ''
 
     def __post_init__(self):
         self.path = Path(self.path)
+        if not self.name:
+            self.name = self.path.stem
 
     def __str__(self) -> str:
         return '\n\n'.join((self.__info_str__, self.__infos_str__))
@@ -67,9 +70,6 @@ class BaseFitsHelper:
 @dataclass
 class CMBFitsHelper(BaseFitsHelper):
     """Specialized in fits container typically used in CMB analysis"""
-    path: Path
-    memmap: bool = True
-    nest: bool = True
 
     @cached_property
     def n_maps(self) -> int:
@@ -101,15 +101,15 @@ class CMBFitsHelper(BaseFitsHelper):
         # force 2D array
         # healpy tried to be smart and return 1D array only if there's only 1 map
         return (
-            hp.read_map(self.path, nest=self.nest).reshape(1, -1)
+            hp.read_map(self.path).reshape(1, -1)
         ) if n_maps == 1 else (
-            hp.read_map(self.path, field=range(n_maps), nest=self.nest)
+            hp.read_map(self.path, field=range(n_maps))
         )
 
     @property
     def to_maps(self) -> coscon.cmb.Maps:
         """package data in a Maps object"""
-        return coscon.cmb.Maps(self.names, self.maps)
+        return coscon.cmb.Maps(self.names, self.maps, name=self.name)
 
 
 def _fits_info(*filenames: Path):

@@ -21,16 +21,19 @@ from .util import from_Cl_to_Dl, from_Dl_to_Cl
 
 logger = getLogger('coscon')
 
+CANONICAL_NAME = ('TEMPERATURE', 'Q_POLARISATION', 'U_POLARISATION')
+
 
 @dataclass
 class Maps:
     """A class for multiple healpix maps
     that wraps some healpy functions
 
-    In uK ($\\mathrm{\\mu K}$) unit.
+    In ring ordering, uK ($\\mathrm{\\mu K}$) unit.
     """
-    names: List[str]
+    names: Union[List[str], Tuple[str, ...]]
     maps: np.ndarray
+    name: str = ''
 
     def __post_init__(self):
         maps = self.maps
@@ -46,12 +49,10 @@ class Maps:
         cls,
         path: Path,
         memmap: bool = True,
-        nest: bool = True,
     ) -> Maps:
         fits_helper = coscon.fits_helper.CMBFitsHelper(
             path,
             memmap=memmap,
-            nest=nest,
         )
         return fits_helper.to_maps
 
@@ -69,8 +70,9 @@ class Maps:
         freq_u = freq * u.GHz
         m = sky.get_emission(freq_u)
         return cls(
-            ['T', 'Q', 'U'],
+            CANONICAL_NAME,
             m.to(u.uK_CMB, equivalencies=u.cmb_equivalencies(freq_u)),
+            name=f"PySM 3 {freq} GHz map with preset {', '.join(preset_strings)}"
         )
 
     @classmethod
@@ -80,7 +82,7 @@ class Maps:
         Use official release if nside is small enough.
         """
         if nside > 833:
-            logger.info(f'Using extended Planck 2018 spectra computed using CLASS.')
+            logger.info('Using extended Planck 2018 spectra computed using CLASS.')
             spectra = PowerSpectra.from_planck_2018_extended()
         else:
             spectra = PowerSpectra.from_planck_2018()
@@ -113,7 +115,7 @@ class Maps:
             names = ['TT', 'EE', 'BB', 'TE', 'EB', 'TB']
         else:
             raise ValueError(f'There are {n_maps} maps where I can only understand 1 map or 3 maps.')
-        return PowerSpectra(names, self.spectra, scale='Cl')
+        return PowerSpectra(names, self.spectra, scale='Cl', name=self.name)
 
     def write(
         self,
@@ -128,9 +130,12 @@ class Maps:
         extra_header: list = [],
         overwrite: bool = False,
     ):
+        maps = self.maps
+        if nest:
+            maps = hp.pixelfunc.reorder(maps, r2n=True)
         hp.write_map(
             path,
-            self.maps,
+            maps,
             nest=nest,
             dtype=dtype,
             fits_IDL=fits_IDL,
@@ -175,11 +180,13 @@ class Maps:
         """
         maps_dict = self.maps_dict
         for name, m in maps_dict.items():
-            self._mollview(name, m, n_std=n_std, fwhm=fwhm)
+            full_name = f'{self.name} {name}' if self.name else name
+            self._mollview(full_name, m, n_std=n_std, fwhm=fwhm)
         if 'Q' in maps_dict and 'U' in maps_dict:
             name = 'P'
+            full_name = f'{self.name} {name}' if self.name else name
             m = np.sqrt(np.square(maps_dict['Q']) + np.square(maps_dict['U']))
-            self._mollview(name, m, n_std=n_std, fwhm=fwhm)
+            self._mollview(full_name, m, n_std=n_std, fwhm=fwhm)
 
 
 @dataclass
@@ -193,6 +200,7 @@ class PowerSpectra:
     l_min: int = 0
     l: Optional[np.ndarray] = None
     scale: str = 'Dl'
+    name: str = ''
 
     def __post_init__(self):
         # make sure l_min and l are self-consistent
@@ -232,7 +240,7 @@ class PowerSpectra:
     def dataframe(self) -> pd.DataFrame:
         l = self.l
         index = pd.RangeIndex(self.l_min, self.l_max, name='l') if l is None else pd.Index(l, name='l')
-        return pd.DataFrame(self.spectra.T, index=index, columns=self.names)
+        return pd.DataFrame(self.spectra.T, index=index, columns=pd.Index(self.names, name=self.name))
 
     @classmethod
     def from_dataframe(
@@ -243,7 +251,8 @@ class PowerSpectra:
         names = df.columns.tolist()
         spectra = df.values.T
         l = df.index.values
-        return cls(names, spectra, l=l, scale=scale)
+        name = df.columns.name
+        return cls(names, spectra, l=l, scale=scale, name=name)
 
     @classmethod
     def from_class(
@@ -251,6 +260,7 @@ class PowerSpectra:
         path: Optional[Path] = None,
         url: Optional[str] = None,
         camb: bool = True,
+        name: str = ''
     ) -> PowerSpectra:
         '''read from CLASS' .dat output
 
@@ -260,14 +270,20 @@ class PowerSpectra:
         To self: migrated from abx's convert_theory.py
         '''
         if path is None and url is None:
-            raise ValueError(f'either path or url has to be specified.')
+            raise ValueError('Either path or url has to be specified.')
         if url is not None:
             from astropy.utils.data import download_file
 
             if path is not None:
-                logger.warn(f'Ignoring path as url is specified.')
+                logger.warn('Ignoring path as url is specified.')
             logger.info(f'Downloading and caching using astropy: {url}')
             path = download_file(url, cache=True)
+            if not name:
+                name = url.split('/')[-1].split('.')[0]
+        else:
+            path = Path(path)
+            if not name:
+                name = path.stem
         # read once
         with open(path, 'r') as f:
             text = f.read()
@@ -277,6 +293,8 @@ class PowerSpectra:
         for line in text.split('\n'):
             if line.startswith('#'):
                 comment = line
+        if comment is None:
+            raise ValueError('Cannot find header row from CLASS output, make sure you run CLASS with setting headers = yes.')
         # remove beginning '#'
         comment = comment[1:]
         # parse comment line: get name after ':'
@@ -287,6 +305,7 @@ class PowerSpectra:
         # to [microK]^2
         if not camb:
             df *= 1.e12
+        df.columns.name = name
         return cls.from_dataframe(df)
 
     @classmethod
@@ -309,6 +328,7 @@ class PowerSpectra:
         # planck's 2018 released spectra above 2500 has identically zero BB so it shouldn't be trusted
         df = df.loc[pd.RangeIndex(2, 2501)]
         df *= 1. / (calPlanck * calPlanck)
+        df.columns.name = 'Planck 2018 best-fit ΛCDM model'
         return cls.from_dataframe(df)
 
     @classmethod
@@ -317,12 +337,10 @@ class PowerSpectra:
 
         This is reproduced using CLASS but with an extended l-range
         """
-        return cls.from_class(url='https://gist.github.com/ickc/cd6bb1753a44ee09f2d09c49b190d65f/raw/398497217109000c0d670bb57cfcc2cb9a617d63/base_2018_plikHM_TTTEEE_lowl_lowE_lensing_cl_lensed.dat')
-
-    def intersect(self, other: PowerSpectra) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        cols = np.intersect1d(self.names, other.names)
-        l = np.intersect1d(self.l_array, other.l_array)
-        return self.dataframe.loc[l, cols], other.dataframe.loc[l, cols]
+        return cls.from_class(
+            url='https://gist.github.com/ickc/cd6bb1753a44ee09f2d09c49b190d65f/raw/398497217109000c0d670bb57cfcc2cb9a617d63/base_2018_plikHM_TTTEEE_lowl_lowE_lensing_cl_lensed.dat',
+            name='Planck 2018 best-fit ΛCDM model extended using CLASS'
+        )
 
     def to_maps(self, nside: int, pixwin=False) -> Maps:
         """Use synfast to generate random maps
@@ -333,26 +351,37 @@ class PowerSpectra:
         l = self.l_array
         cl = from_Dl_to_Cl(spectra, l)
         ms = hp.sphtfunc.synfast(cl, nside, pixwin=pixwin, new=True)
-        return Maps(['T', 'Q', 'U'], ms)
+        return Maps(CANONICAL_NAME, ms, name=self.name)
 
+    def intersect(self, *others: PowerSpectra) -> List[pd.DataFrame]:
+        cols = self.names
+        l = self.l_array
+        for other in others:
+            cols = np.intersect1d(cols, other.names)
+            l = np.intersect1d(l, other.l_array)
+        res = [self.dataframe.loc[l, cols]]
+        for other in others:
+            res.append(other.dataframe.loc[l, cols])
+        return res
 
-    def compare(self, other: PowerSpectra, self_name: str, other_name: str) -> pd.DataFrame:
-        """Return a tidy DataFrame comparing self and other.
+    def compare(self, *others: PowerSpectra) -> pd.DataFrame:
+        """Return a tidy DataFrame comparing self and others.
         """
+        dfs = self.intersect(*others)
         df_all = pd.concat(
-            self.intersect(other),
-            keys=[self_name, other_name],
-            names=['case', 'l']
+            dfs,
+            keys=(df.columns.name for df in dfs),
+            names=['name', 'l']
         )
         df_all.columns.name = 'spectra'
         return df_all.stack().to_frame(self.scale).reset_index(level=(0, 1, 2))
 
-    def compare_plot(self, other: PowerSpectra, self_name: str, other_name: str):
+    def compare_plot(self, *others: PowerSpectra):
         import plotly.express as px
 
-        df_tidy = self.compare(other, self_name, other_name)
+        df_tidy = self.compare(*others)
         for name, group in df_tidy.groupby('spectra'):
-            px.line(group, x='l', y='Dl', color='case', title=name).show()
+            px.line(group, x='l', y='Dl', color='name', title=name).show()
 
 
 def _simmap_planck2018(
