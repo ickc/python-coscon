@@ -6,6 +6,7 @@ from logging import getLogger
 from dataclasses import dataclass
 from functools import cached_property
 from typing import List, TYPE_CHECKING, Optional, Union
+from collections import defaultdict
 
 import healpy as hp
 import numpy as np
@@ -368,11 +369,17 @@ class PowerSpectra:
         """Return a tidy DataFrame comparing self and others.
         """
         dfs = self.intersect(*others)
-        df_all = pd.concat(
-            dfs,
-            keys=(df.columns.name for df in dfs),
-            names=['name', 'l']
-        )
+        try:
+            df_all = pd.concat(
+                dfs,
+                keys=(df.columns.name for df in dfs),
+                names=['name', 'l']
+            )
+        except pd.errors.InvalidIndexError:
+            counter = defaultdict(int)
+            for df in dfs:
+                counter[df.columns.name] += 1
+            raise ValueError(f"These names are repeated: {', '.join(k for k, v in counter.items() if v > 1)}")
         df_all.columns.name = 'spectra'
         return df_all.stack().to_frame(self.scale).reset_index(level=(0, 1, 2))
 
