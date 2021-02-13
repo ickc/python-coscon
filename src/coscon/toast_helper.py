@@ -172,7 +172,7 @@ class GenericFocalPlane(GenericDictStructure):
         for value in self.data.values():
             quat = value['quat']
             if type(quat) is not np.ndarray:
-                value['quat'] = np.array(list(map(float, quat)))
+                value['quat'] = np.array(quat)
         super().__post_init__()
 
 

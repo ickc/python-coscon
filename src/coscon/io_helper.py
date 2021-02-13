@@ -64,7 +64,7 @@ def dumper(
 
     dumper_dict = {
         '.json': partial(json.dumps, indent=4, sort_keys=True),
-        '.toml': toml.dumps,
+        '.toml': partial(toml.dumps, encoder=toml.TomlNumpyEncoder()),
         '.yaml': yaml.dump if yamlloader is None else partial(yaml.dump, Dumper=yamlloader.ordereddict.CDumper),
     }
 
