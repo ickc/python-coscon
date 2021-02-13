@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, ClassVar, Optional, List
 import numpy as np
 import pandas as pd
 import schema
-from schema import Schema
+from schema import Schema, SchemaError
 import seaborn as sns
 from toast.tod import plot_focalplane, hex_pol_angles_qu, hex_layout
 
@@ -20,11 +20,20 @@ if TYPE_CHECKING:
 
 logger = getLogger('coscon')
 
+# schema types
+Int = schema.Or(int, np.int64)
+Float = schema.Or(float, np.float64)
 FloatArray = schema.And(np.ndarray, lambda quat: quat.dtype == np.float64)
 Char = schema.And(str, lambda s: len(s) == 1)
 OptionalChar = schema.Or(None, Char)
-Number = schema.Or(float, int)
+Number = schema.Or(float, int, np.float64, np.int64)
+OptionalNumber = schema.Or(None, float, int, np.float64, np.int64)
 ListOfString = schema.And(list, lambda list_: all(type(i) is str for i in list_))
+
+
+def na_to_none(value):
+    """Convert pandas null value to None"""
+    return None if pd.isna(value) else value
 
 
 class DictValueEqualsKey:
@@ -117,7 +126,11 @@ class GenericDictStructure:
         self.validate()
 
     def validate(self):
-        Schema(self.schema).validate(self.data)
+        try:
+            Schema(self.schema).validate(self.data)
+        except SchemaError as e:
+            logger.warn(f'{type(self).__name__} scheme error detected:')
+            raise e
 
     @cached_property
     def dataframe(self):
@@ -147,18 +160,33 @@ class GenericDictStructure:
 
 
 @dataclass
-class FakeFocalPlane(GenericDictStructure):
+class GenericFocalPlane(GenericDictStructure):
+
+    def __post_init__(self):
+        # quat is nparray[float64]
+        # but writing to and reading from toml
+        # resulted in list of str
+        # so we have to cast it back to the right types
+        for value in self.data.values():
+            quat = value['quat']
+            if type(quat) is not np.ndarray:
+                value['quat'] = np.array(list(map(float, quat)))
+        super().__post_init__()
+
+
+@dataclass
+class FakeFocalPlane(GenericFocalPlane):
     """a class describing the output of fake_focalplane"""
     schema: ClassVar[dict] = {
         str: {
             'quat': FloatArray,
-            'epsilon': float,
-            'rate': float,
-            'alpha': float,
-            'NET': float,
-            'fmin': float,
-            'fknee': float,
-            'fwhm_arcmin': float,
+            'epsilon': Float,
+            'rate': Float,
+            'alpha': Float,
+            'NET': Float,
+            'fmin': Float,
+            'fknee': Float,
+            'fwhm_arcmin': Float,
         }
     }
     data: Dict[str, Union[float, np.ndarray]]
@@ -197,7 +225,7 @@ class FakeFocalPlane(GenericDictStructure):
 
 
 @dataclass
-class AvesDetectors(GenericDictStructure):
+class AvesDetectors(GenericFocalPlane):
     """a class describing the detectors of Aves.
 
     similar to FakeFocalPlane
@@ -208,12 +236,12 @@ class AvesDetectors(GenericDictStructure):
             'pixel': str,
             'pixtype': str,
             'band': str,
-            'fwhm': float,
+            'fwhm': Float,
             'pol': Char,
-            'handed': OptionalChar,
+            schema.Optional('handed'): OptionalChar,
             'orient': Char,
             'quat': FloatArray,
-            'UID': int,
+            'UID': Int,
         }
     }
     data: Dict[str, Optional[Union[str, float, int, np.ndarray]]]
@@ -250,13 +278,13 @@ class AvesBands(GenericDictStructure):
     """
     schema: ClassVar[dict] = {
         str: {
-            'center': float,
+            'center': Float,
             'bandwidth': Number,
             'bandpass': str,
-            'NET': float,
-            'fwhm': float,
-            'fknee': float,
-            'fmin': float,
+            'NET': Float,
+            'fwhm': Float,
+            'fknee': Float,
+            'fmin': Float,
             'alpha': Number,
         }
     }
@@ -283,10 +311,10 @@ class AvesWafers(GenericDictStructure):
     schema: ClassVar[dict] = {
         str: {
             'type': str,
-            'npixel': int,
+            'npixel': Int,
             'pixels': ListOfString,
-            schema.Optional('handed'): Number,
-            'position': int,
+            schema.Optional('handed'): OptionalNumber,
+            'position': Int,
             'telescope': str,
         }
     }
@@ -300,8 +328,8 @@ class AvesTelescopes(GenericDictStructure):
     schema: ClassVar[dict] = {
         str: {
             'wafers': ListOfString,
-            'platescale': float,
-            'waferspace': float,
+            'platescale': Float,
+            'waferspace': Float,
         }
     }
     data: Dict[str, Union[float, List[str]]]
@@ -361,3 +389,73 @@ class AvesHardware(GenericDictStructure):
                 suffixes=('', '_band')
             ).drop(['bands', 'fwhm_band'], axis=1)
         )
+
+
+    @classmethod
+    def from_dataframe(cls, df: pd.DataFrame):
+        """Create Hardware from a dataframe representation
+        """
+        final: Dict[str, Dict[str, Dict[str, Any]]] = {}
+        case: List[str]
+        unique_cols: List[List[str]]
+        non_unique_cols: List[List[str]]
+        for case, unique_cols, non_unique_cols in [
+            [
+                ['telescope', 'telescopes'],
+                [
+                    ['platescale', 'platescale'],
+                    ['waferspace', 'waferspace'],
+                ],
+                [
+                    ['wafer', 'wafers'],
+                ],
+            ], [
+                ['wafer', 'wafers'],
+                [
+                    ['type', 'type'],
+                    ['npixel', 'npixel'],
+                    ['handed_wafer', 'handed'],
+                    ['position', 'position'],
+                    ['telescope', 'telescope'],
+                ],
+                [
+                    ['pixtype', 'pixels'],
+                ],
+            ], [
+                ['pixtype', 'pixels'],
+                [
+                    ['sizemm', 'sizemm'],
+                ],
+                [
+                    ['band', 'bands'],
+                ],
+            ], [
+                ['band', 'bands'],
+                [
+                    ['center', 'center'],
+                    ['bandwidth', 'bandwidth'],
+                    ['bandpass', 'bandpass'],
+                    ['NET', 'NET'],
+                    ['fwhm', 'fwhm'],
+                    ['fknee', 'fknee'],
+                    ['fmin', 'fmin'],
+                    ['alpha', 'alpha'],
+                ],
+                [],
+            ],
+        ]:
+            final[case[1]] = temps = {}
+            for name, group in df.groupby(case[0]):
+                temps[name] = temp = {}
+                for col, col_new in unique_cols:
+                    values = group[col].unique()
+                    assert values.size == 1
+                    temp[col_new] = na_to_none(values[0])
+                for col, col_new in non_unique_cols:
+                    values = group[col].unique()
+                    temp[col_new] = values.tolist()
+
+        # detectors
+        df_detectors = df[['wafer', 'pixel', 'pixtype', 'band', 'fwhm', 'pol', 'handed', 'orient', 'quat', 'UID']]
+        final['detectors'] = df_detectors.to_dict(orient='index')
+        return cls(final)
