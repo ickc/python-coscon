@@ -4,20 +4,27 @@ from pathlib import Path
 from logging import getLogger
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Optional, List
 
 import numpy as np
 import pandas as pd
-from schema import Schema, And
+import schema
+from schema import Schema
 import seaborn as sns
 from toast.tod import plot_focalplane, hex_pol_angles_qu, hex_layout
 
+from .io_helper import dumper, loader
+
 if TYPE_CHECKING:
-    from typing import Optional, Dict, Union, Tuple
+    from typing import Optional, Dict, Union, Tuple, Any
 
 logger = getLogger('coscon')
 
-FloatArray = And(np.ndarray, lambda quat: quat.dtype == np.float64)
+FloatArray = schema.And(np.ndarray, lambda quat: quat.dtype == np.float64)
+Char = schema.And(str, lambda s: len(s) == 1)
+OptionalChar = schema.Or(None, Char)
+Number = schema.Or(float, int)
+ListOfString = schema.And(list, lambda list_: all(type(i) is str for i in list_))
 
 
 class DictValueEqualsKey:
@@ -102,28 +109,45 @@ def fake_focalplane(
 
 
 @dataclass
-class GenericFocalPlane:
+class GenericDictStructure:
     schema: ClassVar[dict] = {}
-    content: Dict[str, Union[float, np.ndarray]]
+    data: Dict[str, Any]
 
     def __post_init__(self):
         self.validate()
 
     def validate(self):
-        Schema(self.schema).validate(self.content)
+        Schema(self.schema).validate(self.data)
 
     @cached_property
     def dataframe(self):
         """DataFrame representation of the focal plane
 
         This has opposite key-ordering from the dict
-        i.e. self.content[some_key]['quat'] == self.dataframe['quat'][some_key] == self.dataframe.loc[some_key, 'quat']
+        i.e. self.data[some_key]['quat'] == self.dataframe['quat'][some_key] == self.dataframe.loc[some_key, 'quat']
         """
-        return pd.DataFrame.from_dict(self.content, orient='index')
+        return pd.DataFrame.from_dict(self.data, orient='index')
+
+    def dump(
+        self,
+        path: Union[Path, str],
+        overwrite: bool = False,
+        compress: bool = None
+    ):
+        """Write hardware config to a TOML/YAML/JSON file.
+        """
+        dumper(self.data, path, overwrite=overwrite, compress=compress)
+
+    @classmethod
+    def load(cls, path: Union[Path, str]):
+        """Read data from a TOML/YAML/JSON file.
+        """
+        data = loader(path)
+        return cls(data)
 
 
 @dataclass
-class FakeFocalPlane(GenericFocalPlane):
+class FakeFocalPlane(GenericDictStructure):
     """a class describing the output of fake_focalplane"""
     schema: ClassVar[dict] = {
         str: {
@@ -137,7 +161,7 @@ class FakeFocalPlane(GenericFocalPlane):
             'fwhm_arcmin': float,
         }
     }
-    content: Dict[str, Union[float, np.ndarray]]
+    data: Dict[str, Union[float, np.ndarray]]
 
     def plot(
         self,
@@ -150,13 +174,13 @@ class FakeFocalPlane(GenericFocalPlane):
         df = self.dataframe
 
         if polcolor is None:
-            dict_ = self.content
-            kinds = set(name[-1] for name in dict_)
+            data = self.data
+            kinds = set(name[-1] for name in data)
             n_kinds = len(kinds)
             if n_kinds == 2:
                 logger.info(f'Found detector names ending in 2 characters, treat them as unqiue polarizations: {kinds}')
                 colors = dict(zip(kinds, sns.color_palette("husl", 2)))
-                polcolor = {name: colors[name[-1]] for name in dict_}
+                polcolor = {name: colors[name[-1]] for name in data}
             else:
                 logger.warn('Cannot guess the polarization of detectors, drawing with no polarization color. Define polcolor explicitly to fix this.')
 
@@ -169,4 +193,171 @@ class FakeFocalPlane(GenericFocalPlane):
             facecolor=facecolor,
             polcolor=polcolor,
             labels=DictValueEqualsKey(),
+        )
+
+
+@dataclass
+class AvesDetectors(GenericDictStructure):
+    """a class describing the detectors of Aves.
+
+    similar to FakeFocalPlane
+    """
+    schema: ClassVar[dict] = {
+        str: {
+            'wafer': str,
+            'pixel': str,
+            'pixtype': str,
+            'band': str,
+            'fwhm': float,
+            'pol': Char,
+            'handed': OptionalChar,
+            'orient': Char,
+            'quat': FloatArray,
+            'UID': int,
+        }
+    }
+    data: Dict[str, Optional[Union[str, float, int, np.ndarray]]]
+
+    def plot(
+        self,
+        width: float = 20.,
+        height: float = 20.,
+        outfile: Optional[Path] = None,
+    ):
+        df = self.dataframe
+        color = {}
+        for case in ('pixtype', 'pol'):
+            col = df[case]
+            values = col.unique()
+            n = values.size
+            color[case] = col.map(dict(zip(values, sns.color_palette("husl", n))))
+
+        return plot_focalplane(
+            df.quat,
+            width,
+            height,
+            outfile,
+            fwhm=df.fwhm,
+            facecolor=color['pixtype'],
+            polcolor=color['pol'],
+            labels=DictValueEqualsKey(),
+        )
+
+
+@dataclass
+class AvesBands(GenericDictStructure):
+    """a class describing the bands of Aves.
+    """
+    schema: ClassVar[dict] = {
+        str: {
+            'center': float,
+            'bandwidth': Number,
+            'bandpass': str,
+            'NET': float,
+            'fwhm': float,
+            'fknee': float,
+            'fmin': float,
+            'alpha': Number,
+        }
+    }
+    data: Dict[str, Union[float, int, str]]
+
+
+@dataclass
+class AvesPixels(GenericDictStructure):
+    """a class describing the pixels of Aves.
+    """
+    schema: ClassVar[dict] = {
+        str: {
+            'sizemm': float,
+            'bands': ListOfString,
+        }
+    }
+    data: Dict[str, Union[float, List[str]]]
+
+
+@dataclass
+class AvesWafers(GenericDictStructure):
+    """a class describing the wafers of Aves.
+    """
+    schema: ClassVar[dict] = {
+        str: {
+            'type': str,
+            'npixel': int,
+            'pixels': ListOfString,
+            schema.Optional('handed'): Number,
+            'position': int,
+            'telescope': str,
+        }
+    }
+    data: Dict[str, Optional[Union[float, int, str, List[str]]]]
+
+
+@dataclass
+class AvesTelescopes(GenericDictStructure):
+    """a class describing the telescopes of Aves.
+    """
+    schema: ClassVar[dict] = {
+        str: {
+            'wafers': ListOfString,
+            'platescale': float,
+            'waferspace': float,
+        }
+    }
+    data: Dict[str, Union[float, List[str]]]
+
+
+@dataclass
+class AvesHardware(GenericDictStructure):
+    schema: ClassVar[dict] = {
+        str: {
+            'telescopes': dict,
+            'wafers': dict,
+            'pixels': dict,
+            'bands': dict,
+            'detectors': dict,
+        }
+    }
+    data: Dict[str, dict]
+
+    def __post_init__(self):
+        data =self.data
+        self.telescopes = AvesTelescopes(data['telescopes'])
+        self.wafers = AvesWafers(data['wafers'])
+        self.pixels = AvesPixels(data['pixels'])
+        self.bands = AvesBands(data['bands'])
+        self.detectors = AvesDetectors(data['detectors'])
+        self.plot = self.detectors.plot
+
+    @cached_property
+    def dataframe(self):
+        """DataFrame representation of the hardware
+        """
+        return (
+            self.detectors.dataframe
+            .merge(
+                self.telescopes.dataframe.merge(
+                    self.wafers.dataframe,
+                    left_index=True,
+                    right_on='telescope',
+                    how='outer',
+                ).drop('wafers', axis=1),
+                left_on='wafer',
+                right_index=True,
+                how='outer',
+                suffixes=('', '_wafer')
+            ).drop('pixels', axis=1)
+            .merge(
+                self.pixels.dataframe,
+                left_on='pixtype',
+                right_index=True,
+                how='outer',
+            )
+            .merge(
+                self.bands.dataframe,
+                left_on='band',
+                right_index=True,
+                how='outer',
+                suffixes=('', '_band')
+            ).drop(['bands', 'fwhm_band'], axis=1)
         )
