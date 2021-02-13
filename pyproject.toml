@@ -53,6 +53,9 @@ schema = ">=0.7"
 seaborn = ">=0.11"
 pysm3 = "^3"
 toast-cmb = "^2"
+toml = ">=0.10"
+pyyaml = "^5"
+yamlloader = ">=0.5"
 
 # extras
 coloredlogs = {optional = true, version = ">=14,<16"}
