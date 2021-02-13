@@ -121,9 +121,11 @@ def fake_focalplane(
 class GenericDictStructure:
     schema: ClassVar[dict] = {}
     data: Dict[str, Any]
+    validate_schema: bool = True
 
     def __post_init__(self):
-        self.validate()
+        if self.validate_schema:
+            self.validate()
 
     def validate(self):
         try:
@@ -392,7 +394,7 @@ class AvesHardware(GenericDictStructure):
 
 
     @classmethod
-    def from_dataframe(cls, df: pd.DataFrame):
+    def from_dataframe(cls, df: pd.DataFrame, validate_schema=True):
         """Create Hardware from a dataframe representation
         """
         final: Dict[str, Dict[str, Dict[str, Any]]] = {}
@@ -458,4 +460,4 @@ class AvesHardware(GenericDictStructure):
         # detectors
         df_detectors = df[['wafer', 'pixel', 'pixtype', 'band', 'fwhm', 'pol', 'handed', 'orient', 'quat', 'UID']]
         final['detectors'] = df_detectors.to_dict(orient='index')
-        return cls(final)
+        return cls(final, validate_schema=validate_schema)
