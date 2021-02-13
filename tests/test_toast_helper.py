@@ -1,5 +1,3 @@
-import numpy as np
-
 from coscon.toast_helper import fake_focalplane, FakeFocalPlane
 
 
