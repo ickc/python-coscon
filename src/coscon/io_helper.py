@@ -11,6 +11,16 @@ import yamlloader
 
 logger = getLogger('coscon')
 
+H5_CREATE_KW = {
+    'compression': 'gzip',
+    # shuffle minimize the output size
+    'shuffle': True,
+    # checksum for data integrity
+    'fletcher32': True,
+    # turn off track_times so that identical output gives the same md5sum
+    'track_times': False
+}
+
 
 def dumper(
     data: dict,
