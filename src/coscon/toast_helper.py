@@ -6,17 +6,23 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar, Optional, List
 
+import seaborn as sns
 import numpy as np
 import pandas as pd
 import schema
 from schema import Schema, SchemaError
 import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 from toast.tod import plot_focalplane, hex_pol_angles_qu, hex_layout
+import h5py
 
 from .io_helper import dumper, loader
+from .util import geometric_matrix, unique_matrix
+from .io_helper import H5_CREATE_KW
 
 if TYPE_CHECKING:
-    from typing import Optional, Dict, Union, Tuple, Any
+    from typing import Dict, Union, Tuple, Any
 
 logger = getLogger('coscon')
 
@@ -461,3 +467,104 @@ class AvesHardware(GenericDictStructure):
         df_detectors = df[['wafer', 'pixel', 'pixtype', 'band', 'fwhm', 'pol', 'handed', 'orient', 'quat', 'UID']]
         final['detectors'] = df_detectors.to_dict(orient='index')
         return cls(final, validate_schema=validate_schema)
+
+
+# Crosstalk ####################################################################
+
+
+@dataclass
+class GenericMatrix:
+    """Generic matrix that has row names in ASCII.
+    """
+    names: np.ndarray['S']
+    data: np.ndarray[np.float64]
+
+    def __post_init__(self):
+        self.names = np.asarray(self.names, dtype='S')
+        assert self.names.size == self.data.shape[0]
+
+    def __eq__(self, other: GenericMatrix) -> bool:
+        if type(self) is not type(other):
+            return False
+        return np.array_equal(self.names, other.names) and np.array_equal(self.data, other.data)
+
+    @property
+    def size(self) -> int:
+        return self.data.shape[0]
+
+    @classmethod
+    def load(cls, path: Path):
+        with h5py.File(path, 'r') as f:
+            names = f["names"][:]
+            data = f["data"][:]
+        return cls(names, data)
+
+    def dump(self, path: Path, compress_level: int = 9):
+        with h5py.File(path, 'w', libver='latest') as f:
+            f.create_dataset(
+                'names',
+                data=self.names,
+                compression_opts=compress_level,
+                **H5_CREATE_KW
+            )
+            f.create_dataset(
+                'data',
+                data=self.data,
+                compression_opts=compress_level,
+                **H5_CREATE_KW
+            )
+
+
+@dataclass(eq=False)
+class CrosstalkMatrix(GenericMatrix):
+    """Crosstalk square matrix where column and row share the same names
+    """
+
+    @cached_property
+    def dataframe(self):
+        return pd.DataFrame(self.data, index=self.names, columns=self.names)
+
+    def plot(
+        self,
+        annot: bool = True,
+        figsize: Optional[Tuple[float, float]] = None,
+        log: bool = True,
+    ):
+        if figsize is None:
+            n = self.size
+            figsize = (n, n)
+        fig, ax = plt.subplots(figsize=figsize)
+        norm = LogNorm() if log else None
+        sns.heatmap(self.dataframe, annot=annot, ax=ax, norm=norm)
+        return fig
+
+    @classmethod
+    def from_geometric(
+        cls,
+        names: Union[List[str], np.ndarray],
+        r: float = 0.01,
+    ) -> CrosstalkMatrix:
+        """Generate a crosstalk matrix with coefficients in geometric series.
+        """
+        n = len(names)
+        m = geometric_matrix(n, r)
+        return cls(names, m)
+
+    @classmethod
+    def from_unique_matrix(
+        cls,
+        names: Union[List[str], np.ndarray],
+    ) -> CrosstalkMatrix:
+        """generate a crosstalk matrix with each entry to be unique.
+
+        Mainly for debug use to confirm the matrix multiplication is correct.
+        """
+        n = len(names)
+        m = unique_matrix(n)
+        return cls(names, m)
+
+
+@dataclass(eq=False)
+class NaiveTod(GenericMatrix):
+    """Naive TOD matrix that has all data in contiguous array
+    """
