@@ -101,9 +101,9 @@ class CMBFitsHelper(BaseFitsHelper):
         # force 2D array
         # healpy tried to be smart and return 1D array only if there's only 1 map
         return (
-            hp.read_map(self.path).reshape(1, -1)
+            hp.ma(hp.read_map(self.path)).reshape(1, -1)
         ) if n_maps == 1 else (
-            hp.read_map(self.path, field=range(n_maps))
+            hp.ma(hp.read_map(self.path, field=range(n_maps)))
         )
 
     @property
