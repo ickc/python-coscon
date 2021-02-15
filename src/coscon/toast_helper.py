@@ -492,6 +492,15 @@ class GenericMatrix:
     def size(self) -> int:
         return self.data.shape[0]
 
+    @property
+    def shape(self) -> int:
+        return self.data.shape
+
+    @cached_property
+    def names_str(self) -> List[str]:
+        """names in list of str"""
+        return [name.decode() for name in self.names]
+
     @classmethod
     def load(cls, path: Path):
         with h5py.File(path, 'r') as f:
@@ -522,7 +531,7 @@ class CrosstalkMatrix(GenericMatrix):
 
     @cached_property
     def dataframe(self):
-        return pd.DataFrame(self.data, index=self.names, columns=self.names)
+        return pd.DataFrame(self.data, index=self.names_str, columns=self.names_str)
 
     def plot(
         self,
@@ -568,3 +577,13 @@ class CrosstalkMatrix(GenericMatrix):
 class NaiveTod(GenericMatrix):
     """Naive TOD matrix that has all data in contiguous array
     """
+
+    def apply_crosstalk(self, crosstalk_matrix: CrosstalkMatrix) -> NaiveTod:
+        names = self.names
+        np.testing.assert_array_equal(names, crosstalk_matrix.names)
+        data = crosstalk_matrix.data @ self.data
+        return NaiveTod(names, data)
+
+    @cached_property
+    def dataframe(self):
+        return pd.DataFrame(self.data.T, columns=self.names_str)
