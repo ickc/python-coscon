@@ -9,6 +9,7 @@ import argparse
 
 import h5py
 import numpy as np
+from numba import jit
 
 import toast
 from toast.op import Operator
@@ -19,6 +20,22 @@ from .io_helper import H5_CREATE_KW
 
 if TYPE_CHECKING:
     from typing import Tuple, Optional
+
+
+@jit(nopython=True, nogil=True, cache=False)
+def fma(out, ws, *arrays):
+    """Simple FMA, compiled to avoid Python memory implications.
+
+    :param out: must be zero array in the same shape of each array in `arrays`
+
+    cache is False to avoid IO on HPC.
+
+    If not compiled, a lot of Python objects will be created,
+    and as the Python garbage collector is inefficient,
+    it would have larger memory footprints.
+    """
+    for w, array in zip(ws, arrays):
+        out += w * array
 
 
 def add_crosstalk_args(parser: argparse.ArgumentParser):
@@ -139,7 +156,7 @@ class OpCrosstalk(Operator):
         self,
         tod: toast.tod.TOD,
         signal_name: str,
-    ) -> np.ndarray[np.float64]:
+    ) -> Optional[np.ndarray[np.float64]]:
         """Obtain the TOD as a contiguous array.
 
         This is very inefficient as it is for debug only!
@@ -257,12 +274,15 @@ class OpCrosstalk(Operator):
             #         det_lut[det] = i
             # log.debug(f'dets LUT: {dets_lut}')
 
-            local_dets = set(tod.local_dets)
+            local_dets = tod.local_dets
+            n_local_dets = len(local_dets)
 
             local_has_det = tod.cache.create(f"{crosstalk_name}_local_has_det_{rank}", np.uint8, (n,)).view(np.bool)
+            local_dets_set = set(tod.local_dets)
             for i, name in enumerate(names):
-                if name in local_dets:
+                if name in local_dets_set:
                     local_has_det[i] = True
+            del local_dets_set
 
             global_has_det = tod.cache.create(f"{crosstalk_name}_global_has_det_{rank}", np.uint8, (procs, n)).view(np.bool)
             comm.Allgather(local_has_det, global_has_det)
@@ -287,23 +307,29 @@ class OpCrosstalk(Operator):
                     assert det_lut[name] == rank
 
             row_local_total = tod.cache.create(f"{crosstalk_name}_row_local_total_{rank}", np.float64, (n_samples,))
+            row_local_weights = tod.cache.create(f"{crosstalk_name}_row_local_weights_{rank}", np.float64, (n_local_dets,))
+            local_det_idxs = tod.cache.create(f"{crosstalk_name}_local_det_idxs_{rank}", np.int64, (n_local_dets,))
+            for i, name in enumerate(local_dets):
+                local_det_idxs[i] = names.index(name)
             # row-loop
             # potentially the tod can have more detectors than OpCrosstalk.crosstalk_names has
             # and they will be skipped
             for name, row in zip(names, crosstalk_data):
-                crosstalk_row_dict = {name_col: m_ij for name_col, m_ij in zip(names, row)}
                 rank_owner = det_lut[name]
                 # assume each process must have at least one detector
                 row_local_total[:] = 0.
-                for local_name in local_dets:
-                    row_local_total += crosstalk_row_dict[local_name] * tod.cache.reference(f"{signal_name}_{local_name}")
+                row_local_weights[:] = row[local_det_idxs]
+                tods_list = [tod.cache.reference(f"{signal_name}_{names[local_det_idxs[i]]}") for i in range(n_local_dets)]
+                fma(row_local_total, row_local_weights, *tods_list)
                 if rank == rank_owner:
                     row_global_total = tod.cache.create(f"{crosstalk_name}_{name}", np.float64, (n_samples,))
                     comm.Reduce(row_local_total, row_global_total, root=rank_owner)
                 else:
                     comm.Reduce(row_local_total, None, root=rank_owner)
-            del row_local_total
+            del row_local_total, row_local_weights, local_det_idxs, tods_list
             tod.cache.destroy(f"{crosstalk_name}_row_local_total_{rank}")
+            tod.cache.destroy(f"{crosstalk_name}_row_local_weights_{rank}")
+            tod.cache.destroy(f"{crosstalk_name}_local_det_idxs_{rank}")
             # overwrite original tod from cache
             for name in local_dets:
                 tod.cache.destroy(f"{signal_name}_{name}")
