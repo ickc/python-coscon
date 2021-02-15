@@ -27,13 +27,6 @@ def add_crosstalk_args(parser: argparse.ArgumentParser):
         help="input path to crosstalk matrix in HDF5 container.",
     )
     parser.add_argument(
-        "--crosstalk-batch-n-rows",
-        type=int,
-        required=False,
-        default=1,
-        help="batch no. of rows in matrix multiplication. Larger no. should be faster but uses more memory.",
-    )
-    parser.add_argument(
         "--crosstalk-write-tod-input",
         type=Path,
         required=False,
@@ -56,7 +49,6 @@ class OpCrosstalk(Operator):
     crosstalk_data: np.ndarray[np.float64]
     crosstalk_write_tod_input_path: Optional[Path] = None
     crosstalk_write_tod_output_path: Optional[Path] = None
-    crosstalk_batch_n_rows: int = 1
     name: str = "crosstalk"
     # comm: Optional[toast.mpi.Comm] = None
 
@@ -126,7 +118,6 @@ class OpCrosstalk(Operator):
             data,
             crosstalk_write_tod_input_path=args.crosstalk_write_tod_input,
             crosstalk_write_tod_output_path=args.crosstalk_write_tod_output,
-            crosstalk_batch_n_rows=args.crosstalk_batch_n_rows,
             name=name,
         )
 
