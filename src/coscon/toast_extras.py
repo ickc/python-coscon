@@ -149,6 +149,7 @@ class OpCrosstalk(Operator):
         procs = self.procs
         rank = self.rank
         names = [name.decode() for name in self.crosstalk_names]
+        crosstalk_data = self.crosstalk_data
         n = len(names)
 
         for obs in data.obs:
@@ -197,10 +198,11 @@ class OpCrosstalk(Operator):
             # row-loop
             # potentially the tod can have more detectors than OpCrosstalk.crosstalk_names has
             # and they will be skipped
-            for name in names:
+            for name, row in zip(names, crosstalk_data):
+                crosstalk_row_dict = {name_col: m_ij for name_col, m_ij in zip(names, row)}
                 rank_owner = det_lut[name]
                 # assume each process must have at least one detector
-                partial_sum = np.add.reduce([tod.cache.reference(f"{signal_name}_{local_name}") for local_name in local_dets])
+                partial_sum = np.add.reduce([crosstalk_row_dict[local_name] * tod.cache.reference(f"{signal_name}_{local_name}") for local_name in local_dets])
                 comm.Reduce(partial_sum, reduce_buffer, root=rank_owner)
                 if rank == rank_owner:
                     tod.cache.put(f"crosstalk_{name}", reduce_buffer)
