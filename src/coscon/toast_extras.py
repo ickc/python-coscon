@@ -63,13 +63,11 @@ def add_crosstalk_args(parser: argparse.ArgumentParser):
 class OpCrosstalk(Operator):
     """Operator that apply crosstalk matrix to detector ToDs.
     """
-    # TODO
     crosstalk_names: np.ndarray['S']
     crosstalk_data: np.ndarray[np.float64]
     crosstalk_write_tod_input_path: Optional[Path] = None
     crosstalk_write_tod_output_path: Optional[Path] = None
     name: str = "crosstalk"
-    # comm: Optional[toast.mpi.Comm] = None
 
     def __post_init__(self):
         self._name = self.name
@@ -109,7 +107,8 @@ class OpCrosstalk(Operator):
             lengths = np.array([names.size, names.dtype.itemsize], dtype=np.int64)
             # cast to int for boardcasting
             names_int = names.view(np.uint8)
-            # data = data.astype(np.float64)
+            # the data from HDF5 is already float64
+            # this is needed for comm.Bcast below
             data = data.view(np.float64)
         else:
             lengths = np.empty(2, dtype=np.int64)
@@ -252,7 +251,6 @@ class OpCrosstalk(Operator):
 
         for obs in data.obs:
             tod = obs["tod"]
-            n_samples = tod.total_samples
 
             if self.crosstalk_write_tod_input_path:
                 if rank == 0:
@@ -262,6 +260,10 @@ class OpCrosstalk(Operator):
                     tod,
                     signal_name,
                 )
+
+            n_samples = tod.total_samples
+            local_dets = tod.local_dets
+            n_local_dets = len(local_dets)
 
             # this is easier to understand and shorter
             # but uses allgather instead of the more efficient Allgather
@@ -274,9 +276,7 @@ class OpCrosstalk(Operator):
             #         det_lut[det] = i
             # log.debug(f'dets LUT: {dets_lut}')
 
-            local_dets = tod.local_dets
-            n_local_dets = len(local_dets)
-
+            # construct det_lut, a LUT to know which rank holds a detector
             local_has_det = tod.cache.create(f"{crosstalk_name}_local_has_det_{rank}", np.uint8, (n,)).view(np.bool)
             local_dets_set = set(tod.local_dets)
             for i, name in enumerate(names):
@@ -300,12 +300,13 @@ class OpCrosstalk(Operator):
             del global_has_det
             tod.cache.destroy(f"{crosstalk_name}_global_has_det_{rank}")
 
-            log.debug(f'Rank {rank} has dets LUT: {det_lut}')
+            log.debug(f'Rank {rank} has detectors LUT: {det_lut}')
 
             if debug:
                 for name in local_dets:
                     assert det_lut[name] == rank
 
+            # mat-mul
             row_local_total = tod.cache.create(f"{crosstalk_name}_row_local_total_{rank}", np.float64, (n_samples,))
             row_local_weights = tod.cache.create(f"{crosstalk_name}_row_local_weights_{rank}", np.float64, (n_local_dets,))
             local_det_idxs = tod.cache.create(f"{crosstalk_name}_local_det_idxs_{rank}", np.int64, (n_local_dets,))
@@ -330,13 +331,11 @@ class OpCrosstalk(Operator):
             tod.cache.destroy(f"{crosstalk_name}_row_local_total_{rank}")
             tod.cache.destroy(f"{crosstalk_name}_row_local_weights_{rank}")
             tod.cache.destroy(f"{crosstalk_name}_local_det_idxs_{rank}")
+
             # overwrite original tod from cache
             for name in local_dets:
                 tod.cache.destroy(f"{signal_name}_{name}")
                 tod.cache.add_alias(f"{signal_name}_{name}", f"{crosstalk_name}_{name}")
-                # tod.cache.put(f"{signal_name}_{name}", data=tod.cache.reference(f"{crosstalk_name}_{name}"), replace=False)
-                # tod.write(detector=name, data=tod.cache.reference(f"{crosstalk_name}_{name}"))
-            # tod.cache.clear(pattern=f'crosstalk_.+')
 
             if self.crosstalk_write_tod_output_path:
                 if rank == 0:
