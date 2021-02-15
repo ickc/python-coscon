@@ -2,24 +2,23 @@
 
 from __future__ import annotations
 
+import argparse
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
-from dataclasses import dataclass
-import argparse
 
 import h5py
 import numpy as np
-from numba import jit
-
 import toast
+from numba import jit
+from toast.mpi import get_world
 from toast.op import Operator
 from toast.utils import Logger
-from toast.mpi import get_world
 
 from .io_helper import H5_CREATE_KW
 
 if TYPE_CHECKING:
-    from typing import Tuple, Optional
+    from typing import Optional, Tuple
 
 
 @jit(nopython=True, nogil=True, cache=False)

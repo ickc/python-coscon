@@ -1,23 +1,24 @@
 from __future__ import annotations
 
 import io
-from pathlib import Path
-from logging import getLogger
+from collections import defaultdict
 from dataclasses import dataclass
 from functools import cached_property
-from typing import List, TYPE_CHECKING, Optional, Union
-from collections import defaultdict
+from logging import getLogger
+from pathlib import Path
+from typing import TYPE_CHECKING, List, Optional, Union
 
+import defopt
 import healpy as hp
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import defopt
 
 if TYPE_CHECKING:
     from typing import Dict, Tuple
 
 import coscon.fits_helper
+
 from .util import from_Cl_to_Dl, from_Dl_to_Cl
 
 logger = getLogger('coscon')

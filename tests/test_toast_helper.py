@@ -1,4 +1,4 @@
-from coscon.toast_helper import fake_focalplane, FakeFocalPlane
+from coscon.toast_helper import FakeFocalPlane, fake_focalplane
 
 
 def test_fake_focalplane():

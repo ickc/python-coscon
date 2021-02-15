@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from pathlib import Path
-from logging import getLogger
 from dataclasses import dataclass
 from functools import cached_property
+from logging import getLogger
+from pathlib import Path
 from typing import List
 
 import defopt
-from astropy.io import fits
-from astropy.io.fits.hdu.table import BinTableHDU
 import healpy as hp
 import numpy as np
 import pandas as pd
+from astropy.io import fits
+from astropy.io.fits.hdu.table import BinTableHDU
 from tabulate import tabulate
 
 import coscon.cmb

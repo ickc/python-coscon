@@ -1,28 +1,26 @@
 from __future__ import annotations
 
-from pathlib import Path
-from logging import getLogger
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, ClassVar, Optional, List
+from logging import getLogger
+from pathlib import Path
+from typing import TYPE_CHECKING, ClassVar, List, Optional
 
-import seaborn as sns
+import h5py
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import schema
-from schema import Schema, SchemaError
 import seaborn as sns
-import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-from toast.tod import plot_focalplane, hex_pol_angles_qu, hex_layout
-import h5py
+from schema import Schema, SchemaError
+from toast.tod import hex_layout, hex_pol_angles_qu, plot_focalplane
 
-from .io_helper import dumper, loader
+from .io_helper import H5_CREATE_KW, dumper, loader
 from .util import geometric_matrix, unique_matrix
-from .io_helper import H5_CREATE_KW
 
 if TYPE_CHECKING:
-    from typing import Dict, Union, Tuple, Any
+    from typing import Any, Dict, Tuple, Union
 
 logger = getLogger('coscon')
 

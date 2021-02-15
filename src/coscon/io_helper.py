@@ -1,9 +1,9 @@
 import gzip
 import json
 from functools import partial
+from logging import getLogger
 from pathlib import Path
 from typing import Union
-from logging import getLogger
 
 import toml
 import yaml
