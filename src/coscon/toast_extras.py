@@ -169,17 +169,18 @@ class OpCrosstalk(Operator):
 
             local_dets = set(tod.local_dets)
 
-            local_has_det = np.zeros(n, dtype=np.bool)
+            local_has_det = tod.cache.create(f"crosstalk_local_has_det_{rank}", np.uint8, (n,)).view(np.bool)
             for i, name in enumerate(names):
                 if name in local_dets:
                     local_has_det[i] = True
 
-            global_has_det = np.empty((procs, n), dtype=np.bool)
+            global_has_det = tod.cache.create(f"crosstalk_global_has_det_{rank}", np.uint8, (procs, n)).view(np.bool)
             comm.Allgather(local_has_det, global_has_det)
 
             if debug:
                 np.testing.assert_array_equal(local_has_det, global_has_det[rank])
             del local_has_det
+            tod.cache.destroy(f"crosstalk_local_has_det_{rank}")
 
             det_lut = {}
             for i in range(procs):
@@ -187,6 +188,7 @@ class OpCrosstalk(Operator):
                     if global_has_det[i, j]:
                         det_lut[names[j]] = i
             del global_has_det
+            tod.cache.destroy(f"crosstalk_global_has_det_{rank}")
 
             log.debug(f'dets LUT: {det_lut}')
 
@@ -194,7 +196,7 @@ class OpCrosstalk(Operator):
                 for name in local_dets:
                     assert det_lut[name] == rank
 
-            reduce_buffer = np.empty(n_samples, dtype=np.float64)
+            row_local_total = tod.cache.create(f"crosstalk_row_local_total_{rank}", np.float64, (n_samples,))
             # row-loop
             # potentially the tod can have more detectors than OpCrosstalk.crosstalk_names has
             # and they will be skipped
@@ -202,10 +204,16 @@ class OpCrosstalk(Operator):
                 crosstalk_row_dict = {name_col: m_ij for name_col, m_ij in zip(names, row)}
                 rank_owner = det_lut[name]
                 # assume each process must have at least one detector
-                partial_sum = np.add.reduce([crosstalk_row_dict[local_name] * tod.cache.reference(f"{signal_name}_{local_name}") for local_name in local_dets])
-                comm.Reduce(partial_sum, reduce_buffer, root=rank_owner)
+                row_local_total[:] = 0.
+                for local_name in local_dets:
+                    row_local_total += crosstalk_row_dict[local_name] * tod.cache.reference(f"{signal_name}_{local_name}")
                 if rank == rank_owner:
-                    tod.cache.put(f"crosstalk_{name}", reduce_buffer)
+                    row_global_total = tod.cache.create(f"crosstalk_{name}", np.float64, (n_samples,))
+                    comm.Reduce(row_local_total, row_global_total, root=rank_owner)
+                else:
+                    comm.Reduce(row_local_total, None, root=rank_owner)
+            del row_local_total
+            tod.cache.destroy(f"crosstalk_row_local_total_{rank}")
             # overwrite original tod from cache
             for name in local_dets:
                 tod.cache.destroy(f"{signal_name}_{name}")
