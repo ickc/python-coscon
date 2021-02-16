@@ -56,7 +56,7 @@ class Maps:
         try:
             mask = self.maps.mask
             return 1. - mask.sum() / mask.size
-        except NameError:
+        except (NameError, AttributeError):
             return 1.
 
     @classmethod
