@@ -13,6 +13,11 @@ import healpy as hp
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import plotly
+import plotly.express as px
+import pysm3
+import pysm3.units as u
+from astropy.utils.data import download_file
 
 if TYPE_CHECKING:
     from typing import Dict, Tuple
@@ -65,9 +70,6 @@ class Maps:
         nside: int,
         preset_strings: List[str] = ["c1"],
     ) -> Maps:
-        import pysm3
-        import pysm3.units as u
-
         sky = pysm3.Sky(nside=nside, preset_strings=preset_strings)
         freq_u = freq * u.GHz
         m = sky.get_emission(freq_u)
@@ -274,8 +276,6 @@ class PowerSpectra:
         if path is None and url is None:
             raise ValueError('Either path or url has to be specified.')
         if url is not None:
-            from astropy.utils.data import download_file
-
             if path is not None:
                 logger.warn('Ignoring path as url is specified.')
             logger.info(f'Downloading and caching using astropy: {url}')
@@ -317,8 +317,6 @@ class PowerSpectra:
         Officially released by Planck up to l equals 2508.
         see http://pla.esac.esa.int/pla/#cosmology and its description
         """
-        from astropy.utils.data import download_file
-
         # see http://pla.esac.esa.int/pla/#cosmology and its description
         file = download_file(
             'http://pla.esac.esa.int/pla/aio/product-action?COSMOLOGY.FILE_ID=COM_PowerSpect_CMB-base-plikHM-TTTEEE-lowl-lowE-lensing-minimum-theory_R3.01.txt',
@@ -384,12 +382,16 @@ class PowerSpectra:
         df_all.columns.name = 'spectra'
         return df_all.stack().to_frame(self.scale).reset_index(level=(0, 1, 2))
 
-    def compare_plot(self, *others: PowerSpectra):
-        import plotly.express as px
+    def compare_plot(self, *others: PowerSpectra, show=True) -> List[plotly.graph_objs._figure.Figure]:
 
         df_tidy = self.compare(*others)
+        figs = {}
         for name, group in df_tidy.groupby('spectra'):
-            px.line(group, x='l', y='Dl', color='name', title=name).show()
+            figs[name] = px.line(group, x='l', y='Dl', color='name', title=name)
+        if show:
+            for fig in figs.values():
+                fig.show()
+        return figs
 
 
 def _simmap_planck2018(

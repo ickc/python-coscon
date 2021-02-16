@@ -58,6 +58,7 @@ pyyaml = "^5"
 yamlloader = ">=0.5"
 matplotlib = "^3"
 h5py = "^3"
+plotly = "^4"
 
 # extras
 coloredlogs = {optional = true, version = ">=14,<16"}
