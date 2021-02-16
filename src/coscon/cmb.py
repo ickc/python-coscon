@@ -51,6 +51,14 @@ class Maps:
     def n_maps(self) -> int:
         return self.maps.shape[0]
 
+    @cached_property
+    def f_sky(self) -> float:
+        try:
+            mask = self.maps.mask
+            return 1. - mask.sum() / mask.size
+        except NameError:
+            return 1.
+
     @classmethod
     def from_fits(
         cls,
@@ -105,7 +113,7 @@ class Maps:
         """Use anafast to calculate the spectra
         results are always 2D-array
         """
-        res = hp.sphtfunc.anafast(self.maps)
+        res = (1. / self.f_sky) * hp.sphtfunc.anafast(self.maps)
         # force 2D array
         # healpy tried to be smart and return 1D array only if there's only 1 map
         return res.reshape(1, -1) if self.n_maps == 1 else res
