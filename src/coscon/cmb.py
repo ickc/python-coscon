@@ -382,7 +382,11 @@ class PowerSpectra:
         df_all.columns.name = 'spectra'
         return df_all.stack().to_frame(self.scale).reset_index(level=(0, 1, 2))
 
-    def compare_plot(self, *others: PowerSpectra, show=True) -> List[plotly.graph_objs._figure.Figure]:
+    def compare_plot(
+        self,
+        *others: PowerSpectra,
+        show: bool = True,
+    ) -> List[plotly.graph_objs._figure.Figure]:
 
         df_tidy = self.compare(*others)
         figs = {}
@@ -392,6 +396,19 @@ class PowerSpectra:
             for fig in figs.values():
                 fig.show()
         return figs
+
+    def compare_plot_rel(
+        self,
+        other: PowerSpectra,
+        show: bool = True,
+        backend: str = 'plotly',
+    ) -> plotly.graph_objs._figure.Figure:
+        intersect = self.intersect(other)
+        df_rel = intersect[1] / intersect[0] - 1.
+        fig = df_rel.plot(backend='plotly', title=f"Relative change of {other.name} comparing to {self.name}")
+        if show:
+            fig.show()
+        return fig
 
 
 def _simmap_planck2018(
