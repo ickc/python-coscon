@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import schema
 import seaborn as sns
-from matplotlib.colors import LogNorm
+from matplotlib.colors import LogNorm, SymLogNorm
 from schema import Schema, SchemaError
 from toast.tod import hex_layout, hex_pol_angles_qu, plot_focalplane
 
@@ -541,7 +541,15 @@ class CrosstalkMatrix(GenericMatrix):
             n = self.size
             figsize = (n, n)
         fig, ax = plt.subplots(figsize=figsize)
-        norm = LogNorm() if log else None
+        if log:
+            data = self.data
+            if data.min() < 0.:
+                linthresh = np.abs(data[~(data == 0.)]).min()
+                norm = SymLogNorm(linthresh)
+            else:
+                norm = LogNorm()
+        else:
+            norm = None
         sns.heatmap(self.dataframe, annot=annot, ax=ax, norm=norm)
         return fig
 
