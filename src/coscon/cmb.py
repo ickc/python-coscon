@@ -165,6 +165,8 @@ class Maps:
         m: np.ndarray,
         n_std: Optional[int] = None,
         fwhm: Optional[float] = None,
+        graticule: bool = True,
+        **kwargs
     ):
         if fwhm is not None:
             m = hp.sphtfunc.smoothing(m, fwhm=fwhm * np.pi / 10800.)
@@ -176,14 +178,16 @@ class Maps:
             std = m.std()
             min_ = mean - n_std * std
             max_ = mean + n_std * std
-        hp.mollview(m, title=name, min=min_, max=max_)
-        hp.graticule()
-        plt.show()
+        hp.mollview(m, title=name, min=min_, max=max_, **kwargs)
+        if graticule:
+            hp.graticule()
 
     def mollview(
         self,
         n_std: Optional[int] = None,
         fwhm: Optional[float] = None,
+        graticule: bool = True,
+        **kwargs
     ):
         """object wrap of healpy.mollview
 
@@ -193,12 +197,12 @@ class Maps:
         maps_dict = self.maps_dict
         for name, m in maps_dict.items():
             full_name = f'{self.name} {name}' if self.name else name
-            self._mollview(full_name, m, n_std=n_std, fwhm=fwhm)
+            self._mollview(full_name, m, n_std=n_std, fwhm=fwhm, graticule=graticule, **kwargs)
         if 'Q' in maps_dict and 'U' in maps_dict:
             name = 'P'
             full_name = f'{self.name} {name}' if self.name else name
             m = np.sqrt(np.square(maps_dict['Q']) + np.square(maps_dict['U']))
-            self._mollview(full_name, m, n_std=n_std, fwhm=fwhm)
+            self._mollview(full_name, m, n_std=n_std, fwhm=fwhm, graticule=graticule, **kwargs)
 
 
 @dataclass
