@@ -466,6 +466,59 @@ class AvesHardware(GenericDictStructure):
         final['detectors'] = df_detectors.to_dict(orient='index')
         return cls(final, validate_schema=validate_schema)
 
+    def reorder_to(
+        self,
+        pixels: List[int],
+        TB_anti_alignment: bool = True,
+        validate_schema: bool = False,
+    ) -> AvesHardware:
+        """Reorder pixels according its integer assignment
+
+        :param bool TB_anti_alignment: if True, assume TB pixels ordering BTTBBTTBBT..
+        else BTBTBTBT...
+        """
+        df = self.dataframe
+        num_to_name = {}
+        # assume always end in T, B pair
+        for name, num in df.pixel.items():
+            if num not in num_to_name:
+                num_to_name[num] = name[:-1]
+            else:
+                assert num_to_name[num] == name[:-1]
+        names = [num_to_name[str(pixel).zfill(3)] for pixel in pixels]
+        names_full = []
+        if TB_anti_alignment:
+            forward = True
+            for name in names:
+                if forward:
+                    names_full.append(f'{name}B')
+                    names_full.append(f'{name}T')
+                    forward = False
+                else:
+                    names_full.append(f'{name}T')
+                    names_full.append(f'{name}B')
+                    forward = True
+        else:
+            for name in names:
+                names_full.append(f'{name}B')
+                names_full.append(f'{name}T')
+        return AvesHardware.from_dataframe(df.loc[names_full], validate_schema=validate_schema)
+
+    def reorder_to_from_csv(
+        self,
+        path: Path,
+        TB_anti_alignment: bool = True,
+        validate_schema: bool = False,
+    ) -> AvesHardware:
+        """Reorder pixels according its integer assignment
+
+        :param Path path: a csv or txt file that has the pixel numbers per line
+        :param bool TB_anti_alignment: if True, assume TB pixels ordering BTTBBTTBBT..
+        else BTBTBTBT...
+        """
+        df_name = pd.read_csv(path, header=None)
+        pixels = df_name.T.values[0]
+        return self.reorder_to(pixels, TB_anti_alignment=TB_anti_alignment, validate_schema=validate_schema)
 
 # Crosstalk ####################################################################
 
