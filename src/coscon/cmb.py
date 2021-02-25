@@ -376,11 +376,17 @@ class PowerSpectra:
             res.append(other.dataframe.loc[l, cols])
         return res
 
-    def compare(self, *others: PowerSpectra) -> pd.DataFrame:
+    def compare(
+        self,
+        *others: PowerSpectra,
+        relative: bool = False,
+    ) -> pd.DataFrame:
         """Return a tidy DataFrame comparing self and others.
         """
         dfs = self.intersect(*others)
         try:
+            if relative:
+                dfs = [df / dfs[0] - 1. for df in dfs[1:]]
             df_all = pd.concat(
                 dfs,
                 keys=(df.columns.name for df in dfs),
@@ -398,29 +404,18 @@ class PowerSpectra:
         self,
         *others: PowerSpectra,
         show: bool = True,
+        relative: bool = False,
     ) -> List[plotly.graph_objs._figure.Figure]:
 
-        df_tidy = self.compare(*others)
+        df_tidy = self.compare(*others, relative=relative)
         figs = {}
         for name, group in df_tidy.groupby('spectra'):
-            figs[name] = px.line(group, x='l', y='Dl', color='name', title=name)
+            title = f'Relative between {self.name} and others' if relative else 'Comparing all spectra'
+            figs[name] = px.line(group, x='l', y='Dl', color='name', title=title)
         if show:
             for fig in figs.values():
                 fig.show()
         return figs
-
-    def compare_plot_rel(
-        self,
-        other: PowerSpectra,
-        show: bool = True,
-        backend: str = 'plotly',
-    ) -> plotly.graph_objs._figure.Figure:
-        intersect = self.intersect(other)
-        df_rel = intersect[1] / intersect[0] - 1.
-        fig = df_rel.plot(backend='plotly', title=f"Relative change of {other.name} comparing to {self.name}")
-        if show:
-            fig.show()
-        return fig
 
 
 def _simmap_planck2018(
