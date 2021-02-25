@@ -17,7 +17,7 @@ from schema import Schema, SchemaError
 from toast.tod import hex_layout, hex_pol_angles_qu, plot_focalplane
 
 from .io_helper import H5_CREATE_KW, dumper, loader
-from .util import geometric_matrix, unique_matrix
+from .util import geometric_matrix, unique_matrix, joshian_matrix
 
 if TYPE_CHECKING:
     from typing import Any, Dict, Tuple, Union
@@ -578,6 +578,33 @@ class CrosstalkMatrix(GenericMatrix):
         m = unique_matrix(n)
         return cls(names, m)
 
+    @classmethod
+    def from_joshian_matrix(
+        cls,
+        names: Union[List[str], np.ndarray],
+        nearest: float,
+        next_nearest: float,
+        floor: float,
+    ) -> CrosstalkMatrix:
+        """Generate a crosstalk matrix with structure based on Josh's simple assumption
+        """
+        n = len(names)
+        m = joshian_matrix(n, nearest, next_nearest, floor)
+        return cls(names, m)
+
+    def to_random_normal(
+        self,
+    ) -> CrosstalkMatrix:
+        """Generate a random normal matrix based on original matrix except for diagonal
+
+        with mean and std given by the original matrix.
+        """
+        data = self.data
+        res = np.random.normal(data, data)
+        n = self.size
+        idxs = np.diag_indices(n)
+        res[idxs] = data[idxs]
+        return CrosstalkMatrix(self.names, res)
 
 @dataclass(eq=False)
 class NaiveTod(GenericMatrix):
