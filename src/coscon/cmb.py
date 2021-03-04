@@ -410,7 +410,7 @@ class PowerSpectra:
         df_tidy = self.compare(*others, relative=relative)
         figs = {}
         for name, group in df_tidy.groupby('spectra'):
-            title = f'Relative between {self.name} and others' if relative else 'Comparing all spectra'
+            title = f'{name}, relative change comparing to {self.name}' if relative else name
             figs[name] = px.line(group, x='l', y='Dl', color='name', title=title)
         if show:
             for fig in figs.values():
