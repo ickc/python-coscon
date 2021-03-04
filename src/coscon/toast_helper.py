@@ -469,7 +469,8 @@ class AvesHardware(GenericDictStructure):
     def reorder_to(
         self,
         pixels: List[int],
-        TB_anti_alignment: bool = True,
+        TB_anti_alignment: bool = False,
+        TB_alternate_anti_alignment: bool = False,
         validate_schema: bool = False,
     ) -> AvesHardware:
         """Reorder pixels according its integer assignment
@@ -498,6 +499,15 @@ class AvesHardware(GenericDictStructure):
                     names_full.append(f'{name}T')
                     names_full.append(f'{name}B')
                     forward = True
+        elif TB_alternate_anti_alignment:
+            for i, name in enumerate(names):
+                mod = i % 4
+                if mod == 0 or mod == 3:
+                    names_full.append(f'{name}B')
+                    names_full.append(f'{name}T')
+                else:
+                    names_full.append(f'{name}T')
+                    names_full.append(f'{name}B')
         else:
             for name in names:
                 names_full.append(f'{name}B')
@@ -507,7 +517,8 @@ class AvesHardware(GenericDictStructure):
     def reorder_to_from_csv(
         self,
         path: Path,
-        TB_anti_alignment: bool = True,
+        TB_anti_alignment: bool = False,
+        TB_alternate_anti_alignment: bool = False,
         validate_schema: bool = False,
     ) -> AvesHardware:
         """Reorder pixels according its integer assignment
@@ -518,7 +529,12 @@ class AvesHardware(GenericDictStructure):
         """
         df_name = pd.read_csv(path, header=None)
         pixels = df_name.T.values[0]
-        return self.reorder_to(pixels, TB_anti_alignment=TB_anti_alignment, validate_schema=validate_schema)
+        return self.reorder_to(
+            pixels,
+            TB_anti_alignment=TB_anti_alignment,
+            TB_alternate_anti_alignment=TB_alternate_anti_alignment,
+            validate_schema=validate_schema,
+        )
 
 # Crosstalk ####################################################################
 
