@@ -17,7 +17,7 @@ from schema import Schema, SchemaError
 from toast.tod import hex_layout, hex_pol_angles_qu, plot_focalplane
 
 from .io_helper import H5_CREATE_KW, dumper, loader
-from .util import geometric_matrix, unique_matrix, joshian_matrix
+from .util import geometric_matrix, unique_matrix, joshian_matrix, total_crosstalk_matrix, total_crosstalk_matrix_exact, omega_i_resonance_exact
 
 if TYPE_CHECKING:
     from typing import Any, Dict, Tuple, Union
@@ -139,7 +139,7 @@ class GenericDictStructure:
             raise e
 
     @cached_property
-    def dataframe(self):
+    def dataframe(self) -> pd.DataFrame:
         """DataFrame representation of the focal plane
 
         This has opposite key-ordering from the dict
@@ -364,7 +364,7 @@ class AvesHardware(GenericDictStructure):
         self.plot = self.detectors.plot
 
     @cached_property
-    def dataframe(self):
+    def dataframe(self) -> pd.DataFrame:
         """DataFrame representation of the hardware
         """
         return (
@@ -597,8 +597,27 @@ class CrosstalkMatrix(GenericMatrix):
     """
 
     @cached_property
-    def dataframe(self):
+    def dataframe(self) -> pd.DataFrame:
         return pd.DataFrame(self.data, index=self.names_str, columns=self.names_str)
+
+    def dataframe_nearest_neighbor_only(
+        self,
+        freq: Optional[np.ndarray[np.float64]] = None,
+    ) -> pd.DataFrame:
+        data = self.data
+        n = data.shape[0]
+
+        left = np.empty(n, np.float64)
+        left[0] = np.nan
+        left[1:] = np.diag(data, k=-1)
+
+        right = np.empty(n, np.float64)
+        right[:-1] = np.diag(data, k=1)
+        right[-1] = np.nan
+
+        index = None if freq is None else pd.Index(freq, name='freq')
+        return pd.DataFrame({'left': left, 'right': right}, index=index)
+
 
     def plot(
         self,
@@ -676,6 +695,7 @@ class CrosstalkMatrix(GenericMatrix):
         res[idxs] = data[idxs]
         return CrosstalkMatrix(self.names, res)
 
+
 @dataclass(eq=False)
 class NaiveTod(GenericMatrix):
     """Naive TOD matrix that has all data in contiguous array
@@ -688,5 +708,65 @@ class NaiveTod(GenericMatrix):
         return NaiveTod(names, data)
 
     @cached_property
-    def dataframe(self):
+    def dataframe(self) -> pd.DataFrame:
         return pd.DataFrame(self.data.T, columns=self.names_str)
+
+
+@dataclass
+class SQUID:
+    """A model of the SQUID readout.
+
+    See fig. 4 in Montgomery2020.
+    
+    Montgomery2020: Montgomery et al., “Performance and Characterization of the SPT-3G Digital Frequency Multiplexed Readout System Using an Improved Noise and Crosstalk Model.”
+    """
+    R_TES: np.ndarray[np.float64]
+    r_s: np.ndarray[np.float64]
+    L: Union[float, np.ndarray[np.float64]]
+    C: np.ndarray[np.float64]
+    L_com: float
+
+    @cached_property
+    def omega(self):
+        return omega_i_resonance_exact(self.R_TES, self.r_s, self.L, self.C, self.L_com)
+
+    @cached_property
+    def freq(self):
+        return self.omega / (2. * np.pi)
+
+    @cached_property
+    def to_dict(self) -> dict:
+        return {
+            'R_TES': self.R_TES,
+            'r_s': self.r_s,
+            'L': self.L,
+            'C': self.C,
+            'L_com': self.L_com,
+            'omega': self.omega,
+        }
+
+    @cached_property
+    def dataframe(self) -> pd.DataFrame:
+        return pd.DataFrame(self.to_dict)
+
+    def to_crosstalk_matrix(
+        self,
+        names: Optional[Union[List[str], np.ndarray]] = None,
+    ) -> CrosstalkMatrix:
+        """Compute the crosstalk matrix using Montgomery2020 approximations"""
+        data = total_crosstalk_matrix(self.R_TES, self.r_s, self.L, self.C, self.L_com, self.omega)
+        if names is None:
+            # use the numerical value of freq in MHz as names
+            names = (self.freq * 1.e-6).astype(np.int).astype('S')
+        return CrosstalkMatrix(names, data)
+
+    def to_crosstalk_matrix_exact(
+        self,
+        names: Optional[Union[List[str], np.ndarray]] = None,
+    ) -> CrosstalkMatrix:
+        """Compute the crosstalk matrix using Montgomery2020 formulism without the approximations"""
+        data = total_crosstalk_matrix_exact(self.R_TES, self.r_s, self.L, self.C, self.L_com, self.omega)
+        if names is None:
+            # use the numerical value of freq in MHz as names
+            names = (self.freq * 1.e-6).astype(np.int).astype('S')
+        return CrosstalkMatrix(names, data)
