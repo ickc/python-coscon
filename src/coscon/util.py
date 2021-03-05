@@ -369,7 +369,7 @@ def leakage_power_crosstalk_exact(
     """
     Z_nn = np.diag(Z_n_omega_i)
     Z_net_n = Z_net_omega_i(Z_n_omega_i)
-    temp_n = (Z_com_omega_n * np.power(Z_nn, -2)) * np.power(Z_net_n / (Z_net_n + Z_com_omega_n), 5)
+    temp_n = (Z_com_omega_n * np.power(Z_nn, -2)) * np.power(Z_net_n / (Z_net_n + Z_com_omega_n), 3)
     # put i in the 1st axis
     res = ((2. * temp_n) * R_TES_i.reshape(-1, 1)) * np.power(np.ascontiguousarray(Z_n_omega_i.T), -2)
     # diagonal term is non-sense in this equation
@@ -408,7 +408,7 @@ def total_crosstalk_matrix(
     C_n: np.ndarray[np.float64],
     L_com: float,
     omega_i: np.ndarray[np.float64],
-) -> np.ndarray[np.complex128]:
+) -> np.ndarray[np.float64]:
     """Total crosstalk with 2 approximations in Montgomery's paper
 
     See `total_crosstalk_matrix_exact` for an exact result.
@@ -456,7 +456,7 @@ def total_crosstalk_matrix_exact(
     C_n: np.ndarray[np.float64],
     L_com: float,
     omega_i: np.ndarray[np.float64],
-) -> np.ndarray[np.complex128]:
+) -> np.ndarray[np.float64]:
     """Total crosstalk without approximations.
     """
     Z_in = Z_n_omega_i(R_TES_n, r_s_n, L_n, C_n, omega_i)
