@@ -620,6 +620,7 @@ class CrosstalkMatrix(GenericMatrix):
         else:
             norm = None
         sns.heatmap(self.dataframe, annot=annot, ax=ax, norm=norm)
+        plt.close()
         return fig
 
     @classmethod
