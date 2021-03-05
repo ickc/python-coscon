@@ -359,6 +359,25 @@ def leakage_power_crosstalk(
     return res
 
 
+@jit('complex128[:, ::1](float64[::1], complex128[:, ::1], complex128[::1])', nopython=True, nogil=True, cache=True)
+def leakage_power_crosstalk_exact(
+    R_TES_i: np.ndarray[np.float64],
+    Z_n_omega_i: np.ndarray[np.complex128],
+    Z_com_omega_n: np.ndarray[np.complex128],
+) -> np.ndarray[np.complex128]:
+    """Leakage power crosstalk onto the i-th detector from leakage current induced by the n-th voltage bias
+    """
+    Z_nn = np.diag(Z_n_omega_i)
+    Z_net_n = Z_net_omega_i(Z_n_omega_i)
+    temp_n = (Z_com_omega_n * np.power(Z_nn, -2)) * np.power(Z_net_n / (Z_net_n + Z_com_omega_n), 5)
+    # put i in the 1st axis
+    res = ((2. * temp_n) * R_TES_i.reshape(-1, 1)) * np.power(np.ascontiguousarray(Z_n_omega_i.T), -2)
+    # diagonal term is non-sense in this equation
+    for i in range(res.shape[0]):
+        res[i, i] = 0.
+    return res
+
+
 @jit(
     [
         '''float64[:, ::1](
@@ -405,3 +424,57 @@ def total_crosstalk_matrix(
     total /= primary_signal_i
     # approximation used in sec 3.2
     return np.ascontiguousarray(np.real(total))
+
+
+@jit(
+    [
+        '''float64[:, ::1](
+            float64[::1],
+            float64[::1],
+            float64,
+            float64[::1],
+            float64,
+            float64[::1],
+        )''',
+        '''float64[:, ::1](
+            float64[::1],
+            float64[::1],
+            float64[::1],
+            float64[::1],
+            float64,
+            float64[::1],
+        )''',
+    ],
+    nopython=True,
+    nogil=True,
+    cache=True,
+)
+def total_crosstalk_matrix_exact(
+    R_TES_n: np.ndarray[np.float64],
+    r_s_n: np.ndarray[np.float64],
+    L_n: Union[float, np.ndarray[np.float64]],
+    C_n: np.ndarray[np.float64],
+    L_com: float,
+    omega_i: np.ndarray[np.float64],
+) -> np.ndarray[np.complex128]:
+    """Total crosstalk without approximations.
+    """
+    Z_in = Z_n_omega_i(R_TES_n, r_s_n, L_n, C_n, omega_i)
+    Z_com_i = Z_com_omega_i(L_com, omega_i)
+    total_in = (
+        primary_signal_and_leakage_current_crosstalk_n_omega_i(Z_in, Z_com_i) + \
+        leakage_power_crosstalk_exact(R_TES_n, Z_in, Z_com_i)
+    )
+    # put i in the 1st axis
+    primary_signal_i = np.diag(total_in).reshape(-1, 1)
+    total_in /= primary_signal_i
+
+    # determining total phase
+    total_i = total_in.sum(axis=1)
+    arg_i = np.angle(total_i)
+    # rotate in the opposite direction
+    complex_phase_i = np.cos(arg_i) - 1.j * np.sin(arg_i)
+    # put i in the 1st axis
+    total_in *= complex_phase_i.reshape(-1, 1)
+    # project to the phase of total signal
+    return np.ascontiguousarray(np.real(total_in))
