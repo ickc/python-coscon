@@ -670,7 +670,7 @@ class CrosstalkMatrix(GenericMatrix):
         with mean and std given by the original matrix.
         """
         data = self.data
-        res = np.random.normal(data, data)
+        res = np.random.normal(data, np.abs(data))
         n = self.size
         idxs = np.diag_indices(n)
         res[idxs] = data[idxs]
