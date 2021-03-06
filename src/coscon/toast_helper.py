@@ -725,29 +725,40 @@ class SQUID:
     L: Union[float, np.ndarray[np.float64]]
     C: np.ndarray[np.float64]
     L_com: float
+    omega: Optional[np.ndarray[np.float64]] = None
 
-    @cached_property
-    def omega(self):
-        return omega_i_resonance_exact(self.R_TES, self.r_s, self.L, self.C, self.L_com)
+    def __post_init__(self):
+        if self.omega is None:
+            self.omega = omega_i_resonance_exact(self.R_TES, self.r_s, self.L, self.C, self.L_com)
 
     @cached_property
     def freq(self):
         return self.omega / (2. * np.pi)
 
-    @cached_property
-    def to_dict(self) -> dict:
-        return {
+    def to_dict(
+        self,
+        include_omega: bool = False,
+        include_freq: bool = False,
+    ) -> dict:
+        res = {
             'R_TES': self.R_TES,
             'r_s': self.r_s,
             'L': self.L,
             'C': self.C,
             'L_com': self.L_com,
-            'omega': self.omega,
         }
+        if include_omega:
+            res['omega'] = self.mega
+        if include_freq:
+            res['freq'] = self.freq
+        return res
 
-    @cached_property
-    def dataframe(self) -> pd.DataFrame:
-        return pd.DataFrame(self.to_dict)
+    def dataframe(
+        self,
+        include_omega: bool = False,
+        include_freq: bool = False,
+    ) -> pd.DataFrame:
+        return pd.DataFrame(self.to_dict(include_omega=include_omega, include_freq=include_freq))
 
     def to_crosstalk_matrix(
         self,
