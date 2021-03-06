@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from numba import jit
+from numba import jit, generated_jit, types
 
 if TYPE_CHECKING:
     from typing import Union
@@ -66,12 +66,19 @@ def joshian_matrix(n, nearest, next_nearest, floor):
 
 
 # Montgomery et al., “Performance and Characterization of the SPT-3G Digital Frequency Multiplexed Readout System Using an Improved Noise and Crosstalk Model.”
-# these are all relative magntudes, see comments after eq. 8, 12
+# these are all relative magnitudes, see comments after eq. 8, 12
 # equivalent to set V = 1, δR = 1
 
 
 @jit(
     [
+        '''complex128[:, ::1](
+            float64,
+            float64,
+            float64,
+            float64[::1],
+            float64[::1],
+        )''',
         '''complex128[:, ::1](
             float64[::1],
             float64[::1],
@@ -92,8 +99,8 @@ def joshian_matrix(n, nearest, next_nearest, floor):
     cache=True,
 )
 def Z_n_omega_i(
-    R_TES_n: np.ndarray[np.float64],
-    r_s_n: np.ndarray[np.float64],
+    R_TES_n: Union[float, np.ndarray[np.float64]],
+    r_s_n: Union[float, np.ndarray[np.float64]],
     L_n: Union[float, np.ndarray[np.float64]],
     C_n: np.ndarray[np.float64],
     omega_i: np.ndarray[np.float64],
@@ -131,6 +138,14 @@ def Z_com_omega_i(
 @jit(
     [
         '''complex128[::1](
+            float64,
+            float64,
+            float64,
+            float64[::1],
+            float64,
+            float64[::1],
+        )''',
+        '''complex128[::1](
             float64[::1],
             float64[::1],
             float64,
@@ -152,8 +167,8 @@ def Z_com_omega_i(
     cache=True,
 )
 def Z_tot_i(
-    R_TES_n: np.ndarray[np.float64],
-    r_s_n: np.ndarray[np.float64],
+    R_TES_n: Union[float, np.ndarray[np.float64]],
+    r_s_n: Union[float, np.ndarray[np.float64]],
     L_n: Union[float, np.ndarray[np.float64]],
     C_n: np.ndarray[np.float64],
     L_com: float,
@@ -167,6 +182,14 @@ def Z_tot_i(
 
 @jit(
     [
+        '''float64[::1](
+            float64,
+            float64,
+            float64,
+            float64[::1],
+            float64,
+            float64[::1],
+        )''',
         '''float64[::1](
             float64[::1],
             float64[::1],
@@ -189,8 +212,8 @@ def Z_tot_i(
     cache=True,
 )
 def Z_tot_norm_sq_i(
-    R_TES_n: np.ndarray[np.float64],
-    r_s_n: np.ndarray[np.float64],
+    R_TES_n: Union[float, np.ndarray[np.float64]],
+    r_s_n: Union[float, np.ndarray[np.float64]],
     L_n: Union[float, np.ndarray[np.float64]],
     C_n: np.ndarray[np.float64],
     L_com: float,
@@ -204,6 +227,14 @@ def Z_tot_norm_sq_i(
 
 @jit(
     [
+        '''float64[::1](
+            float64,
+            float64,
+            float64,
+            float64[::1],
+            float64,
+            float64[::1],
+        )''',
         '''float64[::1](
             float64[::1],
             float64[::1],
@@ -226,8 +257,8 @@ def Z_tot_norm_sq_i(
     cache=True,
 )
 def d_Z_tot_norm_sq_d_omega_i_over_2(
-    R_TES_n: np.ndarray[np.float64],
-    r_s_n: np.ndarray[np.float64],
+    R_TES_n: Union[float, np.ndarray[np.float64]],
+    r_s_n: Union[float, np.ndarray[np.float64]],
     L_n: Union[float, np.ndarray[np.float64]],
     C_n: np.ndarray[np.float64],
     L_com: float,
@@ -248,6 +279,14 @@ def d_Z_tot_norm_sq_d_omega_i_over_2(
 
 @jit(
     [
+        '''float64(
+            float64[::1],
+            float64,
+            float64,
+            float64,
+            float64[::1],
+            float64,
+        )''',
         '''float64(
             float64[::1],
             float64[::1],
@@ -271,8 +310,8 @@ def d_Z_tot_norm_sq_d_omega_i_over_2(
 )
 def d_Z_tot_norm_sq_d_omega_over_2_for_optimize(
     omega_i: np.ndarray[np.float64],
-    R_TES_n: np.ndarray[np.float64],
-    r_s_n: np.ndarray[np.float64],
+    R_TES_n: Union[float, np.ndarray[np.float64]],
+    r_s_n: Union[float, np.ndarray[np.float64]],
     L_n: Union[float, np.ndarray[np.float64]],
     C_n: np.ndarray[np.float64],
     L_com: float,
@@ -304,8 +343,8 @@ def omega_i_resonance_naive(
 
 
 def omega_i_resonance_exact(
-    R_TES_n: np.ndarray[np.float64],
-    r_s_n: np.ndarray[np.float64],
+    R_TES_n: Union[float, np.ndarray[np.float64]],
+    r_s_n: Union[float, np.ndarray[np.float64]],
     L_n: Union[float, np.ndarray[np.float64]],
     C_n: np.ndarray[np.float64],
     L_com: float,
@@ -337,8 +376,30 @@ def primary_signal_and_leakage_current_crosstalk_n_omega_i(
     return -np.power(Z_n_omega_i + Z_com_omega_i.reshape(-1, 1), -2)
 
 
+@jit('complex128[:, ::1](float64, complex128[:, ::1], complex128[::1])', nopython=True, nogil=True, cache=True)
+def _leakage_power_crosstalk_float(
+    R_TES_i: float,
+    Z_n_omega_i: np.ndarray[np.complex128],
+    Z_com_omega_n: np.ndarray[np.complex128],
+) -> np.ndarray[np.complex128]:
+    """Leakage power crosstalk onto the i-th detector from leakage current induced by the n-th voltage bias
+
+    Eq. 11
+
+    This made an approximation. See `leakage_power_crosstalk_exact` for an exact result.
+    """
+    Z_nn = np.diag(Z_n_omega_i)
+    temp_n = (Z_nn * Z_com_omega_n) * np.power(Z_nn + Z_com_omega_n, -3)
+    # put i in the 1st axis
+    res = (temp_n * (2. * R_TES_i)) * np.power(np.ascontiguousarray(Z_n_omega_i.T), -2)
+    # diagonal term is non-sense in this equation
+    for i in range(res.shape[0]):
+        res[i, i] = 0.
+    return res
+
+
 @jit('complex128[:, ::1](float64[::1], complex128[:, ::1], complex128[::1])', nopython=True, nogil=True, cache=True)
-def leakage_power_crosstalk(
+def _leakage_power_crosstalk_array(
     R_TES_i: np.ndarray[np.float64],
     Z_n_omega_i: np.ndarray[np.complex128],
     Z_com_omega_n: np.ndarray[np.complex128],
@@ -352,7 +413,38 @@ def leakage_power_crosstalk(
     Z_nn = np.diag(Z_n_omega_i)
     temp_n = (Z_nn * Z_com_omega_n) * np.power(Z_nn + Z_com_omega_n, -3)
     # put i in the 1st axis
-    res = ((2. * temp_n) * R_TES_i.reshape(-1, 1)) * np.power(np.ascontiguousarray(Z_n_omega_i.T), -2)
+    res = (temp_n * (2. * R_TES_i).reshape(-1, 1)) * np.power(np.ascontiguousarray(Z_n_omega_i.T), -2)
+    # diagonal term is non-sense in this equation
+    for i in range(res.shape[0]):
+        res[i, i] = 0.
+    return res
+
+
+@generated_jit(nopython=True, nogil=True, cache=True)
+def leakage_power_crosstalk(
+    R_TES_i: Union[float, np.ndarray[np.float64]],
+    Z_n_omega_i: np.ndarray[np.complex128],
+    Z_com_omega_n: np.ndarray[np.complex128],
+) -> np.ndarray[np.complex128]:
+    if isinstance(R_TES_i, types.Float):
+        return _leakage_power_crosstalk_float
+    else:
+        return _leakage_power_crosstalk_array
+
+
+@jit('complex128[:, ::1](float64, complex128[:, ::1], complex128[::1])', nopython=True, nogil=True, cache=True)
+def _leakage_power_crosstalk_exact_float(
+    R_TES_i: float,
+    Z_n_omega_i: np.ndarray[np.complex128],
+    Z_com_omega_n: np.ndarray[np.complex128],
+) -> np.ndarray[np.complex128]:
+    """Leakage power crosstalk onto the i-th detector from leakage current induced by the n-th voltage bias
+    """
+    Z_nn = np.diag(Z_n_omega_i)
+    Z_net_n = Z_net_omega_i(Z_n_omega_i)
+    temp_n = (Z_com_omega_n * np.power(Z_nn, -2)) * np.power(Z_net_n / (Z_net_n + Z_com_omega_n), 3)
+    # put i in the 1st axis
+    res = (temp_n * (2. * R_TES_i)) * np.power(np.ascontiguousarray(Z_n_omega_i.T), -2)
     # diagonal term is non-sense in this equation
     for i in range(res.shape[0]):
         res[i, i] = 0.
@@ -360,7 +452,7 @@ def leakage_power_crosstalk(
 
 
 @jit('complex128[:, ::1](float64[::1], complex128[:, ::1], complex128[::1])', nopython=True, nogil=True, cache=True)
-def leakage_power_crosstalk_exact(
+def _leakage_power_crosstalk_exact_array(
     R_TES_i: np.ndarray[np.float64],
     Z_n_omega_i: np.ndarray[np.complex128],
     Z_com_omega_n: np.ndarray[np.complex128],
@@ -371,15 +463,35 @@ def leakage_power_crosstalk_exact(
     Z_net_n = Z_net_omega_i(Z_n_omega_i)
     temp_n = (Z_com_omega_n * np.power(Z_nn, -2)) * np.power(Z_net_n / (Z_net_n + Z_com_omega_n), 3)
     # put i in the 1st axis
-    res = ((2. * temp_n) * R_TES_i.reshape(-1, 1)) * np.power(np.ascontiguousarray(Z_n_omega_i.T), -2)
+    res = (temp_n * (2. * R_TES_i).reshape(-1, 1)) * np.power(np.ascontiguousarray(Z_n_omega_i.T), -2)
     # diagonal term is non-sense in this equation
     for i in range(res.shape[0]):
         res[i, i] = 0.
     return res
 
 
+@generated_jit(nopython=True, nogil=True, cache=True)
+def leakage_power_crosstalk_exact(
+    R_TES_i: Union[float, np.ndarray[np.float64]],
+    Z_n_omega_i: np.ndarray[np.complex128],
+    Z_com_omega_n: np.ndarray[np.complex128],
+) -> np.ndarray[np.complex128]:
+    if isinstance(R_TES_i, types.Float):
+        return _leakage_power_crosstalk_exact_float
+    else:
+        return _leakage_power_crosstalk_exact_array
+
+
 @jit(
     [
+        '''float64[:, ::1](
+            float64,
+            float64,
+            float64,
+            float64[::1],
+            float64,
+            float64[::1],
+        )''',
         '''float64[:, ::1](
             float64[::1],
             float64[::1],
@@ -402,8 +514,8 @@ def leakage_power_crosstalk_exact(
     cache=True,
 )
 def total_crosstalk_matrix(
-    R_TES_n: np.ndarray[np.float64],
-    r_s_n: np.ndarray[np.float64],
+    R_TES_n: Union[float, np.ndarray[np.float64]],
+    r_s_n: Union[float, np.ndarray[np.float64]],
     L_n: Union[float, np.ndarray[np.float64]],
     C_n: np.ndarray[np.float64],
     L_com: float,
@@ -429,6 +541,14 @@ def total_crosstalk_matrix(
 @jit(
     [
         '''float64[:, ::1](
+            float64,
+            float64,
+            float64,
+            float64[::1],
+            float64,
+            float64[::1],
+        )''',
+        '''float64[:, ::1](
             float64[::1],
             float64[::1],
             float64,
@@ -450,8 +570,8 @@ def total_crosstalk_matrix(
     cache=True,
 )
 def total_crosstalk_matrix_exact(
-    R_TES_n: np.ndarray[np.float64],
-    r_s_n: np.ndarray[np.float64],
+    R_TES_n: Union[float, np.ndarray[np.float64]],
+    r_s_n: Union[float, np.ndarray[np.float64]],
     L_n: Union[float, np.ndarray[np.float64]],
     C_n: np.ndarray[np.float64],
     L_com: float,
