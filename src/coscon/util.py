@@ -409,8 +409,8 @@ def omega_i_resonance_exact(
     R_TES_n: Union[float, np.ndarray[np.float64]],
     r_s_n: Union[float, np.ndarray[np.float64]],
     L_n: Union[float, np.ndarray[np.float64]],
+    C_n: np.ndarray[np.float64],
     L_com: float,
-    omega_i: np.ndarray[np.float64],
 ) -> np.ndarray[np.float64]:
     from scipy.optimize import root
 
