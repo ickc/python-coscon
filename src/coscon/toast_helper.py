@@ -545,6 +545,7 @@ class GenericMatrix:
     """
     names: np.ndarray['S']
     data: np.ndarray[np.float64]
+    name: Optional[str] = None
 
     def __post_init__(self):
         self.names = np.asarray(self.names, dtype='S')
@@ -641,6 +642,69 @@ class CrosstalkMatrix(GenericMatrix):
         sns.heatmap(self.dataframe, annot=annot, ax=ax, norm=norm)
         plt.close()
         return fig
+
+    def compare_plot_nearest_neighbor(
+        self,
+        other: CrosstalkMatrix,
+        freq: Optional[np.ndarray[np.float64]] = None,
+        freq_other: Optional[np.ndarray[np.float64]] = None,
+    ):
+        from plotly.subplots import make_subplots
+
+        df_nn = self.dataframe_nearest_neighbor_only(freq)
+        df_nn.columns = [f'{self.name}-{col}' for col in df_nn.columns]
+
+        df_nn_other = other.dataframe_nearest_neighbor_only(freq_other)
+        df_nn_other.columns = [f'{other.name}-{col}' for col in df_nn_other.columns]
+
+        # had the 2 freq the same, this is the easier way to get the plot
+        # df_all = pd.concat({self.name: df_nn, other.name: df_nn_other}, axis=1)
+        # df_all.columns = ['-'.join(col) for col in df_all.columns.values]
+        # fig_all = df_all.plot(backend='plotly')
+
+        fig = df_nn.plot(backend='plotly')
+        fig_other = df_nn_other.plot(backend='plotly')
+
+        fig_all = make_subplots()
+        colors = sns.color_palette("husl", 4)
+        i = 0
+        for fig_i in (fig, fig_other):
+            for trace in fig_i.data:
+                trace['line']['color'] = 'rgb({}%)'.format('%,'.join(map(lambda x: str(x * 100.), colors[i])))
+                fig_all.add_trace(trace)
+                i += 1
+        fig_all.layout.xaxis.title = 'f (Hz)'
+        fig_all.layout.title = 'Nearest neighbor crosstalk'
+        return fig_all
+
+    def compare_plot_diag(
+        self,
+        other: CrosstalkMatrix,
+        freq: Optional[np.ndarray[np.float64]] = None,
+        freq_other: Optional[np.ndarray[np.float64]] = None,
+    ):
+        from plotly.subplots import make_subplots
+
+        df_diag = pd.Series(np.diag(self.data), index=freq).to_frame(self.name)
+        df_diag.index.name = 'f (Hz)'
+
+        df_diag_other = pd.Series(np.diag(other.data), index=freq_other).to_frame(other.name)
+        df_diag_other.index.name = 'f (Hz)'
+
+        fig = df_diag.plot(backend='plotly')
+        fig_other = df_diag_other.plot(backend='plotly')
+
+        fig_all = make_subplots()
+        colors = sns.color_palette("husl", 2)
+        i = 0
+        for fig_i in (fig, fig_other):
+            for trace in fig_i.data:
+                trace['line']['color'] = 'rgb({}%)'.format('%,'.join(map(lambda x: str(x * 100.),colors[i])))
+                fig_all.add_trace(trace)
+                i += 1
+        fig_all.layout.xaxis.title = 'f (Hz)'
+        fig_all.layout.title = 'Diagonal "crosstalk"'
+        return fig_all
 
     @classmethod
     def from_geometric(
