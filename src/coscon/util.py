@@ -279,7 +279,7 @@ def d_Z_tot_norm_sq_d_omega_i_over_2(
 
 @jit(
     [
-        '''float64(
+        '''float64[::1](
             float64[::1],
             float64,
             float64,
@@ -287,7 +287,7 @@ def d_Z_tot_norm_sq_d_omega_i_over_2(
             float64[::1],
             float64,
         )''',
-        '''float64(
+        '''float64[::1](
             float64[::1],
             float64[::1],
             float64[::1],
@@ -295,7 +295,7 @@ def d_Z_tot_norm_sq_d_omega_i_over_2(
             float64[::1],
             float64,
         )''',
-        '''float64(
+        '''float64[::1](
             float64[::1],
             float64[::1],
             float64[::1],
@@ -315,9 +315,8 @@ def d_Z_tot_norm_sq_d_omega_over_2_for_optimize(
     L_n: Union[float, np.ndarray[np.float64]],
     C_n: np.ndarray[np.float64],
     L_com: float,
-) -> float:
-    res = d_Z_tot_norm_sq_d_omega_i_over_2(R_TES_n, r_s_n, L_n, C_n, L_com, omega_i)
-    return res[0]
+) -> np.ndarray[np.float64]:
+    return d_Z_tot_norm_sq_d_omega_i_over_2(R_TES_n, r_s_n, L_n, C_n, L_com, omega_i)
 
 
 @jit(
@@ -349,16 +348,12 @@ def omega_i_resonance_exact(
     C_n: np.ndarray[np.float64],
     L_com: float,
 ) -> np.ndarray[np.float64]:
-    from scipy.optimize import root_scalar
+    from scipy.optimize import root
 
     omega_i_guess = omega_i_resonance_naive(L_n, C_n)
-    N = C_n.size
-    omega_i = np.empty(N)
-    for i, omega in enumerate(omega_i_guess):
-        temp = root_scalar(d_Z_tot_norm_sq_d_omega_over_2_for_optimize, omega, args=(R_TES_n, r_s_n, L_n, C_n, L_com))
-        assert temp.size == 1
-        omega_i[i] = temp[0]
-    return omega_i
+    res = root(d_Z_tot_norm_sq_d_omega_over_2_for_optimize, omega_i_guess, args=(R_TES_n, r_s_n, L_n, C_n, L_com))
+    assert res.success
+    return res.x
 
 
 @jit('complex128[:, ::1](complex128[:, ::1], complex128[::1])', nopython=True, nogil=True, cache=True)
