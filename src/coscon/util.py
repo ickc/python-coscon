@@ -322,6 +322,48 @@ def d_Z_tot_norm_sq_d_omega_over_2_for_optimize(
 @jit(
     [
         '''float64[::1](
+            float64[::1],
+            float64,
+            float64,
+            float64,
+            float64,
+            float64[::1],
+        )''',
+        '''float64[::1](
+            float64[::1],
+            float64[::1],
+            float64[::1],
+            float64,
+            float64,
+            float64[::1],
+        )''',
+        '''float64[::1](
+            float64[::1],
+            float64[::1],
+            float64[::1],
+            float64[::1],
+            float64,
+            float64[::1],
+        )''',
+    ],
+    nopython=True,
+    nogil=True,
+    cache=True,
+)
+def d_Z_tot_norm_sq_d_omega_over_2_for_optimize_C(
+    C_n: np.ndarray[np.float64],
+    R_TES_n: Union[float, np.ndarray[np.float64]],
+    r_s_n: Union[float, np.ndarray[np.float64]],
+    L_n: Union[float, np.ndarray[np.float64]],
+    L_com: float,
+    omega_i: np.ndarray[np.float64],
+) -> np.ndarray[np.float64]:
+    return d_Z_tot_norm_sq_d_omega_i_over_2(R_TES_n, r_s_n, L_n, C_n, L_com, omega_i)
+
+
+@jit(
+    [
+        '''float64[::1](
             float64,
             float64[::1],
         )''',
@@ -341,17 +383,54 @@ def omega_i_resonance_naive(
     return np.reciprocal(np.sqrt(L_n * C_n))
 
 
+@jit(
+    [
+        '''float64[::1](
+            float64,
+            float64[::1],
+        )''',
+        '''float64[::1](
+            float64[::1],
+            float64[::1],
+        )''',
+    ],
+    nopython=True,
+    nogil=True,
+    cache=True,
+)
+def C_n_resonance_naive(
+    L_n: Union[float, np.ndarray[np.float64]],
+    omega_n: np.ndarray[np.float64],
+) -> np.ndarray[np.float64]:
+    return np.reciprocal(L_n * np.square(omega_n))
+
+
 def omega_i_resonance_exact(
     R_TES_n: Union[float, np.ndarray[np.float64]],
     r_s_n: Union[float, np.ndarray[np.float64]],
     L_n: Union[float, np.ndarray[np.float64]],
-    C_n: np.ndarray[np.float64],
     L_com: float,
+    omega_i: np.ndarray[np.float64],
 ) -> np.ndarray[np.float64]:
     from scipy.optimize import root
 
     omega_i_guess = omega_i_resonance_naive(L_n, C_n)
     res = root(d_Z_tot_norm_sq_d_omega_over_2_for_optimize, omega_i_guess, args=(R_TES_n, r_s_n, L_n, C_n, L_com))
+    assert res.success
+    return res.x
+
+
+def C_n_resonance_exact(
+    R_TES_n: Union[float, np.ndarray[np.float64]],
+    r_s_n: Union[float, np.ndarray[np.float64]],
+    L_n: Union[float, np.ndarray[np.float64]],
+    L_com: float,
+    omega_n: np.ndarray[np.float64],
+) -> np.ndarray[np.float64]:
+    from scipy.optimize import root
+
+    C_n_guess = C_n_resonance_naive(L_n, omega_n)
+    res = root(d_Z_tot_norm_sq_d_omega_over_2_for_optimize_C, C_n_guess, args=(R_TES_n, r_s_n, L_n, L_com, omega_n))
     assert res.success
     return res.x
 
