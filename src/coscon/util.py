@@ -349,13 +349,13 @@ def omega_i_resonance_exact(
     C_n: np.ndarray[np.float64],
     L_com: float,
 ) -> np.ndarray[np.float64]:
-    from scipy.optimize import fsolve
+    from scipy.optimize import root_scalar
 
     omega_i_guess = omega_i_resonance_naive(L_n, C_n)
     N = C_n.size
     omega_i = np.empty(N)
     for i, omega in enumerate(omega_i_guess):
-        temp = fsolve(d_Z_tot_norm_sq_d_omega_over_2_for_optimize, omega, args=(R_TES_n, r_s_n, L_n, C_n, L_com))
+        temp = root_scalar(d_Z_tot_norm_sq_d_omega_over_2_for_optimize, omega, args=(R_TES_n, r_s_n, L_n, C_n, L_com))
         assert temp.size == 1
         omega_i[i] = temp[0]
     return omega_i
