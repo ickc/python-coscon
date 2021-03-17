@@ -70,6 +70,7 @@ flake8 = {optional = true, version = "*"}
 pytest = {optional = true, version = "*"}
 pytest-cov = {optional = true, version = "*"}
 pytest-parallel = {optional = true, version = "*"}
+pytest-mpi = {optional = true, version = "*"}
 
 # docs: sync this with tox.testenv.docs below
 sphinx = {optional = true, version = "^3.3"}
