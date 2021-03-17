@@ -6,6 +6,7 @@ EXTRAS ?=
 COVHTML ?= --cov-report html
 # for bump2version, valid options are: major, minor, patch
 PART ?= patch
+N_MPI ?= 2
 
 # Main Targets #################################################################
 
@@ -14,6 +15,11 @@ PART ?= patch
 test:
 	$(_python) -m pytest -vv $(PYTESTPARALLEL) \
 		--cov=src --cov-report term $(COVHTML) --no-cov-on-fail --cov-branch \
+		tests
+
+test-mpi:
+	mpirun -n $(N_MPI) $(_python) -m pytest -vv --with-mpia \
+		--capture=no \
 		tests
 
 # maintenance ##################################################################
