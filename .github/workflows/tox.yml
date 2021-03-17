@@ -32,8 +32,7 @@ jobs:
         python -c 'import coscon'
         fits_info -h
         simmap_planck2018 -h
-        pytest
     - name: Tests
       run: |
         make test COVHTML='--cov-report=xml'
-        make test-mpi
+        # make test-mpi

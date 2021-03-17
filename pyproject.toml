@@ -59,7 +59,6 @@ yamlloader = ">=0.5"
 matplotlib = "^3"
 h5py = "^3"
 plotly = "^4"
-mpi4py = "^3"
 
 # extras
 coloredlogs = {optional = true, version = ">=14,<16"}
@@ -77,6 +76,9 @@ sphinx = {optional = true, version = "^3.3"}
 sphinx-bootstrap-theme = {optional = true, version = "*"}
 pygments-style-solarized = {optional = true, version = "*"}
 sphinxcontrib-apidoc = {optional = true, version = "*"}
+
+# mpi
+mpi4py = {optional = true, version = "^3"}
 
 [tool.poetry.dev-dependencies]
 tox = "*"
@@ -99,6 +101,10 @@ docs = [
     "sphinx-bootstrap-theme",
     "pygments-style-solarized",
     "sphinxcontrib-apidoc",
+]
+
+mpi = [
+    "mpi4py",
 ]
 
 [tool.poetry.scripts]
