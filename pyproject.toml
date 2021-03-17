@@ -95,6 +95,7 @@ tests = [
     "pytest",
     "pytest-cov",
     "pytest-parallel",
+    "pytest-mpi",
 ]
 docs = [
     "sphinx",
