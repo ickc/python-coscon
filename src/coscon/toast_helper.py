@@ -5,10 +5,13 @@ from functools import cached_property
 from logging import getLogger
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, List, Optional
+from itertools import product
 
 import h5py
 import matplotlib.pyplot as plt
+import plotly
 from plotly.subplots import make_subplots
+import plotly.figure_factory as ff
 import numpy as np
 import pandas as pd
 import schema
@@ -16,6 +19,8 @@ import seaborn as sns
 from matplotlib.colors import LogNorm, SymLogNorm
 from schema import Schema, SchemaError
 from toast.tod import hex_layout, hex_pol_angles_qu, plot_focalplane
+
+import numba_quaternion
 
 from .io_helper import H5_CREATE_KW, dumper, loader
 from .util import geometric_matrix, unique_matrix, joshian_matrix, total_crosstalk_matrix, total_crosstalk_matrix_exact, omega_i_resonance_exact
@@ -180,6 +185,41 @@ class GenericFocalPlane(GenericDictStructure):
                 value['quat'] = np.array(quat)
         super().__post_init__()
 
+    @cached_property
+    def angular_position_and_orientation(self) -> np.ndarray[np.float_]:
+        qs = numba_quaternion.Quaternion(
+            numba_quaternion.lastcol_quat_to_canonical(
+                np.array(self.dataframe.quat.values.tolist())
+            )
+        )
+        return qs.angular_position_and_orientation
+
+    @cached_property
+    def dataframe_with_angular_position_and_orientation(self) -> pd.DataFrame:
+        angular_position_and_orientation = self.angular_position_and_orientation
+        df = self.dataframe.copy()
+        temp = angular_position_and_orientation[:, :2] * (180. / np.pi)
+        df['x'] = temp[:, 0]
+        df['y'] = temp[:, 1]
+        df['orient_angle'] = angular_position_and_orientation[:, 2]
+        return df
+
+    def iplot(
+        self,
+        scale: float = 1.,
+        height: int = 1000,
+        width: int = 1000,
+    ) -> plotly.graph_objs._figure.Figure:
+        pointing = self.angular_position_and_orientation
+        temp = pointing[:, :2] * (180. / np.pi)
+        x = temp[:, 0]
+        y = temp[:, 1]
+        u = np.cos(pointing[:, 2])
+        v = np.sin(pointing[:, 2])
+        fig = ff.create_quiver(x, y, u, v, scale=scale, scaleratio=1.)
+        fig.update_layout(height=height, width=width)
+        return fig
+
 
 @dataclass
 class FakeFocalPlane(GenericFocalPlane):
@@ -257,26 +297,69 @@ class AvesDetectors(GenericFocalPlane):
         self,
         width: float = 20.,
         height: float = 20.,
-        outfile: Optional[Path] = None,
+        fontname: str = 'TeX Gyre Schola',
     ):
-        df = self.dataframe
-        color = {}
-        for case in ('pixtype', 'pol'):
-            col = df[case]
-            values = col.unique()
-            n = values.size
-            color[case] = col.map(dict(zip(values, sns.color_palette("husl", n))))
+        df = self.dataframe_with_angular_position_and_orientation
+        x_min = df.x.min()
+        x_max = df.x.max()
+        y_min = df.y.min()
+        y_max = df.y.max()
+        df['orient_angle_x'] = np.cos(df.orient_angle.values)
+        df['orient_angle_y'] = np.sin(df.orient_angle.values)
 
-        return plot_focalplane(
-            df.quat,
-            width,
-            height,
-            outfile,
-            fwhm=df.fwhm,
-            facecolor=color['pixtype'],
-            polcolor=color['pol'],
-            labels=DictValueEqualsKey(),
-        )
+        colors = sns.color_palette("Paired", 8)
+        color_dict = dict(zip(product(
+            ('A', 'B'),
+            ('Q', 'U'),
+            ('T', 'B'),
+        ), colors))
+
+        fig, ax = plt.subplots(figsize=(width, height))
+        ax.set_aspect(1.)
+        ax.set_xlabel("Degrees", fontsize="large", fontname=fontname)
+        ax.set_ylabel("Degrees", fontsize="large", fontname=fontname)
+        bleed = df.fwhm.max() / 60.
+        ax.set_xlim([x_min - bleed, x_max + bleed])
+        ax.set_ylim([y_min - bleed, y_max + bleed])
+        for _, row in df.iterrows():
+            x = row.x
+            y = row.y
+            radius = row.fwhm / 120.
+            pol = row.pol
+            orient = row.orient
+            handed = row.handed
+            pixel = row.pixel
+            orient_angle_x = row.orient_angle_x
+            orient_angle_y = row.orient_angle_y
+
+            color = color_dict[(
+                handed,
+                orient,
+                pol,
+            )]
+
+            # put circle once per TB
+            if pol == 'T':
+                circle = plt.Circle((x, y), radius=radius, color=color)
+                ax.add_artist(circle)
+            else:
+                ax.text(x, y, pixel, horizontalalignment='center', verticalalignment='center', color=color, fontname=fontname)
+
+            dx = 2. * radius * orient_angle_x
+            dy = 2. * radius * orient_angle_y
+            ax.arrow(
+                x - dx,
+                y - dy,
+                2. * dx,
+                2. * dy,
+                width=0.1 * radius,
+                head_width=0.3 * radius,
+                head_length=0.3 * radius,
+                fc=color,
+                ec=color,
+                length_includes_head=True,
+            )
+        return fig
 
 
 @dataclass
@@ -363,6 +446,7 @@ class AvesHardware(GenericDictStructure):
         self.bands = AvesBands(data['bands'])
         self.detectors = AvesDetectors(data['detectors'])
         self.plot = self.detectors.plot
+        self.iplot = self.detectors.iplot
 
     @cached_property
     def dataframe(self) -> pd.DataFrame:
@@ -370,6 +454,39 @@ class AvesHardware(GenericDictStructure):
         """
         return (
             self.detectors.dataframe
+            .merge(
+                self.telescopes.dataframe.merge(
+                    self.wafers.dataframe,
+                    left_index=True,
+                    right_on='telescope',
+                    how='outer',
+                ).drop('wafers', axis=1),
+                left_on='wafer',
+                right_index=True,
+                how='outer',
+                suffixes=('', '_wafer')
+            ).drop('pixels', axis=1)
+            .merge(
+                self.pixels.dataframe,
+                left_on='pixtype',
+                right_index=True,
+                how='outer',
+            )
+            .merge(
+                self.bands.dataframe,
+                left_on='band',
+                right_index=True,
+                how='outer',
+                suffixes=('', '_band')
+            ).drop(['bands', 'fwhm_band'], axis=1)
+        )
+
+    @cached_property
+    def dataframe_with_angular_position_and_orientation(self) -> pd.DataFrame:
+        """DataFrame representation of the hardware
+        """
+        return (
+            self.detectors.dataframe_with_angular_position_and_orientation
             .merge(
                 self.telescopes.dataframe.merge(
                     self.wafers.dataframe,
