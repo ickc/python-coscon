@@ -4,4 +4,4 @@ Reference
 .. toctree::
     :glob:
 
-    coscon*
+    ../api/modules

@@ -235,6 +235,24 @@ deps =
     sphinx-bootstrap-theme
     pygments-style-solarized
     sphinxcontrib-apidoc
+    defopt = ">=6"
+    astropy = ">=4"
+    healpy = ">=1"
+    numpy = ">=1"
+    numba = ">=0.52"
+    pandas = ">=1"
+    tabulate = ">=0.8"
+    schema = ">=0.7"
+    seaborn = ">=0.11"
+    pysm3 = ">=3"
+    toast-cmb = ">=2"
+    toml = ">=0.10"
+    pyyaml = ">=5"
+    yamlloader = ">=0.5"
+    matplotlib = ">=3"
+    h5py = ">=3"
+    plotly = ">=4"
+    numba_quaternion = ">=0.1,<1"
 commands =
     sphinx-build {posargs:-E} -b dirhtml docs dist/docs
     sphinx-build -b linkcheck docs dist/docs
