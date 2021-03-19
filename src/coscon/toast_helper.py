@@ -23,7 +23,7 @@ from toast.tod import hex_layout, hex_pol_angles_qu, plot_focalplane
 import numba_quaternion
 
 from .io_helper import H5_CREATE_KW, dumper, loader
-from .util import geometric_matrix, unique_matrix, joshian_matrix, total_crosstalk_matrix, total_crosstalk_matrix_exact, omega_i_resonance_exact
+from .util import geometric_matrix, unique_matrix, joshian_matrix, total_crosstalk_matrix, total_crosstalk_matrix_exact, omega_i_resonance_exact, C_n_resonance_exact
 
 if TYPE_CHECKING:
     from typing import Any, Dict, Tuple, Union
@@ -889,13 +889,17 @@ class SQUID:
     R_TES: np.ndarray[np.float64]
     r_s: np.ndarray[np.float64]
     L: Union[float, np.ndarray[np.float64]]
-    C: np.ndarray[np.float64]
     L_com: float
+    C: Optional[np.ndarray[np.float64]] = None
     omega: Optional[np.ndarray[np.float64]] = None
 
     def __post_init__(self):
-        if self.omega is None:
+        if (self.C is None) is (self.omega is None):
+            raise ValueError(f'You need to specify either C or omega.')
+        elif self.omega is None:
             self.omega = omega_i_resonance_exact(self.R_TES, self.r_s, self.L, self.C, self.L_com)
+        elif self.C is None:
+            self.C = C_n_resonance_exact(self.R_TES, self.r_s, self.L, self.L_com, self.omega)
 
     @cached_property
     def freq(self):
