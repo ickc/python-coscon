@@ -186,22 +186,22 @@ class GenericFocalPlane(GenericDictStructure):
         super().__post_init__()
 
     @cached_property
-    def angular_position_and_orientation(self) -> np.ndarray[np.float_]:
+    def azimuthal_equidistant_projection_with_orientation(self) -> np.ndarray[np.float_]:
         qs = numba_quaternion.Quaternion(
             numba_quaternion.lastcol_quat_to_canonical(
                 np.array(self.dataframe.quat.values.tolist())
             )
         )
-        return qs.angular_position_and_orientation
+        return qs.azimuthal_equidistant_projection_with_orientation
 
     @cached_property
-    def dataframe_with_angular_position_and_orientation(self) -> pd.DataFrame:
-        angular_position_and_orientation = self.angular_position_and_orientation
+    def dataframe_with_azimuthal_equidistant_projection_with_orientation(self) -> pd.DataFrame:
+        azimuthal_equidistant_projection_with_orientation = self.azimuthal_equidistant_projection_with_orientation
         df = self.dataframe.copy()
-        temp = angular_position_and_orientation[:, :2] * (180. / np.pi)
+        temp = azimuthal_equidistant_projection_with_orientation[:, :2] * (180. / np.pi)
         df['x'] = temp[:, 0]
         df['y'] = temp[:, 1]
-        df['orient_angle'] = angular_position_and_orientation[:, 2]
+        df['orient_angle'] = azimuthal_equidistant_projection_with_orientation[:, 2]
         return df
 
     def iplot(
@@ -210,7 +210,7 @@ class GenericFocalPlane(GenericDictStructure):
         height: int = 1000,
         width: int = 1000,
     ) -> plotly.graph_objs._figure.Figure:
-        pointing = self.angular_position_and_orientation
+        pointing = self.azimuthal_equidistant_projection_with_orientation
         temp = pointing[:, :2] * (180. / np.pi)
         x = temp[:, 0]
         y = temp[:, 1]
@@ -299,7 +299,7 @@ class AvesDetectors(GenericFocalPlane):
         height: float = 20.,
         fontname: str = 'TeX Gyre Schola',
     ):
-        df = self.dataframe_with_angular_position_and_orientation
+        df = self.dataframe_with_azimuthal_equidistant_projection_with_orientation
         x_min = df.x.min()
         x_max = df.x.max()
         y_min = df.y.min()
@@ -482,11 +482,11 @@ class AvesHardware(GenericDictStructure):
         )
 
     @cached_property
-    def dataframe_with_angular_position_and_orientation(self) -> pd.DataFrame:
+    def dataframe_with_azimuthal_equidistant_projection_with_orientation(self) -> pd.DataFrame:
         """DataFrame representation of the hardware
         """
         return (
-            self.detectors.dataframe_with_angular_position_and_orientation
+            self.detectors.dataframe_with_azimuthal_equidistant_projection_with_orientation
             .merge(
                 self.telescopes.dataframe.merge(
                     self.wafers.dataframe,
