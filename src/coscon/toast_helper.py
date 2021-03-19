@@ -318,7 +318,7 @@ class AvesDetectors(GenericFocalPlane):
         ax.set_aspect(1.)
         ax.set_xlabel("Degrees", fontsize="large", fontname=fontname)
         ax.set_ylabel("Degrees", fontsize="large", fontname=fontname)
-        bleed = df.fwhm.max() / 60.
+        bleed = df.fwhm.max() / 40.
         ax.set_xlim([x_min - bleed, x_max + bleed])
         ax.set_ylim([y_min - bleed, y_max + bleed])
         for _, row in df.iterrows():
