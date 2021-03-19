@@ -886,8 +886,8 @@ class SQUID:
     
     Montgomery2020: Montgomery et al., “Performance and Characterization of the SPT-3G Digital Frequency Multiplexed Readout System Using an Improved Noise and Crosstalk Model.”
     """
-    R_TES: np.ndarray[np.float64]
-    r_s: np.ndarray[np.float64]
+    R_TES: Union[float, np.ndarray[np.float64]]
+    r_s: Union[float, np.ndarray[np.float64]]
     L: Union[float, np.ndarray[np.float64]]
     L_com: float
     C: Optional[np.ndarray[np.float64]] = None
