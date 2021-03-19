@@ -1,0 +1,7 @@
+coscon.util module
+==================
+
+.. automodule:: coscon.util
+   :members:
+   :undoc-members:
+   :show-inheritance:

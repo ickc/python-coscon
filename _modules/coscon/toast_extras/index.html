@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>coscon.toast_extras &#8212; coscon 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/css/_table.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/fonts/fonts.min.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../">
+          coscon</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/ickc/coscon/">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme/">Some convenience functions for Cosmology-related analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage/">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors/">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog/">Revision history for <code class="docutils literal notranslate"><span class="pre">coscon</span></code></a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search/" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for coscon.toast_extras</h1><div class="highlight"><pre>
+<span></span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">toast</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">jit</span>
+<span class="kn">from</span> <span class="nn">toast.mpi</span> <span class="kn">import</span> <span class="n">get_world</span>
+<span class="kn">from</span> <span class="nn">toast.op</span> <span class="kn">import</span> <span class="n">Operator</span>
+<span class="kn">from</span> <span class="nn">toast.utils</span> <span class="kn">import</span> <span class="n">Logger</span>
+
+<span class="kn">from</span> <span class="nn">.io_helper</span> <span class="kn">import</span> <span class="n">H5_CREATE_KW</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+
+<div class="viewcode-block" id="fma"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.fma">[docs]</a><span class="nd">@jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nogil</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">fma</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">ws</span><span class="p">,</span> <span class="o">*</span><span class="n">arrays</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simple FMA, compiled to avoid Python memory implications.</span>
+
+<span class="sd">    :param out: must be zero array in the same shape of each array in `arrays`</span>
+
+<span class="sd">    cache is False to avoid IO on HPC.</span>
+
+<span class="sd">    If not compiled, a lot of Python objects will be created,</span>
+<span class="sd">    and as the Python garbage collector is inefficient,</span>
+<span class="sd">    it would have larger memory footprints.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">array</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ws</span><span class="p">,</span> <span class="n">arrays</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">array</span></div>
+
+
+<div class="viewcode-block" id="add_crosstalk_args"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.add_crosstalk_args">[docs]</a><span class="k">def</span> <span class="nf">add_crosstalk_args</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--crosstalk-matrix&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;input path to crosstalk matrix in HDF5 container.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--crosstalk-write-tod-input&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;output path to write TOD input. For debug only.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--crosstalk-write-tod-output&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;output path to write TOD input. For debug only.&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OpCrosstalk"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">OpCrosstalk</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Operator that apply crosstalk matrix to detector ToDs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">crosstalk_names</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">]</span>
+    <span class="n">crosstalk_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
+    <span class="n">crosstalk_write_tod_input_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">crosstalk_write_tod_output_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;crosstalk&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">procs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="n">get_world</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">Logger</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_serial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span> <span class="ow">is</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">crosstalk_names_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;names in list of str&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_names</span><span class="p">]</span>
+
+<div class="viewcode-block" id="OpCrosstalk.read_serial"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk.read_serial">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_serial</span><span class="p">(</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]:</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;names&quot;</span><span class="p">][:]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][:]</span>
+        <span class="k">return</span> <span class="n">names</span><span class="p">,</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="OpCrosstalk.read_mpi"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk.read_mpi">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_mpi</span><span class="p">(</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">comm</span><span class="p">:</span> <span class="n">toast</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">Comm</span><span class="p">,</span>
+        <span class="n">procs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]:</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="n">Logger</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">comm</span><span class="p">,</span> <span class="n">procs</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">get_world</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">names</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">OpCrosstalk</span><span class="o">.</span><span class="n">read_serial</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">names</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">names</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+            <span class="c1"># cast to int for boardcasting</span>
+            <span class="n">names_int</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="c1"># the data from HDF5 is already float64</span>
+            <span class="c1"># this is needed for comm.Bcast below</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">Bcast</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;crosstalk: Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s1"> receives lengths </span><span class="si">{</span><span class="n">lengths</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">name_len</span> <span class="o">=</span> <span class="n">lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">names_int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">name_len</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">Bcast</span><span class="p">(</span><span class="n">names_int</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">names_int</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;S</span><span class="si">{</span><span class="n">name_len</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;crosstalk: Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s1"> receives names </span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">Bcast</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;crosstalk: Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s1"> receives data </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">names</span><span class="p">,</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="OpCrosstalk.read"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk.read">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;crosstalk&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpCrosstalk</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">crosstalk_matrix</span>
+        <span class="n">comm</span><span class="p">,</span> <span class="n">procs</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">get_world</span><span class="p">()</span>
+        <span class="n">names</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">read_serial</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="n">procs</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">read_mpi</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">comm</span><span class="p">,</span> <span class="n">procs</span><span class="p">,</span> <span class="n">rank</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">names</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">crosstalk_write_tod_input_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">crosstalk_write_tod_input</span><span class="p">,</span>
+            <span class="n">crosstalk_write_tod_output_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">crosstalk_write_tod_output</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="OpCrosstalk.get_tod_serial"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk.get_tod_serial">[docs]</a>    <span class="k">def</span> <span class="nf">get_tod_serial</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tod</span><span class="p">:</span> <span class="n">toast</span><span class="o">.</span><span class="n">tod</span><span class="o">.</span><span class="n">TOD</span><span class="p">,</span>
+        <span class="n">signal_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="OpCrosstalk.get_tod_mpi"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk.get_tod_mpi">[docs]</a>    <span class="k">def</span> <span class="nf">get_tod_mpi</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tod</span><span class="p">:</span> <span class="n">toast</span><span class="o">.</span><span class="n">tod</span><span class="o">.</span><span class="n">TOD</span><span class="p">,</span>
+        <span class="n">signal_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Obtain the TOD as a contiguous array.</span>
+
+<span class="sd">        This is very inefficient as it is for debug only!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span>
+        <span class="n">comm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_names_str</span>
+        <span class="n">names_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="n">tod</span><span class="o">.</span><span class="n">total_samples</span>
+
+        <span class="n">local_dets</span> <span class="o">=</span> <span class="n">tod</span><span class="o">.</span><span class="n">local_dets</span>
+        <span class="n">send_data</span> <span class="o">=</span> <span class="p">[(</span><span class="n">det</span><span class="p">,</span> <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">reference</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">signal_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">det</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">det</span> <span class="ow">in</span> <span class="n">local_dets</span> <span class="k">if</span> <span class="n">det</span> <span class="ow">in</span> <span class="n">names_set</span><span class="p">]</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> collected local TOD from </span><span class="si">{</span><span class="n">local_dets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gathering TOD to root.&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">send_data</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gathered TOD to root, constructing dict&quot;</span><span class="p">)</span>
+            <span class="n">tod_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">datum</span><span class="p">:</span>
+                    <span class="n">tod_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+            <span class="c1"># assume all names are found in tod!</span>
+            <span class="n">tod_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">tod_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">])</span>
+            <span class="k">assert</span> <span class="n">tod_array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TOD array constructed with shape </span><span class="si">{</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tod_array</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="OpCrosstalk.save_tod_serial"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk.save_tod_serial">[docs]</a>    <span class="k">def</span> <span class="nf">save_tod_serial</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">tod</span><span class="p">:</span> <span class="n">toast</span><span class="o">.</span><span class="n">tod</span><span class="o">.</span><span class="n">TOD</span><span class="p">,</span>
+        <span class="n">signal_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="OpCrosstalk.save_tod_mpi"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk.save_tod_mpi">[docs]</a>    <span class="k">def</span> <span class="nf">save_tod_mpi</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">tod</span><span class="p">:</span> <span class="n">toast</span><span class="o">.</span><span class="n">tod</span><span class="o">.</span><span class="n">TOD</span><span class="p">,</span>
+        <span class="n">signal_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">compress_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span>
+        <span class="c1"># non-root should have None</span>
+        <span class="n">tod_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tod_mpi</span><span class="p">(</span>
+            <span class="n">tod</span><span class="p">,</span>
+            <span class="n">signal_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing TOD array to file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">libver</span><span class="o">=</span><span class="s1">&#39;latest&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                    <span class="s1">&#39;names&#39;</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_names</span><span class="p">,</span>
+                    <span class="n">compression_opts</span><span class="o">=</span><span class="n">compress_level</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">H5_CREATE_KW</span>
+                <span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                    <span class="s1">&#39;data&#39;</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">tod_array</span><span class="p">,</span>
+                    <span class="n">compression_opts</span><span class="o">=</span><span class="n">compress_level</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">H5_CREATE_KW</span>
+                <span class="p">)</span></div>
+
+<div class="viewcode-block" id="OpCrosstalk.exec_serial"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk.exec_serial">[docs]</a>    <span class="k">def</span> <span class="nf">exec_serial</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">toast</span><span class="o">.</span><span class="n">dist</span><span class="o">.</span><span class="n">Data</span><span class="p">,</span>
+        <span class="n">signal_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># TODO</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="OpCrosstalk.exec_mpi"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk.exec_mpi">[docs]</a>    <span class="k">def</span> <span class="nf">exec_mpi</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">toast</span><span class="o">.</span><span class="n">dist</span><span class="o">.</span><span class="n">Data</span><span class="p">,</span>
+        <span class="n">signal_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># TODO</span>
+    <span class="p">):</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span>
+        <span class="n">comm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span>
+        <span class="n">procs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">procs</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span>
+        <span class="n">crosstalk_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_names_str</span>
+        <span class="n">crosstalk_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_data</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
+            <span class="n">tod</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;tod&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_write_tod_input_path</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving input TOD to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_write_tod_input_path</span><span class="si">}</span><span class="s2">. You should only use it for debug only!&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">save_tod_mpi</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_write_tod_input_path</span><span class="p">,</span>
+                    <span class="n">tod</span><span class="p">,</span>
+                    <span class="n">signal_name</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="n">tod</span><span class="o">.</span><span class="n">total_samples</span>
+            <span class="n">local_dets</span> <span class="o">=</span> <span class="n">tod</span><span class="o">.</span><span class="n">local_dets</span>
+            <span class="n">n_local_dets</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">local_dets</span><span class="p">)</span>
+
+            <span class="c1"># this is easier to understand and shorter</span>
+            <span class="c1"># but uses allgather instead of the more efficient Allgather</span>
+            <span class="c1"># construct detector LUT</span>
+            <span class="c1"># local_dets = tod.local_dets</span>
+            <span class="c1"># global_dets = comm.allgather(local_dets)</span>
+            <span class="c1"># det_lut = {}</span>
+            <span class="c1"># for i, dets in enumerate(global_dets):</span>
+            <span class="c1">#     for det in dets:</span>
+            <span class="c1">#         det_lut[det] = i</span>
+            <span class="c1"># log.debug(f&#39;dets LUT: {dets_lut}&#39;)</span>
+
+            <span class="c1"># construct det_lut, a LUT to know which rank holds a detector</span>
+            <span class="n">local_has_det</span> <span class="o">=</span> <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_local_has_det_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,))</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+            <span class="n">local_dets_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">tod</span><span class="o">.</span><span class="n">local_dets</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">local_dets_set</span><span class="p">:</span>
+                    <span class="n">local_has_det</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">del</span> <span class="n">local_dets_set</span>
+
+            <span class="n">global_has_det</span> <span class="o">=</span> <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_global_has_det_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="p">(</span><span class="n">procs</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+            <span class="n">comm</span><span class="o">.</span><span class="n">Allgather</span><span class="p">(</span><span class="n">local_has_det</span><span class="p">,</span> <span class="n">global_has_det</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">local_has_det</span><span class="p">,</span> <span class="n">global_has_det</span><span class="p">[</span><span class="n">rank</span><span class="p">])</span>
+            <span class="k">del</span> <span class="n">local_has_det</span>
+            <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_local_has_det_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">det_lut</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">procs</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">global_has_det</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]:</span>
+                        <span class="n">det_lut</span><span class="p">[</span><span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">del</span> <span class="n">global_has_det</span>
+            <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_global_has_det_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s1"> has detectors LUT: </span><span class="si">{</span><span class="n">det_lut</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">local_dets</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="n">det_lut</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="n">rank</span>
+
+            <span class="c1"># mat-mul</span>
+            <span class="n">row_local_total</span> <span class="o">=</span> <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_row_local_total_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="p">(</span><span class="n">n_samples</span><span class="p">,))</span>
+            <span class="n">row_local_weights</span> <span class="o">=</span> <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_row_local_weights_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="p">(</span><span class="n">n_local_dets</span><span class="p">,))</span>
+            <span class="n">local_det_idxs</span> <span class="o">=</span> <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_local_det_idxs_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span> <span class="p">(</span><span class="n">n_local_dets</span><span class="p">,))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">local_dets</span><span class="p">):</span>
+                <span class="n">local_det_idxs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="c1"># row-loop</span>
+            <span class="c1"># potentially the tod can have more detectors than OpCrosstalk.crosstalk_names has</span>
+            <span class="c1"># and they will be skipped</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">crosstalk_data</span><span class="p">):</span>
+                <span class="n">rank_owner</span> <span class="o">=</span> <span class="n">det_lut</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                <span class="c1"># assume each process must have at least one detector</span>
+                <span class="n">row_local_total</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.</span>
+                <span class="n">row_local_weights</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">local_det_idxs</span><span class="p">]</span>
+                <span class="n">tods_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">reference</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">signal_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">names</span><span class="p">[</span><span class="n">local_det_idxs</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_local_dets</span><span class="p">)]</span>
+                <span class="n">fma</span><span class="p">(</span><span class="n">row_local_total</span><span class="p">,</span> <span class="n">row_local_weights</span><span class="p">,</span> <span class="o">*</span><span class="n">tods_list</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="n">rank_owner</span><span class="p">:</span>
+                    <span class="n">row_global_total</span> <span class="o">=</span> <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="p">(</span><span class="n">n_samples</span><span class="p">,))</span>
+                    <span class="n">comm</span><span class="o">.</span><span class="n">Reduce</span><span class="p">(</span><span class="n">row_local_total</span><span class="p">,</span> <span class="n">row_global_total</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">rank_owner</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">comm</span><span class="o">.</span><span class="n">Reduce</span><span class="p">(</span><span class="n">row_local_total</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">rank_owner</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">row_local_total</span><span class="p">,</span> <span class="n">row_local_weights</span><span class="p">,</span> <span class="n">local_det_idxs</span><span class="p">,</span> <span class="n">tods_list</span>
+            <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_row_local_total_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_row_local_weights_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_local_det_idxs_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># overwrite original tod from cache</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">local_dets</span><span class="p">:</span>
+                <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">signal_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">tod</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">add_alias</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">signal_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crosstalk_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_write_tod_output_path</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving input TOD to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_write_tod_output_path</span><span class="si">}</span><span class="s2">. You should only use it for debug only!&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">save_tod_mpi</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_write_tod_output_path</span><span class="p">,</span>
+                    <span class="n">tod</span><span class="p">,</span>
+                    <span class="n">signal_name</span><span class="p">,</span>
+                <span class="p">)</span></div>
+
+<div class="viewcode-block" id="OpCrosstalk.exec"><a class="viewcode-back" href="../../../api/coscon.toast_extras/#coscon.toast_extras.OpCrosstalk.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">toast</span><span class="o">.</span><span class="n">dist</span><span class="o">.</span><span class="n">Data</span><span class="p">,</span>
+        <span class="n">signal_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># TODO</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_serial</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">signal_name</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_serial</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec_mpi</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">signal_name</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span></div></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Kolen Cheung.<br/>
+      Last updated on Mar 18, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>coscon.toast_helper module &#8212; coscon 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/css/_table.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/fonts/fonts.min.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="coscon.util module" href="../coscon.util/" />
+    <link rel="prev" title="coscon.toast_extras module" href="../coscon.toast_extras/" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../">
+          coscon</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/ickc/coscon/">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../readme/">Some convenience functions for Cosmology-related analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../reference/">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors/">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">Revision history for <code class="docutils literal notranslate"><span class="pre">coscon</span></code></a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">coscon.toast_helper module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="../coscon.toast_extras/" title="Previous Chapter: coscon.toast_extras module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; coscon.toast_...</span>
+    </a>
+  </li>
+  <li>
+    <a href="../coscon.util/" title="Next Chapter: coscon.util module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">coscon.util module &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search/" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="module-coscon.toast_helper">
+<span id="coscon-toast-helper-module"></span><h1>coscon.toast_helper module<a class="headerlink" href="#module-coscon.toast_helper" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="coscon.toast_helper.AvesBands">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">AvesBands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>float<span class="p">, </span>int<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesBands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesBands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.toast_helper.GenericDictStructure" title="coscon.toast_helper.GenericDictStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.toast_helper.GenericDictStructure</span></code></a></p>
+<p>a class describing the bands of Aves.</p>
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesBands.data">
+<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>float<span class="p">, </span>int<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.AvesBands.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesBands.schema">
+<code class="sig-name descname">schema</code><em class="property">: ClassVar<span class="p">[</span>dict<span class="p">]</span></em><em class="property"> = {&lt;class 'str'&gt;: {'NET': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'alpha': Or(&lt;class 'float'&gt;, &lt;class 'int'&gt;, &lt;class 'numpy.float64'&gt;, &lt;class 'numpy.int64'&gt;), 'bandpass': &lt;class 'str'&gt;, 'bandwidth': Or(&lt;class 'float'&gt;, &lt;class 'int'&gt;, &lt;class 'numpy.float64'&gt;, &lt;class 'numpy.int64'&gt;), 'center': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'fknee': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'fmin': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'fwhm': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;)}}</em><a class="headerlink" href="#coscon.toast_helper.AvesBands.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.AvesDetectors">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">AvesDetectors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Optional<span class="p">[</span>Union<span class="p">[</span>str<span class="p">, </span>float<span class="p">, </span>int<span class="p">, </span>np.ndarray<span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesDetectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesDetectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.toast_helper.GenericFocalPlane" title="coscon.toast_helper.GenericFocalPlane"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.toast_helper.GenericFocalPlane</span></code></a></p>
+<p>a class describing the detectors of Aves.</p>
+<p>similar to FakeFocalPlane</p>
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesDetectors.data">
+<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span>str<span class="p">, </span>Optional<span class="p">[</span>Union<span class="p">[</span>str<span class="p">, </span>float<span class="p">, </span>int<span class="p">, </span>np.ndarray<span class="p">]</span><span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.AvesDetectors.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.AvesDetectors.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">width</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">height</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">fontname</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'TeX Gyre Schola'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesDetectors.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesDetectors.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesDetectors.schema">
+<code class="sig-name descname">schema</code><em class="property">: ClassVar<span class="p">[</span>dict<span class="p">]</span></em><em class="property"> = {&lt;class 'str'&gt;: {'wafer': &lt;class 'str'&gt;, 'pixel': &lt;class 'str'&gt;, 'pixtype': &lt;class 'str'&gt;, 'band': &lt;class 'str'&gt;, 'fwhm': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'pol': And(&lt;class 'str'&gt;, &lt;function &lt;lambda&gt;&gt;), Optional('handed'): Or(None, And(&lt;class 'str'&gt;, &lt;function &lt;lambda&gt;&gt;)), 'orient': And(&lt;class 'str'&gt;, &lt;function &lt;lambda&gt;&gt;), 'quat': And(&lt;class 'numpy.ndarray'&gt;, &lt;function &lt;lambda&gt;&gt;), 'UID': Or(&lt;class 'int'&gt;, &lt;class 'numpy.int64'&gt;)}}</em><a class="headerlink" href="#coscon.toast_helper.AvesDetectors.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.AvesHardware">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">AvesHardware</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict[str, dict]</span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesHardware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesHardware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.toast_helper.GenericDictStructure" title="coscon.toast_helper.GenericDictStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.toast_helper.GenericDictStructure</span></code></a></p>
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesHardware.data">
+<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span>str<span class="p">, </span>dict<span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.AvesHardware.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.AvesHardware.dataframe">
+<em class="property">property </em><code class="sig-name descname">dataframe</code><a class="headerlink" href="#coscon.toast_helper.AvesHardware.dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>DataFrame representation of the hardware</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.AvesHardware.dataframe_with_azimuthal_equidistant_projection_with_orientation">
+<em class="property">property </em><code class="sig-name descname">dataframe_with_azimuthal_equidistant_projection_with_orientation</code><a class="headerlink" href="#coscon.toast_helper.AvesHardware.dataframe_with_azimuthal_equidistant_projection_with_orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>DataFrame representation of the hardware</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.AvesHardware.from_dataframe">
+<em class="property">classmethod </em><code class="sig-name descname">from_dataframe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesHardware.from_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesHardware.from_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create Hardware from a dataframe representation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.AvesHardware.reorder_to">
+<code class="sig-name descname">reorder_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pixels</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">TB_anti_alignment</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">TB_alternate_anti_alignment</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#coscon.toast_helper.AvesHardware" title="coscon.toast_helper.AvesHardware">coscon.toast_helper.AvesHardware</a><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesHardware.reorder_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesHardware.reorder_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorder pixels according its integer assignment</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>TB_anti_alignment</strong> (<em>bool</em>) – if True, assume TB pixels ordering BTTBBTTBBT..</p>
+</dd>
+</dl>
+<p>else BTBTBTBT…</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.AvesHardware.reorder_to_from_csv">
+<code class="sig-name descname">reorder_to_from_csv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">TB_anti_alignment</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">TB_alternate_anti_alignment</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#coscon.toast_helper.AvesHardware" title="coscon.toast_helper.AvesHardware">coscon.toast_helper.AvesHardware</a><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesHardware.reorder_to_from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesHardware.reorder_to_from_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorder pixels according its integer assignment</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>Path</em>) – a csv or txt file that has the pixel numbers per line</p></li>
+<li><p><strong>TB_anti_alignment</strong> (<em>bool</em>) – if True, assume TB pixels ordering BTTBBTTBBT..</p></li>
+</ul>
+</dd>
+</dl>
+<p>else BTBTBTBT…</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesHardware.schema">
+<code class="sig-name descname">schema</code><em class="property">: ClassVar<span class="p">[</span>dict<span class="p">]</span></em><em class="property"> = {&lt;class 'str'&gt;: {'bands': &lt;class 'dict'&gt;, 'detectors': &lt;class 'dict'&gt;, 'pixels': &lt;class 'dict'&gt;, 'telescopes': &lt;class 'dict'&gt;, 'wafers': &lt;class 'dict'&gt;}}</em><a class="headerlink" href="#coscon.toast_helper.AvesHardware.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.AvesPixels">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">AvesPixels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>float<span class="p">, </span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesPixels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesPixels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.toast_helper.GenericDictStructure" title="coscon.toast_helper.GenericDictStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.toast_helper.GenericDictStructure</span></code></a></p>
+<p>a class describing the pixels of Aves.</p>
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesPixels.data">
+<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>float<span class="p">, </span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.AvesPixels.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesPixels.schema">
+<code class="sig-name descname">schema</code><em class="property">: ClassVar<span class="p">[</span>dict<span class="p">]</span></em><em class="property"> = {&lt;class 'str'&gt;: {'bands': And(&lt;class 'list'&gt;, &lt;function &lt;lambda&gt;&gt;), 'sizemm': &lt;class 'float'&gt;}}</em><a class="headerlink" href="#coscon.toast_helper.AvesPixels.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.AvesTelescopes">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">AvesTelescopes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>float<span class="p">, </span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesTelescopes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesTelescopes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.toast_helper.GenericDictStructure" title="coscon.toast_helper.GenericDictStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.toast_helper.GenericDictStructure</span></code></a></p>
+<p>a class describing the telescopes of Aves.</p>
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesTelescopes.data">
+<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>float<span class="p">, </span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.AvesTelescopes.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesTelescopes.schema">
+<code class="sig-name descname">schema</code><em class="property">: ClassVar<span class="p">[</span>dict<span class="p">]</span></em><em class="property"> = {&lt;class 'str'&gt;: {'platescale': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'wafers': And(&lt;class 'list'&gt;, &lt;function &lt;lambda&gt;&gt;), 'waferspace': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;)}}</em><a class="headerlink" href="#coscon.toast_helper.AvesTelescopes.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.AvesWafers">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">AvesWafers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Optional<span class="p">[</span>Union<span class="p">[</span>float<span class="p">, </span>int<span class="p">, </span>str<span class="p">, </span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesWafers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesWafers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.toast_helper.GenericDictStructure" title="coscon.toast_helper.GenericDictStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.toast_helper.GenericDictStructure</span></code></a></p>
+<p>a class describing the wafers of Aves.</p>
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesWafers.data">
+<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span>str<span class="p">, </span>Optional<span class="p">[</span>Union<span class="p">[</span>float<span class="p">, </span>int<span class="p">, </span>str<span class="p">, </span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.AvesWafers.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.AvesWafers.schema">
+<code class="sig-name descname">schema</code><em class="property">: ClassVar<span class="p">[</span>dict<span class="p">]</span></em><em class="property"> = {&lt;class 'str'&gt;: {'type': &lt;class 'str'&gt;, 'npixel': Or(&lt;class 'int'&gt;, &lt;class 'numpy.int64'&gt;), 'pixels': And(&lt;class 'list'&gt;, &lt;function &lt;lambda&gt;&gt;), Optional('handed'): Or(None, &lt;class 'float'&gt;, &lt;class 'int'&gt;, &lt;class 'numpy.float64'&gt;, &lt;class 'numpy.int64'&gt;), 'position': Or(&lt;class 'int'&gt;, &lt;class 'numpy.int64'&gt;), 'telescope': &lt;class 'str'&gt;}}</em><a class="headerlink" href="#coscon.toast_helper.AvesWafers.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.CrosstalkMatrix">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">CrosstalkMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>S<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">freq</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#CrosstalkMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.toast_helper.GenericMatrix" title="coscon.toast_helper.GenericMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.toast_helper.GenericMatrix</span></code></a></p>
+<p>Crosstalk square matrix where column and row share the same names</p>
+<dl class="py method">
+<dt id="coscon.toast_helper.CrosstalkMatrix.compare_plot_diag">
+<code class="sig-name descname">compare_plot_diag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">others</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#coscon.toast_helper.CrosstalkMatrix" title="coscon.toast_helper.CrosstalkMatrix">coscon.toast_helper.CrosstalkMatrix</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#CrosstalkMatrix.compare_plot_diag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.compare_plot_diag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.CrosstalkMatrix.compare_plot_nearest_neighbor">
+<code class="sig-name descname">compare_plot_nearest_neighbor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">others</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#coscon.toast_helper.CrosstalkMatrix" title="coscon.toast_helper.CrosstalkMatrix">coscon.toast_helper.CrosstalkMatrix</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#CrosstalkMatrix.compare_plot_nearest_neighbor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.compare_plot_nearest_neighbor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.CrosstalkMatrix.dataframe">
+<em class="property">property </em><code class="sig-name descname">dataframe</code><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.CrosstalkMatrix.dataframe_diag_only">
+<em class="property">property </em><code class="sig-name descname">dataframe_diag_only</code><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.dataframe_diag_only" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.CrosstalkMatrix.dataframe_nearest_neighbor_only">
+<em class="property">property </em><code class="sig-name descname">dataframe_nearest_neighbor_only</code><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.dataframe_nearest_neighbor_only" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.CrosstalkMatrix.freq">
+<code class="sig-name descname">freq</code><em class="property"> = None</em><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.freq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.CrosstalkMatrix.from_geometric">
+<em class="property">classmethod </em><code class="sig-name descname">from_geometric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">, </span>np.ndarray<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.01</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#coscon.toast_helper.CrosstalkMatrix" title="coscon.toast_helper.CrosstalkMatrix">CrosstalkMatrix</a><a class="reference internal" href="../../_modules/coscon/toast_helper/#CrosstalkMatrix.from_geometric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.from_geometric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a crosstalk matrix with coefficients in geometric series.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.CrosstalkMatrix.from_joshian_matrix">
+<em class="property">classmethod </em><code class="sig-name descname">from_joshian_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">, </span>np.ndarray<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">nearest</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">next_nearest</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">floor</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#coscon.toast_helper.CrosstalkMatrix" title="coscon.toast_helper.CrosstalkMatrix">CrosstalkMatrix</a><a class="reference internal" href="../../_modules/coscon/toast_helper/#CrosstalkMatrix.from_joshian_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.from_joshian_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a crosstalk matrix with structure based on Josh’s simple assumption</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.CrosstalkMatrix.from_unique_matrix">
+<em class="property">classmethod </em><code class="sig-name descname">from_unique_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">, </span>np.ndarray<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#coscon.toast_helper.CrosstalkMatrix" title="coscon.toast_helper.CrosstalkMatrix">CrosstalkMatrix</a><a class="reference internal" href="../../_modules/coscon/toast_helper/#CrosstalkMatrix.from_unique_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.from_unique_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a crosstalk matrix with each entry to be unique.</p>
+<p>Mainly for debug use to confirm the matrix multiplication is correct.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.CrosstalkMatrix.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">annot</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">figsize</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#CrosstalkMatrix.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.CrosstalkMatrix.to_random_normal">
+<code class="sig-name descname">to_random_normal</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#coscon.toast_helper.CrosstalkMatrix" title="coscon.toast_helper.CrosstalkMatrix">coscon.toast_helper.CrosstalkMatrix</a><a class="reference internal" href="../../_modules/coscon/toast_helper/#CrosstalkMatrix.to_random_normal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.CrosstalkMatrix.to_random_normal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a random normal matrix based on original matrix except for diagonal</p>
+<p>with mean and std given by the original matrix.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.DictValueEqualsKey">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">DictValueEqualsKey</code><a class="reference internal" href="../../_modules/coscon/toast_helper/#DictValueEqualsKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.DictValueEqualsKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A fake dictionary where its values always equal their keys</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.FakeFocalPlane">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">FakeFocalPlane</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#FakeFocalPlane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.FakeFocalPlane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.toast_helper.GenericFocalPlane" title="coscon.toast_helper.GenericFocalPlane"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.toast_helper.GenericFocalPlane</span></code></a></p>
+<p>a class describing the output of fake_focalplane</p>
+<dl class="py attribute">
+<dt id="coscon.toast_helper.FakeFocalPlane.data">
+<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.FakeFocalPlane.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.FakeFocalPlane.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">width</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">4.0</span></em>, <em class="sig-param"><span class="n">height</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">4.0</span></em>, <em class="sig-param"><span class="n">outfile</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Path<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">facecolor</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">, </span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">polcolor</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">, </span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#FakeFocalPlane.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.FakeFocalPlane.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.FakeFocalPlane.schema">
+<code class="sig-name descname">schema</code><em class="property">: ClassVar<span class="p">[</span>dict<span class="p">]</span></em><em class="property"> = {&lt;class 'str'&gt;: {'NET': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'alpha': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'epsilon': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'fknee': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'fmin': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'fwhm_arcmin': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;), 'quat': And(&lt;class 'numpy.ndarray'&gt;, &lt;function &lt;lambda&gt;&gt;), 'rate': Or(&lt;class 'float'&gt;, &lt;class 'numpy.float64'&gt;)}}</em><a class="headerlink" href="#coscon.toast_helper.FakeFocalPlane.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.GenericDictStructure">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">GenericDictStructure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict[str, Any]</span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#GenericDictStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.GenericDictStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt id="coscon.toast_helper.GenericDictStructure.data">
+<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span>str<span class="p">, </span>Any<span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.GenericDictStructure.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericDictStructure.dataframe">
+<em class="property">property </em><code class="sig-name descname">dataframe</code><a class="headerlink" href="#coscon.toast_helper.GenericDictStructure.dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>DataFrame representation of the focal plane</p>
+<p>This has opposite key-ordering from the dict
+i.e. self.data[some_key][‘quat’] == self.dataframe[‘quat’][some_key] == self.dataframe.loc[some_key, ‘quat’]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericDictStructure.dump">
+<code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Path<span class="p">, </span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">compress</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#GenericDictStructure.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.GenericDictStructure.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write hardware config to a TOML/YAML/JSON file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericDictStructure.load">
+<em class="property">classmethod </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Path<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#GenericDictStructure.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.GenericDictStructure.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read data from a TOML/YAML/JSON file.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.GenericDictStructure.schema">
+<code class="sig-name descname">schema</code><em class="property">: ClassVar<span class="p">[</span>dict<span class="p">]</span></em><em class="property"> = {}</em><a class="headerlink" href="#coscon.toast_helper.GenericDictStructure.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericDictStructure.validate">
+<code class="sig-name descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#GenericDictStructure.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.GenericDictStructure.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.GenericDictStructure.validate_schema">
+<code class="sig-name descname">validate_schema</code><em class="property">: bool</em><em class="property"> = True</em><a class="headerlink" href="#coscon.toast_helper.GenericDictStructure.validate_schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.GenericFocalPlane">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">GenericFocalPlane</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict[str, Any]</span></em>, <em class="sig-param"><span class="n">validate_schema</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#GenericFocalPlane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.GenericFocalPlane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.toast_helper.GenericDictStructure" title="coscon.toast_helper.GenericDictStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.toast_helper.GenericDictStructure</span></code></a></p>
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericFocalPlane.azimuthal_equidistant_projection_with_orientation">
+<em class="property">property </em><code class="sig-name descname">azimuthal_equidistant_projection_with_orientation</code><a class="headerlink" href="#coscon.toast_helper.GenericFocalPlane.azimuthal_equidistant_projection_with_orientation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.GenericFocalPlane.data">
+<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span>str<span class="p">, </span>Any<span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.GenericFocalPlane.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericFocalPlane.dataframe_with_azimuthal_equidistant_projection_with_orientation">
+<em class="property">property </em><code class="sig-name descname">dataframe_with_azimuthal_equidistant_projection_with_orientation</code><a class="headerlink" href="#coscon.toast_helper.GenericFocalPlane.dataframe_with_azimuthal_equidistant_projection_with_orientation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericFocalPlane.iplot">
+<code class="sig-name descname">iplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scale</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">height</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1000</span></em>, <em class="sig-param"><span class="n">width</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1000</span></em><span class="sig-paren">)</span> &#x2192; plotly.graph_objs._figure.Figure<a class="reference internal" href="../../_modules/coscon/toast_helper/#GenericFocalPlane.iplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.GenericFocalPlane.iplot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.GenericMatrix">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">GenericMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>S<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#GenericMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.GenericMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generic matrix that has row names in ASCII.</p>
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericMatrix.dump">
+<code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">compress_level</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">9</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#GenericMatrix.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.GenericMatrix.dump" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericMatrix.load">
+<em class="property">classmethod </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">pathlib.Path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#GenericMatrix.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.GenericMatrix.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.GenericMatrix.name">
+<code class="sig-name descname">name</code><em class="property"> = None</em><a class="headerlink" href="#coscon.toast_helper.GenericMatrix.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericMatrix.names_str">
+<em class="property">property </em><code class="sig-name descname">names_str</code><a class="headerlink" href="#coscon.toast_helper.GenericMatrix.names_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>names in list of str</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericMatrix.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#coscon.toast_helper.GenericMatrix.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.GenericMatrix.size">
+<em class="property">property </em><code class="sig-name descname">size</code><a class="headerlink" href="#coscon.toast_helper.GenericMatrix.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.NaiveTod">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">NaiveTod</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>S<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#NaiveTod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.NaiveTod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.toast_helper.GenericMatrix" title="coscon.toast_helper.GenericMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.toast_helper.GenericMatrix</span></code></a></p>
+<p>Naive TOD matrix that has all data in contiguous array</p>
+<dl class="py method">
+<dt id="coscon.toast_helper.NaiveTod.apply_crosstalk">
+<code class="sig-name descname">apply_crosstalk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">crosstalk_matrix</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#coscon.toast_helper.CrosstalkMatrix" title="coscon.toast_helper.CrosstalkMatrix">coscon.toast_helper.CrosstalkMatrix</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#coscon.toast_helper.NaiveTod" title="coscon.toast_helper.NaiveTod">coscon.toast_helper.NaiveTod</a><a class="reference internal" href="../../_modules/coscon/toast_helper/#NaiveTod.apply_crosstalk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.NaiveTod.apply_crosstalk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.NaiveTod.dataframe">
+<em class="property">property </em><code class="sig-name descname">dataframe</code><a class="headerlink" href="#coscon.toast_helper.NaiveTod.dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.toast_helper.SQUID">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">SQUID</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">omega</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#SQUID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.SQUID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A model of the SQUID readout.</p>
+<p>See fig. 4 in Montgomery2020.</p>
+<p>Montgomery2020: Montgomery et al., “Performance and Characterization of the SPT-3G Digital Frequency Multiplexed Readout System Using an Improved Noise and Crosstalk Model.”</p>
+<dl class="py method">
+<dt id="coscon.toast_helper.SQUID.dataframe">
+<code class="sig-name descname">dataframe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">include_omega</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">include_freq</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="../../_modules/coscon/toast_helper/#SQUID.dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.SQUID.dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.SQUID.freq">
+<em class="property">property </em><code class="sig-name descname">freq</code><a class="headerlink" href="#coscon.toast_helper.SQUID.freq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.SQUID.omega">
+<code class="sig-name descname">omega</code><em class="property"> = None</em><a class="headerlink" href="#coscon.toast_helper.SQUID.omega" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.SQUID.to_crosstalk_matrix">
+<code class="sig-name descname">to_crosstalk_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">, </span>np.ndarray<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#coscon.toast_helper.CrosstalkMatrix" title="coscon.toast_helper.CrosstalkMatrix">CrosstalkMatrix</a><a class="reference internal" href="../../_modules/coscon/toast_helper/#SQUID.to_crosstalk_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.SQUID.to_crosstalk_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the crosstalk matrix using Montgomery2020 approximations</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.SQUID.to_crosstalk_matrix_exact">
+<code class="sig-name descname">to_crosstalk_matrix_exact</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">, </span>np.ndarray<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#coscon.toast_helper.CrosstalkMatrix" title="coscon.toast_helper.CrosstalkMatrix">CrosstalkMatrix</a><a class="reference internal" href="../../_modules/coscon/toast_helper/#SQUID.to_crosstalk_matrix_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.SQUID.to_crosstalk_matrix_exact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the crosstalk matrix using Montgomery2020 formulism without the approximations</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_helper.SQUID.to_dict">
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">include_omega</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">include_freq</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="../../_modules/coscon/toast_helper/#SQUID.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.SQUID.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.toast_helper.fake_focalplane">
+<code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">fake_focalplane</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">samplerate</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">epsilon</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">net</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">fmin</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">fknee</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.05</span></em>, <em class="sig-param"><span class="n">fwhm</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">30.0</span></em>, <em class="sig-param"><span class="n">npix</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">7</span></em>, <em class="sig-param"><span class="n">fov</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">3.0</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">]</span><span class="p">]</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#fake_focalplane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.fake_focalplane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a set of fake detectors.</p>
+<p>This generates 7 pixels (14 dets) in a hexagon layout at the boresight
+and with a made up polarization orientation.</p>
+<p>This function is copied from TOAST workshop with the following license:</p>
+<p>BSD 2-Clause License</p>
+<p>Copyright (c) 2019, hpc4cmb
+All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.toast_helper.na_to_none">
+<code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">na_to_none</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#na_to_none"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.na_to_none" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert pandas null value to None</p>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Kolen Cheung.<br/>
+      Last updated on Mar 18, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

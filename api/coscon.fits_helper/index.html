@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>coscon.fits_helper module &#8212; coscon 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/css/_table.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/fonts/fonts.min.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="coscon.io_helper module" href="../coscon.io_helper/" />
+    <link rel="prev" title="coscon.cmb module" href="../coscon.cmb/" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../">
+          coscon</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/ickc/coscon/">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../readme/">Some convenience functions for Cosmology-related analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../reference/">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors/">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">Revision history for <code class="docutils literal notranslate"><span class="pre">coscon</span></code></a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">coscon.fits_helper module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="../coscon.cmb/" title="Previous Chapter: coscon.cmb module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; coscon.cmb module</span>
+    </a>
+  </li>
+  <li>
+    <a href="../coscon.io_helper/" title="Next Chapter: coscon.io_helper module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">coscon.io_hel... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search/" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="module-coscon.fits_helper">
+<span id="coscon-fits-helper-module"></span><h1>coscon.fits_helper module<a class="headerlink" href="#module-coscon.fits_helper" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="coscon.fits_helper.BaseFitsHelper">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.fits_helper.</code><code class="sig-name descname">BaseFitsHelper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">memmap</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/fits_helper/#BaseFitsHelper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.fits_helper.BaseFitsHelper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class for general fits files</p>
+<dl class="py method">
+<dt id="coscon.fits_helper.BaseFitsHelper.info">
+<em class="property">property </em><code class="sig-name descname">info</code><a class="headerlink" href="#coscon.fits_helper.BaseFitsHelper.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.fits_helper.BaseFitsHelper.infos">
+<em class="property">property </em><code class="sig-name descname">infos</code><a class="headerlink" href="#coscon.fits_helper.BaseFitsHelper.infos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.fits_helper.BaseFitsHelper.memmap">
+<code class="sig-name descname">memmap</code><em class="property">: bool</em><em class="property"> = True</em><a class="headerlink" href="#coscon.fits_helper.BaseFitsHelper.memmap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.fits_helper.BaseFitsHelper.name">
+<code class="sig-name descname">name</code><em class="property">: str</em><em class="property"> = ''</em><a class="headerlink" href="#coscon.fits_helper.BaseFitsHelper.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.fits_helper.BaseFitsHelper.path">
+<code class="sig-name descname">path</code><em class="property">: pathlib.Path</em><a class="headerlink" href="#coscon.fits_helper.BaseFitsHelper.path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="coscon.fits_helper.CMBFitsHelper">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.fits_helper.</code><code class="sig-name descname">CMBFitsHelper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">memmap</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/fits_helper/#CMBFitsHelper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.fits_helper.CMBFitsHelper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#coscon.fits_helper.BaseFitsHelper" title="coscon.fits_helper.BaseFitsHelper"><code class="xref py py-class docutils literal notranslate"><span class="pre">coscon.fits_helper.BaseFitsHelper</span></code></a></p>
+<p>Specialized in fits container typically used in CMB analysis</p>
+<dl class="py method">
+<dt id="coscon.fits_helper.CMBFitsHelper.maps">
+<em class="property">property </em><code class="sig-name descname">maps</code><a class="headerlink" href="#coscon.fits_helper.CMBFitsHelper.maps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a 2D healpix map array.
+where the first dimension is the i-th map</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.fits_helper.CMBFitsHelper.n_maps">
+<em class="property">property </em><code class="sig-name descname">n_maps</code><a class="headerlink" href="#coscon.fits_helper.CMBFitsHelper.n_maps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return total number of maps assuming it is a CMB fits</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.fits_helper.CMBFitsHelper.names">
+<em class="property">property </em><code class="sig-name descname">names</code><a class="headerlink" href="#coscon.fits_helper.CMBFitsHelper.names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get names of maps</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.fits_helper.CMBFitsHelper.path">
+<code class="sig-name descname">path</code><em class="property">: pathlib.Path</em><a class="headerlink" href="#coscon.fits_helper.CMBFitsHelper.path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.fits_helper.CMBFitsHelper.to_maps">
+<em class="property">property </em><code class="sig-name descname">to_maps</code><a class="headerlink" href="#coscon.fits_helper.CMBFitsHelper.to_maps" title="Permalink to this definition">¶</a></dt>
+<dd><p>package data in a Maps object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.fits_helper.fits_info_cli">
+<code class="sig-prename descclassname">coscon.fits_helper.</code><code class="sig-name descname">fits_info_cli</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/fits_helper/#fits_info_cli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.fits_helper.fits_info_cli" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Kolen Cheung.<br/>
+      Last updated on Mar 18, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

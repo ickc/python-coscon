@@ -1,0 +1,7 @@
+coscon.cmb module
+=================
+
+.. automodule:: coscon.cmb
+   :members:
+   :undoc-members:
+   :show-inheritance:

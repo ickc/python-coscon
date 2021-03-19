@@ -1,0 +1,20 @@
+coscon package
+==============
+
+.. automodule:: coscon
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   coscon.cmb
+   coscon.fits_helper
+   coscon.io_helper
+   coscon.toast_extras
+   coscon.toast_helper
+   coscon.util

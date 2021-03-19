@@ -1,0 +1,7 @@
+coscon.fits\_helper module
+==========================
+
+.. automodule:: coscon.fits_helper
+   :members:
+   :undoc-members:
+   :show-inheritance:

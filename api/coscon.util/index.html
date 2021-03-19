@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>coscon.util module &#8212; coscon 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/css/_table.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/fonts/fonts.min.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="Contributing" href="../../contributing/" />
+    <link rel="prev" title="coscon.toast_helper module" href="../coscon.toast_helper/" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../">
+          coscon</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/ickc/coscon/">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../readme/">Some convenience functions for Cosmology-related analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../reference/">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors/">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">Revision history for <code class="docutils literal notranslate"><span class="pre">coscon</span></code></a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">coscon.util module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="../coscon.toast_helper/" title="Previous Chapter: coscon.toast_helper module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; coscon.toast_...</span>
+    </a>
+  </li>
+  <li>
+    <a href="../../contributing/" title="Next Chapter: Contributing"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Contributing &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search/" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="module-coscon.util">
+<span id="coscon-util-module"></span><h1>coscon.util module<a class="headerlink" href="#module-coscon.util" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="coscon.util.C_n_resonance_exact">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">C_n_resonance_exact</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">omega_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#C_n_resonance_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.C_n_resonance_exact" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.C_n_resonance_naive">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">C_n_resonance_naive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">omega_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#C_n_resonance_naive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.C_n_resonance_naive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.Z_com_omega_i">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">Z_com_omega_i</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#Z_com_omega_i"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.Z_com_omega_i" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.Z_n_omega_i">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">Z_n_omega_i</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#Z_n_omega_i"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.Z_n_omega_i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Impedance of a single cryogenic filter leg n at angular freq. omega_i</p>
+<p>Eq. 1</p>
+<p>Return 2d-array, where the 1st dim as i &amp; 2nd dim as n</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.Z_net_omega_i">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">Z_net_omega_i</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">Z_n_omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#Z_net_omega_i"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.Z_net_omega_i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Impedance of full network at angular freq. omega_i</p>
+<p>Eq. 2</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.Z_tot_i">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">Z_tot_i</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#Z_tot_i"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.Z_tot_i" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.Z_tot_norm_sq_i">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">Z_tot_norm_sq_i</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#Z_tot_norm_sq_i"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.Z_tot_norm_sq_i" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.d_Z_tot_norm_sq_d_omega_i_over_2">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">d_Z_tot_norm_sq_d_omega_i_over_2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#d_Z_tot_norm_sq_d_omega_i_over_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.d_Z_tot_norm_sq_d_omega_i_over_2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.d_Z_tot_norm_sq_d_omega_over_2_for_optimize">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">d_Z_tot_norm_sq_d_omega_over_2_for_optimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">R_TES_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#d_Z_tot_norm_sq_d_omega_over_2_for_optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.d_Z_tot_norm_sq_d_omega_over_2_for_optimize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.d_Z_tot_norm_sq_d_omega_over_2_for_optimize_C">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">d_Z_tot_norm_sq_d_omega_over_2_for_optimize_C</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">C_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">R_TES_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#d_Z_tot_norm_sq_d_omega_over_2_for_optimize_C"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.d_Z_tot_norm_sq_d_omega_over_2_for_optimize_C" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.from_Cl_to_Dl">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">from_Cl_to_Dl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">spectra</span></em>, <em class="sig-param"><span class="n">l</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/util/#from_Cl_to_Dl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.from_Cl_to_Dl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert from Cl scale to Dl scale.</p>
+<p>D_l = [l(l+1)/2pi] C_l</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.from_Dl_to_Cl">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">from_Dl_to_Cl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">spectra</span></em>, <em class="sig-param"><span class="n">l</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/util/#from_Dl_to_Cl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.from_Dl_to_Cl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert from Dl scale to Cl scale.</p>
+<p>D_l = [l(l+1)/2pi] C_l</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.geometric_matrix">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">geometric_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">r</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/util/#geometric_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.geometric_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a matrix with coefficients in geometric series.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.joshian_matrix">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">joshian_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">nearest</span></em>, <em class="sig-param"><span class="n">next_nearest</span></em>, <em class="sig-param"><span class="n">floor</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/util/#joshian_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.joshian_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a matrix based on Josh’s simple assumption</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.leakage_power_crosstalk">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">leakage_power_crosstalk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES_i</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">Z_n_omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">Z_com_omega_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#leakage_power_crosstalk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.leakage_power_crosstalk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.leakage_power_crosstalk_exact">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">leakage_power_crosstalk_exact</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES_i</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">Z_n_omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">Z_com_omega_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#leakage_power_crosstalk_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.leakage_power_crosstalk_exact" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.omega_i_resonance_exact">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">omega_i_resonance_exact</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#omega_i_resonance_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.omega_i_resonance_exact" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.omega_i_resonance_naive">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">omega_i_resonance_naive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#omega_i_resonance_naive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.omega_i_resonance_naive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.primary_signal_and_leakage_current_crosstalk_n_omega_i">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">primary_signal_and_leakage_current_crosstalk_n_omega_i</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">Z_n_omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">Z_com_omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.complex128<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#primary_signal_and_leakage_current_crosstalk_n_omega_i"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.primary_signal_and_leakage_current_crosstalk_n_omega_i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary signal &amp; leakage current crosstalk at leg n &amp; angular freq. omega_i</p>
+<p>Eq. 7</p>
+<p>Return 2d-array, where the 1st dim as i &amp; 2nd dim as n</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.total_crosstalk_matrix">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">total_crosstalk_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#total_crosstalk_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.total_crosstalk_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total crosstalk with 2 approximations in Montgomery’s paper</p>
+<p>See <cite>total_crosstalk_matrix_exact</cite> for an exact result.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.total_crosstalk_matrix_exact">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">total_crosstalk_matrix_exact</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C_n</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">omega_i</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/util/#total_crosstalk_matrix_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.total_crosstalk_matrix_exact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total crosstalk without approximations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.util.unique_matrix">
+<code class="sig-prename descclassname">coscon.util.</code><code class="sig-name descname">unique_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/util/#unique_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.util.unique_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a matrix with each entry to be unique.</p>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Kolen Cheung.<br/>
+      Last updated on Mar 18, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

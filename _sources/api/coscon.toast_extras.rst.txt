@@ -1,0 +1,7 @@
+coscon.toast\_extras module
+===========================
+
+.. automodule:: coscon.toast_extras
+   :members:
+   :undoc-members:
+   :show-inheritance:

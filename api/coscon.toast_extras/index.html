@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>coscon.toast_extras module &#8212; coscon 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/css/_table.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/fonts/fonts.min.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="coscon.toast_helper module" href="../coscon.toast_helper/" />
+    <link rel="prev" title="coscon.io_helper module" href="../coscon.io_helper/" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../">
+          coscon</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/ickc/coscon/">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../readme/">Some convenience functions for Cosmology-related analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../reference/">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors/">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">Revision history for <code class="docutils literal notranslate"><span class="pre">coscon</span></code></a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">coscon.toast_extras module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="../coscon.io_helper/" title="Previous Chapter: coscon.io_helper module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; coscon.io_hel...</span>
+    </a>
+  </li>
+  <li>
+    <a href="../coscon.toast_helper/" title="Next Chapter: coscon.toast_helper module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">coscon.toast_... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search/" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="module-coscon.toast_extras">
+<span id="coscon-toast-extras-module"></span><h1>coscon.toast_extras module<a class="headerlink" href="#module-coscon.toast_extras" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="coscon.toast_extras.OpCrosstalk">
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_extras.</code><code class="sig-name descname">OpCrosstalk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">crosstalk_names</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>S<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">crosstalk_data</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">crosstalk_write_tod_input_path</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Path<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">crosstalk_write_tod_output_path</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Path<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'crosstalk'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">toast.op.Operator</span></code></p>
+<p>Operator that apply crosstalk matrix to detector ToDs.</p>
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.crosstalk_names_str">
+<em class="property">property </em><code class="sig-name descname">crosstalk_names_str</code><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.crosstalk_names_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>names in list of str</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_extras.OpCrosstalk.crosstalk_write_tod_input_path">
+<code class="sig-name descname">crosstalk_write_tod_input_path</code><em class="property"> = None</em><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.crosstalk_write_tod_input_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_extras.OpCrosstalk.crosstalk_write_tod_output_path">
+<code class="sig-name descname">crosstalk_write_tod_output_path</code><em class="property"> = None</em><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.crosstalk_write_tod_output_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.exec">
+<code class="sig-name descname">exec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">toast.dist.Data</span></em>, <em class="sig-param"><span class="n">signal_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">debug</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk.exec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.exec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform operations on a Data object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>toast.Data</em>) – The distributed data.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.exec_mpi">
+<code class="sig-name descname">exec_mpi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">toast.dist.Data</span></em>, <em class="sig-param"><span class="n">signal_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">debug</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk.exec_mpi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.exec_mpi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.exec_serial">
+<code class="sig-name descname">exec_serial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">toast.dist.Data</span></em>, <em class="sig-param"><span class="n">signal_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">debug</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk.exec_serial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.exec_serial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.get_tod_mpi">
+<code class="sig-name descname">get_tod_mpi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tod</span><span class="p">:</span> <span class="n">toast.tod.TOD</span></em>, <em class="sig-param"><span class="n">signal_name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk.get_tod_mpi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.get_tod_mpi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the TOD as a contiguous array.</p>
+<p>This is very inefficient as it is for debug only!</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.get_tod_serial">
+<code class="sig-name descname">get_tod_serial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tod</span><span class="p">:</span> <span class="n">toast.tod.TOD</span></em>, <em class="sig-param"><span class="n">signal_name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk.get_tod_serial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.get_tod_serial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.is_serial">
+<em class="property">property </em><code class="sig-name descname">is_serial</code><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.is_serial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_extras.OpCrosstalk.name">
+<code class="sig-name descname">name</code><em class="property"> = 'crosstalk'</em><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.read">
+<em class="property">classmethod </em><code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span><span class="p">:</span> <span class="n">argparse.Namespace</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'crosstalk'</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#coscon.toast_extras.OpCrosstalk" title="coscon.toast_extras.OpCrosstalk">coscon.toast_extras.OpCrosstalk</a><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.read_mpi">
+<em class="property">static </em><code class="sig-name descname">read_mpi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">Path</span></em>, <em class="sig-param"><span class="n">comm</span><span class="p">:</span> <span class="n">toast.mpi.Comm</span></em>, <em class="sig-param"><span class="n">procs</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">rank</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>np.ndarray<span class="p">[</span>S<span class="p">]</span><span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk.read_mpi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.read_mpi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.read_serial">
+<em class="property">static </em><code class="sig-name descname">read_serial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">Path</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>np.ndarray<span class="p">[</span>S<span class="p">]</span><span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk.read_serial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.read_serial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.save_tod_mpi">
+<code class="sig-name descname">save_tod_mpi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">Path</span></em>, <em class="sig-param"><span class="n">tod</span><span class="p">:</span> <span class="n">toast.tod.TOD</span></em>, <em class="sig-param"><span class="n">signal_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">compress_level</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk.save_tod_mpi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.save_tod_mpi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="coscon.toast_extras.OpCrosstalk.save_tod_serial">
+<code class="sig-name descname">save_tod_serial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">Path</span></em>, <em class="sig-param"><span class="n">tod</span><span class="p">:</span> <span class="n">toast.tod.TOD</span></em>, <em class="sig-param"><span class="n">signal_name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#OpCrosstalk.save_tod_serial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.OpCrosstalk.save_tod_serial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="coscon.toast_extras.add_crosstalk_args">
+<code class="sig-prename descclassname">coscon.toast_extras.</code><code class="sig-name descname">add_crosstalk_args</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parser</span><span class="p">:</span> <span class="n">argparse.ArgumentParser</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#add_crosstalk_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.add_crosstalk_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="coscon.toast_extras.fma">
+<code class="sig-prename descclassname">coscon.toast_extras.</code><code class="sig-name descname">fma</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">out</span></em>, <em class="sig-param"><span class="n">ws</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">arrays</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_extras/#fma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_extras.fma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple FMA, compiled to avoid Python memory implications.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>out</strong> – must be zero array in the same shape of each array in <cite>arrays</cite></p>
+</dd>
+</dl>
+<p>cache is False to avoid IO on HPC.</p>
+<p>If not compiled, a lot of Python objects will be created,
+and as the Python garbage collector is inefficient,
+it would have larger memory footprints.</p>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Kolen Cheung.<br/>
+      Last updated on Mar 18, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

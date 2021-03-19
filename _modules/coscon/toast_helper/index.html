@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>coscon.toast_helper &#8212; coscon 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/css/_table.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/fonts/fonts.min.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../">
+          coscon</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/ickc/coscon/">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme/">Some convenience functions for Cosmology-related analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage/">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors/">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog/">Revision history for <code class="docutils literal notranslate"><span class="pre">coscon</span></code></a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search/" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for coscon.toast_helper</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">plotly</span>
+<span class="kn">from</span> <span class="nn">plotly.subplots</span> <span class="kn">import</span> <span class="n">make_subplots</span>
+<span class="kn">import</span> <span class="nn">plotly.figure_factory</span> <span class="k">as</span> <span class="nn">ff</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">schema</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">LogNorm</span><span class="p">,</span> <span class="n">SymLogNorm</span>
+<span class="kn">from</span> <span class="nn">schema</span> <span class="kn">import</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">SchemaError</span>
+<span class="kn">from</span> <span class="nn">toast.tod</span> <span class="kn">import</span> <span class="n">hex_layout</span><span class="p">,</span> <span class="n">hex_pol_angles_qu</span><span class="p">,</span> <span class="n">plot_focalplane</span>
+
+<span class="kn">import</span> <span class="nn">numba_quaternion</span>
+
+<span class="kn">from</span> <span class="nn">.io_helper</span> <span class="kn">import</span> <span class="n">H5_CREATE_KW</span><span class="p">,</span> <span class="n">dumper</span><span class="p">,</span> <span class="n">loader</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">geometric_matrix</span><span class="p">,</span> <span class="n">unique_matrix</span><span class="p">,</span> <span class="n">joshian_matrix</span><span class="p">,</span> <span class="n">total_crosstalk_matrix</span><span class="p">,</span> <span class="n">total_crosstalk_matrix_exact</span><span class="p">,</span> <span class="n">omega_i_resonance_exact</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;coscon&#39;</span><span class="p">)</span>
+
+<span class="c1"># schema types</span>
+<span class="n">Int</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+<span class="n">Float</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="n">FloatArray</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">quat</span><span class="p">:</span> <span class="n">quat</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="n">Char</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">OptionalChar</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Char</span><span class="p">)</span>
+<span class="n">Number</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+<span class="n">OptionalNumber</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+<span class="n">ListOfString</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">list_</span><span class="p">:</span> <span class="nb">all</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="na_to_none"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.na_to_none">[docs]</a><span class="k">def</span> <span class="nf">na_to_none</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert pandas null value to None&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="DictValueEqualsKey"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.DictValueEqualsKey">[docs]</a><span class="k">class</span> <span class="nc">DictValueEqualsKey</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A fake dictionary where its values always equal their keys&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">key</span></div>
+
+
+<span class="c1"># from https://github.com/ickc/toast-workshop ##################################</span>
+
+
+<div class="viewcode-block" id="fake_focalplane"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.fake_focalplane">[docs]</a><span class="k">def</span> <span class="nf">fake_focalplane</span><span class="p">(</span>
+    <span class="n">samplerate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.</span><span class="p">,</span>
+    <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span>
+    <span class="n">net</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+    <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+    <span class="n">fknee</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">fwhm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.</span><span class="p">,</span>
+    <span class="n">npix</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span>
+    <span class="n">fov</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Create a set of fake detectors.</span>
+
+<span class="sd">    This generates 7 pixels (14 dets) in a hexagon layout at the boresight</span>
+<span class="sd">    and with a made up polarization orientation.</span>
+
+<span class="sd">    This function is copied from TOAST workshop with the following license:</span>
+
+<span class="sd">    BSD 2-Clause License</span>
+
+<span class="sd">    Copyright (c) 2019, hpc4cmb</span>
+<span class="sd">    All rights reserved.</span>
+
+<span class="sd">    Redistribution and use in source and binary forms, with or without</span>
+<span class="sd">    modification, are permitted provided that the following conditions are met:</span>
+
+<span class="sd">    1. Redistributions of source code must retain the above copyright notice, this</span>
+<span class="sd">    list of conditions and the following disclaimer.</span>
+
+<span class="sd">    2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="sd">    this list of conditions and the following disclaimer in the documentation</span>
+<span class="sd">    and/or other materials provided with the distribution.</span>
+
+<span class="sd">    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="sd">    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="sd">    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</span>
+<span class="sd">    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE</span>
+<span class="sd">    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL</span>
+<span class="sd">    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR</span>
+<span class="sd">    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER</span>
+<span class="sd">    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
+<span class="sd">    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
+<span class="sd">    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pol_A</span> <span class="o">=</span> <span class="n">hex_pol_angles_qu</span><span class="p">(</span><span class="n">npix</span><span class="p">)</span>
+    <span class="n">pol_B</span> <span class="o">=</span> <span class="n">hex_pol_angles_qu</span><span class="p">(</span><span class="n">npix</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mf">90.0</span><span class="p">)</span>
+
+    <span class="n">dets_A</span> <span class="o">=</span> <span class="n">hex_layout</span><span class="p">(</span><span class="n">npix</span><span class="p">,</span> <span class="n">fov</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pol_A</span><span class="p">)</span>
+    <span class="n">dets_B</span> <span class="o">=</span> <span class="n">hex_layout</span><span class="p">(</span><span class="n">npix</span><span class="p">,</span> <span class="n">fov</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pol_B</span><span class="p">)</span>
+
+    <span class="n">dets</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npix</span><span class="p">):</span>
+        <span class="n">pstr</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:01d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">layout</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">dets_A</span><span class="p">,</span> <span class="n">dets_B</span><span class="p">]):</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">props</span><span class="p">[</span><span class="s2">&quot;quat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">layout</span><span class="p">[</span><span class="n">pstr</span><span class="p">][</span><span class="s2">&quot;quat&quot;</span><span class="p">]</span>
+            <span class="n">props</span><span class="p">[</span><span class="s2">&quot;epsilon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">epsilon</span>
+            <span class="n">props</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">samplerate</span>
+            <span class="n">props</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha</span>
+            <span class="n">props</span><span class="p">[</span><span class="s2">&quot;NET&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">net</span>
+            <span class="n">props</span><span class="p">[</span><span class="s2">&quot;fmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmin</span>
+            <span class="n">props</span><span class="p">[</span><span class="s2">&quot;fknee&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fknee</span>
+            <span class="n">props</span><span class="p">[</span><span class="s2">&quot;fwhm_arcmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fwhm</span>
+            <span class="n">dname</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pstr</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+            <span class="n">dets</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span>
+    <span class="k">return</span> <span class="n">dets</span></div>
+
+
+<span class="c1"># FocalPlane ###################################################################</span>
+
+
+<div class="viewcode-block" id="GenericDictStructure"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.GenericDictStructure">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">GenericDictStructure</span><span class="p">:</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="n">validate_schema</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_schema</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+
+<div class="viewcode-block" id="GenericDictStructure.validate"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.GenericDictStructure.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">Schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">SchemaError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> scheme error detected:&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;DataFrame representation of the focal plane</span>
+
+<span class="sd">        This has opposite key-ordering from the dict</span>
+<span class="sd">        i.e. self.data[some_key][&#39;quat&#39;] == self.dataframe[&#39;quat&#39;][some_key] == self.dataframe.loc[some_key, &#39;quat&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GenericDictStructure.dump"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.GenericDictStructure.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">compress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write hardware config to a TOML/YAML/JSON file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dumper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="n">compress</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GenericDictStructure.load"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.GenericDictStructure.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Read data from a TOML/YAML/JSON file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="GenericFocalPlane"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.GenericFocalPlane">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">GenericFocalPlane</span><span class="p">(</span><span class="n">GenericDictStructure</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># quat is nparray[float64]</span>
+        <span class="c1"># but writing to and reading from toml</span>
+        <span class="c1"># resulted in list of str</span>
+        <span class="c1"># so we have to cast it back to the right types</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">quat</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;quat&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">quat</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+                <span class="n">value</span><span class="p">[</span><span class="s1">&#39;quat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">quat</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">azimuthal_equidistant_projection_with_orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float_</span><span class="p">]:</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">numba_quaternion</span><span class="o">.</span><span class="n">Quaternion</span><span class="p">(</span>
+            <span class="n">numba_quaternion</span><span class="o">.</span><span class="n">lastcol_quat_to_canonical</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">quat</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">qs</span><span class="o">.</span><span class="n">azimuthal_equidistant_projection_with_orientation</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">dataframe_with_azimuthal_equidistant_projection_with_orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">azimuthal_equidistant_projection_with_orientation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">azimuthal_equidistant_projection_with_orientation</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">azimuthal_equidistant_projection_with_orientation</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">180.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;orient_angle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">azimuthal_equidistant_projection_with_orientation</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+<div class="viewcode-block" id="GenericFocalPlane.iplot"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.GenericFocalPlane.iplot">[docs]</a>    <span class="k">def</span> <span class="nf">iplot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plotly</span><span class="o">.</span><span class="n">graph_objs</span><span class="o">.</span><span class="n">_figure</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+        <span class="n">pointing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">azimuthal_equidistant_projection_with_orientation</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">pointing</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">180.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">pointing</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">pointing</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">create_quiver</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">scaleratio</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span></div></div>
+
+
+<div class="viewcode-block" id="FakeFocalPlane"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.FakeFocalPlane">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">FakeFocalPlane</span><span class="p">(</span><span class="n">GenericFocalPlane</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;a class describing the output of fake_focalplane&quot;&quot;&quot;</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">str</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;quat&#39;</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
+            <span class="s1">&#39;epsilon&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;rate&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;NET&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;fmin&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;fknee&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;fwhm_arcmin&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span>
+
+<div class="viewcode-block" id="FakeFocalPlane.plot"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.FakeFocalPlane.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.</span><span class="p">,</span>
+        <span class="n">outfile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">facecolor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">polcolor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span>
+
+        <span class="k">if</span> <span class="n">polcolor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">kinds</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+            <span class="n">n_kinds</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">kinds</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n_kinds</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found detector names ending in 2 characters, treat them as unqiue polarizations: </span><span class="si">{</span><span class="n">kinds</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">colors</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">kinds</span><span class="p">,</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;husl&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+                <span class="n">polcolor</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">colors</span><span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">data</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Cannot guess the polarization of detectors, drawing with no polarization color. Define polcolor explicitly to fix this.&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">plot_focalplane</span><span class="p">(</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">quat</span><span class="p">,</span>
+            <span class="n">width</span><span class="p">,</span>
+            <span class="n">height</span><span class="p">,</span>
+            <span class="n">outfile</span><span class="p">,</span>
+            <span class="n">fwhm</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">fwhm_arcmin</span><span class="p">,</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="n">facecolor</span><span class="p">,</span>
+            <span class="n">polcolor</span><span class="o">=</span><span class="n">polcolor</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">DictValueEqualsKey</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AvesDetectors"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.AvesDetectors">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AvesDetectors</span><span class="p">(</span><span class="n">GenericFocalPlane</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;a class describing the detectors of Aves.</span>
+
+<span class="sd">    similar to FakeFocalPlane</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">str</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;wafer&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s1">&#39;pixel&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s1">&#39;pixtype&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s1">&#39;band&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s1">&#39;fwhm&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;pol&#39;</span><span class="p">:</span> <span class="n">Char</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;handed&#39;</span><span class="p">):</span> <span class="n">OptionalChar</span><span class="p">,</span>
+            <span class="s1">&#39;orient&#39;</span><span class="p">:</span> <span class="n">Char</span><span class="p">,</span>
+            <span class="s1">&#39;quat&#39;</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
+            <span class="s1">&#39;UID&#39;</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]</span>
+
+<div class="viewcode-block" id="AvesDetectors.plot"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.AvesDetectors.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.</span><span class="p">,</span>
+        <span class="n">fontname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;TeX Gyre Schola&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe_with_azimuthal_equidistant_projection_with_orientation</span>
+        <span class="n">x_min</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">x_max</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">y_min</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">y_max</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;orient_angle_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">orient_angle</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;orient_angle_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">orient_angle</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;Paired&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="n">color_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">product</span><span class="p">(</span>
+            <span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;Q&#39;</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">),</span>
+        <span class="p">),</span> <span class="n">colors</span><span class="p">))</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Degrees&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;large&quot;</span><span class="p">,</span> <span class="n">fontname</span><span class="o">=</span><span class="n">fontname</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Degrees&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;large&quot;</span><span class="p">,</span> <span class="n">fontname</span><span class="o">=</span><span class="n">fontname</span><span class="p">)</span>
+        <span class="n">bleed</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">fwhm</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="mf">60.</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">x_min</span> <span class="o">-</span> <span class="n">bleed</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">+</span> <span class="n">bleed</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">y_min</span> <span class="o">-</span> <span class="n">bleed</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">+</span> <span class="n">bleed</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">fwhm</span> <span class="o">/</span> <span class="mf">120.</span>
+            <span class="n">pol</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">pol</span>
+            <span class="n">orient</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">orient</span>
+            <span class="n">handed</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">handed</span>
+            <span class="n">pixel</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">pixel</span>
+            <span class="n">orient_angle_x</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">orient_angle_x</span>
+            <span class="n">orient_angle_y</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">orient_angle_y</span>
+
+            <span class="n">color</span> <span class="o">=</span> <span class="n">color_dict</span><span class="p">[(</span>
+                <span class="n">handed</span><span class="p">,</span>
+                <span class="n">orient</span><span class="p">,</span>
+                <span class="n">pol</span><span class="p">,</span>
+            <span class="p">)]</span>
+
+            <span class="c1"># put circle once per TB</span>
+            <span class="k">if</span> <span class="n">pol</span> <span class="o">==</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span>
+                <span class="n">circle</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Circle</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">circle</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">pixel</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">fontname</span><span class="o">=</span><span class="n">fontname</span><span class="p">)</span>
+
+            <span class="n">dx</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">orient_angle_x</span>
+            <span class="n">dy</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">orient_angle_y</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span>
+                <span class="n">x</span> <span class="o">-</span> <span class="n">dx</span><span class="p">,</span>
+                <span class="n">y</span> <span class="o">-</span> <span class="n">dy</span><span class="p">,</span>
+                <span class="mf">2.</span> <span class="o">*</span> <span class="n">dx</span><span class="p">,</span>
+                <span class="mf">2.</span> <span class="o">*</span> <span class="n">dy</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="n">head_width</span><span class="o">=</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="n">head_length</span><span class="o">=</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="n">fc</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">ec</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">length_includes_head</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span></div></div>
+
+
+<div class="viewcode-block" id="AvesBands"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.AvesBands">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AvesBands</span><span class="p">(</span><span class="n">GenericDictStructure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;a class describing the bands of Aves.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">str</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;center&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;bandwidth&#39;</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span>
+            <span class="s1">&#39;bandpass&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s1">&#39;NET&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;fwhm&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;fknee&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;fmin&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="AvesPixels"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.AvesPixels">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AvesPixels</span><span class="p">(</span><span class="n">GenericDictStructure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;a class describing the pixels of Aves.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">str</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;sizemm&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">&#39;bands&#39;</span><span class="p">:</span> <span class="n">ListOfString</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span></div>
+
+
+<div class="viewcode-block" id="AvesWafers"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.AvesWafers">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AvesWafers</span><span class="p">(</span><span class="n">GenericDictStructure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;a class describing the wafers of Aves.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">str</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s1">&#39;npixel&#39;</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span>
+            <span class="s1">&#39;pixels&#39;</span><span class="p">:</span> <span class="n">ListOfString</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;handed&#39;</span><span class="p">):</span> <span class="n">OptionalNumber</span><span class="p">,</span>
+            <span class="s1">&#39;position&#39;</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span>
+            <span class="s1">&#39;telescope&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]]</span></div>
+
+
+<div class="viewcode-block" id="AvesTelescopes"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.AvesTelescopes">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AvesTelescopes</span><span class="p">(</span><span class="n">GenericDictStructure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;a class describing the telescopes of Aves.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">str</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;wafers&#39;</span><span class="p">:</span> <span class="n">ListOfString</span><span class="p">,</span>
+            <span class="s1">&#39;platescale&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+            <span class="s1">&#39;waferspace&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span></div>
+
+
+<div class="viewcode-block" id="AvesHardware"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.AvesHardware">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AvesHardware</span><span class="p">(</span><span class="n">GenericDictStructure</span><span class="p">):</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">str</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;telescopes&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="s1">&#39;wafers&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="s1">&#39;pixels&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="s1">&#39;bands&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="s1">&#39;detectors&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">telescopes</span> <span class="o">=</span> <span class="n">AvesTelescopes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;telescopes&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wafers</span> <span class="o">=</span> <span class="n">AvesWafers</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;wafers&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span> <span class="o">=</span> <span class="n">AvesPixels</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;pixels&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bands</span> <span class="o">=</span> <span class="n">AvesBands</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detectors</span> <span class="o">=</span> <span class="n">AvesDetectors</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;detectors&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detectors</span><span class="o">.</span><span class="n">plot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iplot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detectors</span><span class="o">.</span><span class="n">iplot</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;DataFrame representation of the hardware</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detectors</span><span class="o">.</span><span class="n">dataframe</span>
+            <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">telescopes</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wafers</span><span class="o">.</span><span class="n">dataframe</span><span class="p">,</span>
+                    <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">right_on</span><span class="o">=</span><span class="s1">&#39;telescope&#39;</span><span class="p">,</span>
+                    <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;wafers&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;wafer&#39;</span><span class="p">,</span>
+                <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">,</span>
+                <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;_wafer&#39;</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;pixels&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="o">.</span><span class="n">dataframe</span><span class="p">,</span>
+                <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;pixtype&#39;</span><span class="p">,</span>
+                <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">dataframe</span><span class="p">,</span>
+                <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;band&#39;</span><span class="p">,</span>
+                <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">,</span>
+                <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;_band&#39;</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;bands&#39;</span><span class="p">,</span> <span class="s1">&#39;fwhm_band&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">dataframe_with_azimuthal_equidistant_projection_with_orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;DataFrame representation of the hardware</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detectors</span><span class="o">.</span><span class="n">dataframe_with_azimuthal_equidistant_projection_with_orientation</span>
+            <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">telescopes</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wafers</span><span class="o">.</span><span class="n">dataframe</span><span class="p">,</span>
+                    <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">right_on</span><span class="o">=</span><span class="s1">&#39;telescope&#39;</span><span class="p">,</span>
+                    <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;wafers&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;wafer&#39;</span><span class="p">,</span>
+                <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">,</span>
+                <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;_wafer&#39;</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;pixels&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="o">.</span><span class="n">dataframe</span><span class="p">,</span>
+                <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;pixtype&#39;</span><span class="p">,</span>
+                <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">dataframe</span><span class="p">,</span>
+                <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;band&#39;</span><span class="p">,</span>
+                <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">,</span>
+                <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;_band&#39;</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;bands&#39;</span><span class="p">,</span> <span class="s1">&#39;fwhm_band&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="AvesHardware.from_dataframe"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.AvesHardware.from_dataframe">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dataframe</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">validate_schema</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create Hardware from a dataframe representation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">final</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">case</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+        <span class="n">unique_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+        <span class="n">non_unique_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">case</span><span class="p">,</span> <span class="n">unique_cols</span><span class="p">,</span> <span class="n">non_unique_cols</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">[</span>
+                <span class="p">[</span><span class="s1">&#39;telescope&#39;</span><span class="p">,</span> <span class="s1">&#39;telescopes&#39;</span><span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="p">[</span><span class="s1">&#39;platescale&#39;</span><span class="p">,</span> <span class="s1">&#39;platescale&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;waferspace&#39;</span><span class="p">,</span> <span class="s1">&#39;waferspace&#39;</span><span class="p">],</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="p">[</span><span class="s1">&#39;wafer&#39;</span><span class="p">,</span> <span class="s1">&#39;wafers&#39;</span><span class="p">],</span>
+                <span class="p">],</span>
+            <span class="p">],</span> <span class="p">[</span>
+                <span class="p">[</span><span class="s1">&#39;wafer&#39;</span><span class="p">,</span> <span class="s1">&#39;wafers&#39;</span><span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;npixel&#39;</span><span class="p">,</span> <span class="s1">&#39;npixel&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;handed_wafer&#39;</span><span class="p">,</span> <span class="s1">&#39;handed&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="s1">&#39;position&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;telescope&#39;</span><span class="p">,</span> <span class="s1">&#39;telescope&#39;</span><span class="p">],</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="p">[</span><span class="s1">&#39;pixtype&#39;</span><span class="p">,</span> <span class="s1">&#39;pixels&#39;</span><span class="p">],</span>
+                <span class="p">],</span>
+            <span class="p">],</span> <span class="p">[</span>
+                <span class="p">[</span><span class="s1">&#39;pixtype&#39;</span><span class="p">,</span> <span class="s1">&#39;pixels&#39;</span><span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="p">[</span><span class="s1">&#39;sizemm&#39;</span><span class="p">,</span> <span class="s1">&#39;sizemm&#39;</span><span class="p">],</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="p">[</span><span class="s1">&#39;band&#39;</span><span class="p">,</span> <span class="s1">&#39;bands&#39;</span><span class="p">],</span>
+                <span class="p">],</span>
+            <span class="p">],</span> <span class="p">[</span>
+                <span class="p">[</span><span class="s1">&#39;band&#39;</span><span class="p">,</span> <span class="s1">&#39;bands&#39;</span><span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="p">[</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;center&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;bandwidth&#39;</span><span class="p">,</span> <span class="s1">&#39;bandwidth&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="s1">&#39;bandpass&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;NET&#39;</span><span class="p">,</span> <span class="s1">&#39;NET&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;fwhm&#39;</span><span class="p">,</span> <span class="s1">&#39;fwhm&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;fknee&#39;</span><span class="p">,</span> <span class="s1">&#39;fknee&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;fmin&#39;</span><span class="p">,</span> <span class="s1">&#39;fmin&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">],</span>
+                <span class="p">],</span>
+                <span class="p">[],</span>
+            <span class="p">],</span>
+        <span class="p">]:</span>
+            <span class="n">final</span><span class="p">[</span><span class="n">case</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">temps</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">case</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">temps</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">col_new</span> <span class="ow">in</span> <span class="n">unique_cols</span><span class="p">:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                    <span class="k">assert</span> <span class="n">values</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="n">temp</span><span class="p">[</span><span class="n">col_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">na_to_none</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">col_new</span> <span class="ow">in</span> <span class="n">non_unique_cols</span><span class="p">:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                    <span class="n">temp</span><span class="p">[</span><span class="n">col_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># detectors</span>
+        <span class="n">df_detectors</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;wafer&#39;</span><span class="p">,</span> <span class="s1">&#39;pixel&#39;</span><span class="p">,</span> <span class="s1">&#39;pixtype&#39;</span><span class="p">,</span> <span class="s1">&#39;band&#39;</span><span class="p">,</span> <span class="s1">&#39;fwhm&#39;</span><span class="p">,</span> <span class="s1">&#39;pol&#39;</span><span class="p">,</span> <span class="s1">&#39;handed&#39;</span><span class="p">,</span> <span class="s1">&#39;orient&#39;</span><span class="p">,</span> <span class="s1">&#39;quat&#39;</span><span class="p">,</span> <span class="s1">&#39;UID&#39;</span><span class="p">]]</span>
+        <span class="n">final</span><span class="p">[</span><span class="s1">&#39;detectors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_detectors</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">final</span><span class="p">,</span> <span class="n">validate_schema</span><span class="o">=</span><span class="n">validate_schema</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AvesHardware.reorder_to"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.AvesHardware.reorder_to">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_to</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pixels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">TB_anti_alignment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">TB_alternate_anti_alignment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">validate_schema</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AvesHardware</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Reorder pixels according its integer assignment</span>
+
+<span class="sd">        :param bool TB_anti_alignment: if True, assume TB pixels ordering BTTBBTTBBT..</span>
+<span class="sd">        else BTBTBTBT...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span>
+        <span class="n">num_to_name</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># assume always end in T, B pair</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">pixel</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">num</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">num_to_name</span><span class="p">:</span>
+                <span class="n">num_to_name</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">num_to_name</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">num_to_name</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">pixel</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span> <span class="k">for</span> <span class="n">pixel</span> <span class="ow">in</span> <span class="n">pixels</span><span class="p">]</span>
+        <span class="n">names_full</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">TB_anti_alignment</span><span class="p">:</span>
+            <span class="n">forward</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">forward</span><span class="p">:</span>
+                    <span class="n">names_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">B&#39;</span><span class="p">)</span>
+                    <span class="n">names_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">T&#39;</span><span class="p">)</span>
+                    <span class="n">forward</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">names_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">T&#39;</span><span class="p">)</span>
+                    <span class="n">names_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">B&#39;</span><span class="p">)</span>
+                    <span class="n">forward</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">TB_alternate_anti_alignment</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+                <span class="n">mod</span> <span class="o">=</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">4</span>
+                <span class="k">if</span> <span class="n">mod</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">mod</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">names_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">B&#39;</span><span class="p">)</span>
+                    <span class="n">names_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">T&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">names_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">T&#39;</span><span class="p">)</span>
+                    <span class="n">names_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">B&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="n">names_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">B&#39;</span><span class="p">)</span>
+                <span class="n">names_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">T&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">AvesHardware</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">names_full</span><span class="p">],</span> <span class="n">validate_schema</span><span class="o">=</span><span class="n">validate_schema</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AvesHardware.reorder_to_from_csv"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.AvesHardware.reorder_to_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_to_from_csv</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">TB_anti_alignment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">TB_alternate_anti_alignment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">validate_schema</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AvesHardware</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Reorder pixels according its integer assignment</span>
+
+<span class="sd">        :param Path path: a csv or txt file that has the pixel numbers per line</span>
+<span class="sd">        :param bool TB_anti_alignment: if True, assume TB pixels ordering BTTBBTTBBT..</span>
+<span class="sd">        else BTBTBTBT...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df_name</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">pixels</span> <span class="o">=</span> <span class="n">df_name</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reorder_to</span><span class="p">(</span>
+            <span class="n">pixels</span><span class="p">,</span>
+            <span class="n">TB_anti_alignment</span><span class="o">=</span><span class="n">TB_anti_alignment</span><span class="p">,</span>
+            <span class="n">TB_alternate_anti_alignment</span><span class="o">=</span><span class="n">TB_alternate_anti_alignment</span><span class="p">,</span>
+            <span class="n">validate_schema</span><span class="o">=</span><span class="n">validate_schema</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+<span class="c1"># Crosstalk ####################################################################</span>
+
+
+<div class="viewcode-block" id="GenericMatrix"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.GenericMatrix">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">GenericMatrix</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Generic matrix that has row names in ASCII.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">names</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">]</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;S&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">GenericMatrix</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">names_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;names in list of str&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
+
+<div class="viewcode-block" id="GenericMatrix.load"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.GenericMatrix.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;names&quot;</span><span class="p">][:]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][:]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GenericMatrix.dump"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.GenericMatrix.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">compress_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">9</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">libver</span><span class="o">=</span><span class="s1">&#39;latest&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                <span class="s1">&#39;names&#39;</span><span class="p">,</span>
+                <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
+                <span class="n">compression_opts</span><span class="o">=</span><span class="n">compress_level</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">H5_CREATE_KW</span>
+            <span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                <span class="s1">&#39;data&#39;</span><span class="p">,</span>
+                <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                <span class="n">compression_opts</span><span class="o">=</span><span class="n">compress_level</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">H5_CREATE_KW</span>
+            <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CrosstalkMatrix"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.CrosstalkMatrix">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CrosstalkMatrix</span><span class="p">(</span><span class="n">GenericMatrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Crosstalk square matrix where column and row share the same names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">names_str</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">names_str</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">dataframe_nearest_neighbor_only</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">left</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">left</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">right</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">right</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">freq</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;freq&#39;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="n">left</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="n">right</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">dataframe_diag_only</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CrosstalkMatrix.plot"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.CrosstalkMatrix.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">annot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="n">linthresh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">data</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">)])</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">SymLogNorm</span><span class="p">(</span><span class="n">linthresh</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">LogNorm</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="n">annot</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+<div class="viewcode-block" id="CrosstalkMatrix.compare_plot_nearest_neighbor"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.CrosstalkMatrix.compare_plot_nearest_neighbor">[docs]</a>    <span class="k">def</span> <span class="nf">compare_plot_nearest_neighbor</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">others</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">CrosstalkMatrix</span><span class="p">],</span>
+    <span class="p">):</span>
+        <span class="n">figs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe_nearest_neighbor_only</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;plotly&#39;</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">others</span><span class="p">:</span>
+            <span class="n">figs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">dataframe_nearest_neighbor_only</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;plotly&#39;</span><span class="p">))</span>
+
+        <span class="n">fig_all</span> <span class="o">=</span> <span class="n">make_subplots</span><span class="p">()</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;husl&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">others</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">fig</span> <span class="ow">in</span> <span class="n">figs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">trace</span> <span class="ow">in</span> <span class="n">fig</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="n">trace</span><span class="p">[</span><span class="s1">&#39;line&#39;</span><span class="p">][</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;rgb(</span><span class="si">{}</span><span class="s1">%)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;%,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mf">100.</span><span class="p">),</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
+                <span class="n">fig_all</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">fig_all</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;f (Hz)&#39;</span>
+        <span class="n">fig_all</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Nearest neighbor crosstalk&#39;</span>
+        <span class="k">return</span> <span class="n">fig_all</span></div>
+
+<div class="viewcode-block" id="CrosstalkMatrix.compare_plot_diag"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.CrosstalkMatrix.compare_plot_diag">[docs]</a>    <span class="k">def</span> <span class="nf">compare_plot_diag</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">others</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">CrosstalkMatrix</span><span class="p">],</span>
+    <span class="p">):</span>
+        <span class="n">figs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe_diag_only</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;plotly&#39;</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">others</span><span class="p">:</span>
+            <span class="n">figs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">dataframe_diag_only</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;plotly&#39;</span><span class="p">))</span>
+
+        <span class="n">fig_all</span> <span class="o">=</span> <span class="n">make_subplots</span><span class="p">()</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;husl&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">others</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">fig</span> <span class="ow">in</span> <span class="n">figs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">trace</span> <span class="ow">in</span> <span class="n">fig</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="n">trace</span><span class="p">[</span><span class="s1">&#39;line&#39;</span><span class="p">][</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;rgb(</span><span class="si">{}</span><span class="s1">%)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;%,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mf">100.</span><span class="p">),</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
+                <span class="n">fig_all</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">fig_all</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;f (Hz)&#39;</span>
+        <span class="n">fig_all</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Diagonal &quot;crosstalk&quot;&#39;</span>
+        <span class="k">return</span> <span class="n">fig_all</span></div>
+
+<div class="viewcode-block" id="CrosstalkMatrix.from_geometric"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.CrosstalkMatrix.from_geometric">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_geometric</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">names</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CrosstalkMatrix</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Generate a crosstalk matrix with coefficients in geometric series.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">geometric_matrix</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CrosstalkMatrix.from_unique_matrix"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.CrosstalkMatrix.from_unique_matrix">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_unique_matrix</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">names</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CrosstalkMatrix</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;generate a crosstalk matrix with each entry to be unique.</span>
+
+<span class="sd">        Mainly for debug use to confirm the matrix multiplication is correct.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">unique_matrix</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CrosstalkMatrix.from_joshian_matrix"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.CrosstalkMatrix.from_joshian_matrix">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_joshian_matrix</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">names</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">nearest</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">next_nearest</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">floor</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CrosstalkMatrix</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Generate a crosstalk matrix with structure based on Josh&#39;s simple assumption</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">joshian_matrix</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">nearest</span><span class="p">,</span> <span class="n">next_nearest</span><span class="p">,</span> <span class="n">floor</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CrosstalkMatrix.to_random_normal"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.CrosstalkMatrix.to_random_normal">[docs]</a>    <span class="k">def</span> <span class="nf">to_random_normal</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CrosstalkMatrix</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Generate a random normal matrix based on original matrix except for diagonal</span>
+
+<span class="sd">        with mean and std given by the original matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">CrosstalkMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="NaiveTod"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.NaiveTod">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">NaiveTod</span><span class="p">(</span><span class="n">GenericMatrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Naive TOD matrix that has all data in contiguous array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NaiveTod.apply_crosstalk"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.NaiveTod.apply_crosstalk">[docs]</a>    <span class="k">def</span> <span class="nf">apply_crosstalk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crosstalk_matrix</span><span class="p">:</span> <span class="n">CrosstalkMatrix</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NaiveTod</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">crosstalk_matrix</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">crosstalk_matrix</span><span class="o">.</span><span class="n">data</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">return</span> <span class="n">NaiveTod</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">names_str</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SQUID"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.SQUID">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">SQUID</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A model of the SQUID readout.</span>
+
+<span class="sd">    See fig. 4 in Montgomery2020.</span>
+<span class="sd">    </span>
+<span class="sd">    Montgomery2020: Montgomery et al., “Performance and Characterization of the SPT-3G Digital Frequency Multiplexed Readout System Using an Improved Noise and Crosstalk Model.”</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">R_TES</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
+    <span class="n">r_s</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
+    <span class="n">L</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]</span>
+    <span class="n">C</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
+    <span class="n">L_com</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">omega</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">=</span> <span class="n">omega_i_resonance_exact</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R_TES</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L_com</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SQUID.to_dict"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.SQUID.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">include_omega</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">include_freq</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;R_TES&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">R_TES</span><span class="p">,</span>
+            <span class="s1">&#39;r_s&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_s</span><span class="p">,</span>
+            <span class="s1">&#39;L&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span>
+            <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">,</span>
+            <span class="s1">&#39;L_com&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">L_com</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">include_omega</span><span class="p">:</span>
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;omega&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mega</span>
+        <span class="k">if</span> <span class="n">include_freq</span><span class="p">:</span>
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;freq&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="SQUID.dataframe"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.SQUID.dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">dataframe</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">include_omega</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">include_freq</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">include_omega</span><span class="o">=</span><span class="n">include_omega</span><span class="p">,</span> <span class="n">include_freq</span><span class="o">=</span><span class="n">include_freq</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SQUID.to_crosstalk_matrix"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.SQUID.to_crosstalk_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">to_crosstalk_matrix</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CrosstalkMatrix</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute the crosstalk matrix using Montgomery2020 approximations&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">total_crosstalk_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R_TES</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L_com</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># use the numerical value of freq in MHz as names</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">*</span> <span class="mf">1.e-6</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;S&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CrosstalkMatrix</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQUID.to_crosstalk_matrix_exact"><a class="viewcode-back" href="../../../api/coscon.toast_helper/#coscon.toast_helper.SQUID.to_crosstalk_matrix_exact">[docs]</a>    <span class="k">def</span> <span class="nf">to_crosstalk_matrix_exact</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CrosstalkMatrix</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute the crosstalk matrix using Montgomery2020 formulism without the approximations&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">total_crosstalk_matrix_exact</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R_TES</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L_com</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># use the numerical value of freq in MHz as names</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">*</span> <span class="mf">1.e-6</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;S&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CrosstalkMatrix</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Kolen Cheung.<br/>
+      Last updated on Mar 18, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

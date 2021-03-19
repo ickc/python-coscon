@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Some convenience functions for Cosmology-related analysis &#8212; coscon 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/css/_table.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/fonts/fonts.min.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Installation" href="../installation/" />
+    <link rel="prev" title="Contents" href="../" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../">
+          coscon</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/ickc/coscon/">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Some convenience functions for Cosmology-related analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/">Revision history for <code class="docutils literal notranslate"><span class="pre">coscon</span></code></a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Some convenience functions for Cosmology-related analysis</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="../" title="Previous Chapter: Contents"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Contents</span>
+    </a>
+  </li>
+  <li>
+    <a href="../installation/" title="Next Chapter: Installation"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Installation &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search/" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="some-convenience-functions-for-cosmology-related-analysis">
+<h1><a class="toc-backref" href="#id1">Some convenience functions for Cosmology-related analysis</a><a class="headerlink" href="#some-convenience-functions-for-cosmology-related-analysis" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Date</dt>
+<dd class="field-odd"><p>March 18, 2021</p>
+</dd>
+</dl>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#some-convenience-functions-for-cosmology-related-analysis" id="id1">Some convenience functions for Cosmology-related analysis</a></p>
+<ul>
+<li><p><a class="reference internal" href="#introduction" id="id2">Introduction</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>docs</p></th>
+<th class="head"><p><a class="reference external" href="https://python-coscon.readthedocs.io/en/latest/?badge=latest&amp;style=plastic"><img alt="Documentation Status" src="https://readthedocs.org/projects/python-coscon/badge/?version=latest" /></a> <a class="reference external" href="https://ickc.github.io/python-coscon"><img alt="image2" src="https://github.com/ickc/python-coscon/workflows/GitHub%20Pages/badge.svg" /></a></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>tests</p></td>
+<td><p><img alt="GitHub Actions" src="https://github.com/ickc/python-coscon/workflows/Python%20package/badge.svg" /> <a class="reference external" href="https://codecov.io/github/ickc/python-coscon"><img alt="Coverage Status" src="https://codecov.io/gh/ickc/python-coscon/branch/master/graphs/badge.svg?branch=master" /></a></p>
+<p><a class="reference external" href="https://www.codacy.com/app/ickc/python-coscon"><img alt="Codacy Code Quality Status" src="https://img.shields.io/codacy/grade/078ebc537c5747f68c1d4ad3d3594bbf.svg" /></a> <a class="reference external" href="https://scrutinizer-ci.com/g/ickc/python-coscon/"><img alt="Scrutinizer Status" src="https://img.shields.io/scrutinizer/quality/g/ickc/python-coscon/master.svg" /></a> <a class="reference external" href="https://codeclimate.com/github/ickc/python-coscon"><img alt="CodeClimate Quality Status" src="https://codeclimate.com/github/ickc/python-coscon/badges/gpa.svg" /></a></p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>package</p></td>
+<td><p><a class="reference external" href="https://pypi.org/project/python-coscon"><img alt="Supported versions" src="https://img.shields.io/pypi/pyversions/python-coscon.svg" /></a> <a class="reference external" href="https://pypi.org/project/python-coscon"><img alt="Supported implementations" src="https://img.shields.io/pypi/implementation/python-coscon.svg" /></a> <a class="reference external" href="https://pypi.org/project/python-coscon"><img alt="PyPI Wheel" src="https://img.shields.io/pypi/wheel/python-coscon.svg" /></a></p>
+<p><a class="reference external" href="https://pypi.org/project/python-coscon"><img alt="PyPI Package latest release" src="https://img.shields.io/pypi/v/python-coscon.svg" /></a> <a class="reference external" href="https://github.com/ickc/python-coscon/releases"><img alt="GitHub Releases" src="https://img.shields.io/github/tag/ickc/python-coscon.svg?label=github+release" /></a> <a class="reference external" href="https://pypi.python.org/pypi/python-coscon/"><img alt="Development Status" src="https://img.shields.io/pypi/status/python-coscon.svg" /></a> <a class="reference external" href="https://pypi.python.org/pypi/python-coscon/"><img alt="Downloads" src="https://img.shields.io/pypi/dm/python-coscon.svg" /></a></p>
+<p><a class="reference external" href="https://github.com/ickc/python-coscon/compare/v0.13.4...master"><img alt="Commits since latest release" src="https://img.shields.io/github/commits-since/ickc/python-coscon/v0.13.4.svg" /></a> <img alt="License" src="https://img.shields.io/pypi/l/python-coscon.svg" /></p>
+</td>
+</tr>
+<tr class="row-even"><td><p>conda-forge</p></td>
+<td><p><a class="reference external" href="https://anaconda.org/conda-forge/python-coscon"><img alt="Conda Recipe" src="https://img.shields.io/badge/recipe-python-coscon-green.svg" /></a> <a class="reference external" href="https://anaconda.org/conda-forge/python-coscon"><img alt="Conda Downloads" src="https://img.shields.io/conda/dn/conda-forge/python-coscon.svg" /></a> <a class="reference external" href="https://anaconda.org/conda-forge/python-coscon"><img alt="Conda Version" src="https://img.shields.io/conda/vn/conda-forge/python-coscon.svg" /></a> <a class="reference external" href="https://anaconda.org/conda-forge/python-coscon"><img alt="Conda Platforms" src="https://img.shields.io/conda/pn/conda-forge/python-coscon.svg" /></a></p></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="introduction">
+<h2><a class="toc-backref" href="#id2">Introduction</a><a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Here is some convenience functions for Cosmology-related analysis.</p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Kolen Cheung.<br/>
+      Last updated on Mar 18, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
