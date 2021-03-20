@@ -4,7 +4,7 @@
 Some convenience functions for Cosmology-related analysis
 =========================================================
 
-:Date:   March 18, 2021
+:Date:   March 20, 2021
 
 .. contents::
    :depth: 3
@@ -58,8 +58,8 @@ Here is some convenience functions for Cosmology-related analysis.
    :target: https://pypi.python.org/pypi/python-coscon/
 .. |Downloads| image:: https://img.shields.io/pypi/dm/python-coscon.svg
    :target: https://pypi.python.org/pypi/python-coscon/
-.. |Commits since latest release| image:: https://img.shields.io/github/commits-since/ickc/python-coscon/v0.13.4.svg
-   :target: https://github.com/ickc/python-coscon/compare/v0.13.4...master
+.. |Commits since latest release| image:: https://img.shields.io/github/commits-since/ickc/python-coscon/v0.1.1.svg
+   :target: https://github.com/ickc/python-coscon/compare/v0.1.1...master
 .. |License| image:: https://img.shields.io/pypi/l/python-coscon.svg
 .. |Conda Recipe| image:: https://img.shields.io/badge/recipe-python-coscon-green.svg
    :target: https://anaconda.org/conda-forge/python-coscon
