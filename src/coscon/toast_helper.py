@@ -298,7 +298,15 @@ class AvesDetectors(GenericFocalPlane):
         width: float = 20.,
         height: float = 20.,
         fontname: str = 'TeX Gyre Schola',
+        wire: bool = False,
+        wire_TB: bool = False,
+        wire_connectionstyle: Optional[str] = None,
     ):
+        """Plot the detectors in Azimuthal equidistant projection with orientation.
+
+        For `wire_connectionstyle`, use 'arc3' to draw straight-line.
+        See more in https://matplotlib.org/stable/gallery/userdemo/connectionstyle_demo.html#sphx-glr-gallery-userdemo-connectionstyle-demo-py
+        """
         df = self.dataframe_with_azimuthal_equidistant_projection_with_orientation
         x_min = df.x.min()
         x_max = df.x.max()
@@ -321,6 +329,16 @@ class AvesDetectors(GenericFocalPlane):
         bleed = df.fwhm.max() / 40.
         ax.set_xlim([x_min - bleed, x_max + bleed])
         ax.set_ylim([y_min - bleed, y_max + bleed])
+        if wire:
+            if wire_TB:
+                prev_head_x = None
+                prev_head_y = None
+                prev_orient_angle = None
+                r2d = 180. / np.pi
+            else:
+                prev_x = None
+                prev_y = None
+                prev_pixel = None
         for _, row in df.iterrows():
             x = row.x
             y = row.y
@@ -347,9 +365,11 @@ class AvesDetectors(GenericFocalPlane):
 
             dx = 2. * radius * orient_angle_x
             dy = 2. * radius * orient_angle_y
+            current_tail_x = x - dx
+            current_tail_y = y - dy
             ax.arrow(
-                x - dx,
-                y - dy,
+                current_tail_x,
+                current_tail_y,
                 2. * dx,
                 2. * dy,
                 width=0.1 * radius,
@@ -359,6 +379,59 @@ class AvesDetectors(GenericFocalPlane):
                 ec=color,
                 length_includes_head=True,
             )
+            if wire:
+                if wire_TB:
+                    orient_angle = row.orient_angle * r2d
+                    if prev_orient_angle is not None:
+                        connectionstyle = f"angle3,angleA={prev_orient_angle + 90.},angleB={orient_angle + 90.}" if wire_connectionstyle is None else wire_connectionstyle
+                        ax.annotate(
+                            "",
+                            xy=(current_tail_x, current_tail_y),
+                            xytext=(prev_head_x, prev_head_y),
+                            xycoords='data',
+                            textcoords='data',
+                            arrowprops=dict(
+                                arrowstyle="->",
+                                color="0.5",
+                                connectionstyle=connectionstyle,
+                            ),
+                        )
+                    # for next loop
+                    prev_head_x = x + dx
+                    prev_head_y = y + dy
+                    prev_orient_angle = orient_angle
+                else:
+                    pixel = row.pixel
+                    if prev_pixel is not None and pixel != prev_pixel:
+                        connectionstyle = 'arc3' if wire_connectionstyle is None else wire_connectionstyle
+
+                        # shorten arrow
+                        delta_x = x - prev_x
+                        delta_y = y - prev_y
+                        angle = np.arctan2(delta_y, delta_x)
+                        dx = 2. * radius * np.cos(angle)
+                        dy = 2. * radius * np.sin(angle)
+                        x_start = prev_x + dx
+                        x_end = x - dx
+                        y_start = prev_y + dy
+                        y_end = y - dy
+                        ax.annotate(
+                            "",
+                            xy=(x_end, y_end),
+                            xytext=(x_start, y_start),
+                            xycoords='data',
+                            textcoords='data',
+                            arrowprops=dict(
+                                arrowstyle="->",
+                                color="0.5",
+                                connectionstyle=connectionstyle,
+                            ),
+                        )
+                    # for next loop
+                    prev_x = x
+                    prev_y = y
+                    prev_pixel = pixel
+        plt.close()
         return fig
 
 
