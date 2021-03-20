@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>coscon.toast_helper module &#8212; coscon 0.1.0 documentation</title>
+    <title>coscon.toast_helper module &#8212; coscon 0.1.1 documentation</title>
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/css/_table.min.css" />
@@ -39,7 +39,7 @@
         </button>
         <a class="navbar-brand" href="../../">
           coscon</a>
-        <span class="navbar-text navbar-version pull-left"><b>0.1.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>0.1.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -151,8 +151,11 @@
 
 <dl class="py method">
 <dt id="coscon.toast_helper.AvesDetectors.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">width</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">height</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">fontname</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'TeX Gyre Schola'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesDetectors.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesDetectors.plot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">width</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">height</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">fontname</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'TeX Gyre Schola'</span></em>, <em class="sig-param"><span class="n">wire</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">wire_TB</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">wire_connectionstyle</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#AvesDetectors.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.AvesDetectors.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the detectors in Azimuthal equidistant projection with orientation.</p>
+<p>For <cite>wire_connectionstyle</cite>, use ‘arc3’ to draw straight-line.
+See more in <a class="reference external" href="https://matplotlib.org/stable/gallery/userdemo/connectionstyle_demo.html#sphx-glr-gallery-userdemo-connectionstyle-demo-py">https://matplotlib.org/stable/gallery/userdemo/connectionstyle_demo.html#sphx-glr-gallery-userdemo-connectionstyle-demo-py</a></p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="coscon.toast_helper.AvesDetectors.schema">
@@ -499,11 +502,31 @@ i.e. self.data[some_key][‘quat’] == self.dataframe[‘quat’][some_key] == 
 
 <dl class="py class">
 <dt id="coscon.toast_helper.SQUID">
-<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">SQUID</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">C</span><span class="p">:</span> <span class="n">np.ndarray<span class="p">[</span>np.float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">omega</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#SQUID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.SQUID" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">coscon.toast_helper.</code><code class="sig-name descname">SQUID</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R_TES</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">r_s</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">L_com</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">C</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">omega</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/coscon/toast_helper/#SQUID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.SQUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A model of the SQUID readout.</p>
 <p>See fig. 4 in Montgomery2020.</p>
 <p>Montgomery2020: Montgomery et al., “Performance and Characterization of the SPT-3G Digital Frequency Multiplexed Readout System Using an Improved Noise and Crosstalk Model.”</p>
+<dl class="py attribute">
+<dt id="coscon.toast_helper.SQUID.C">
+<code class="sig-name descname">C</code><em class="property">: Optional<span class="p">[</span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#coscon.toast_helper.SQUID.C" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.SQUID.L">
+<code class="sig-name descname">L</code><em class="property">: Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.SQUID.L" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.SQUID.L_com">
+<code class="sig-name descname">L_com</code><em class="property">: float</em><a class="headerlink" href="#coscon.toast_helper.SQUID.L_com" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.SQUID.R_TES">
+<code class="sig-name descname">R_TES</code><em class="property">: Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.SQUID.R_TES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt id="coscon.toast_helper.SQUID.dataframe">
 <code class="sig-name descname">dataframe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">include_omega</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">include_freq</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="../../_modules/coscon/toast_helper/#SQUID.dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coscon.toast_helper.SQUID.dataframe" title="Permalink to this definition">¶</a></dt>
@@ -516,7 +539,12 @@ i.e. self.data[some_key][‘quat’] == self.dataframe[‘quat’][some_key] == 
 
 <dl class="py attribute">
 <dt id="coscon.toast_helper.SQUID.omega">
-<code class="sig-name descname">omega</code><em class="property"> = None</em><a class="headerlink" href="#coscon.toast_helper.SQUID.omega" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">omega</code><em class="property">: Optional<span class="p">[</span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#coscon.toast_helper.SQUID.omega" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="coscon.toast_helper.SQUID.r_s">
+<code class="sig-name descname">r_s</code><em class="property">: Union<span class="p">[</span>float<span class="p">, </span>np.ndarray<span class="p">[</span>np.float64<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#coscon.toast_helper.SQUID.r_s" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -588,7 +616,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
     </p>
     <p>
         &copy; Copyright 2021, Kolen Cheung.<br/>
-      Last updated on Mar 18, 2021.<br/>
+      Last updated on Mar 20, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
     </p>
   </div>

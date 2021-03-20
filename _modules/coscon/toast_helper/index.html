@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>coscon.toast_helper &#8212; coscon 0.1.0 documentation</title>
+    <title>coscon.toast_helper &#8212; coscon 0.1.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/css/_table.min.css" />
@@ -37,7 +37,7 @@
         </button>
         <a class="navbar-brand" href="../../../">
           coscon</a>
-        <span class="navbar-text navbar-version pull-left"><b>0.1.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>0.1.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -132,7 +132,7 @@
 <span class="kn">import</span> <span class="nn">numba_quaternion</span>
 
 <span class="kn">from</span> <span class="nn">.io_helper</span> <span class="kn">import</span> <span class="n">H5_CREATE_KW</span><span class="p">,</span> <span class="n">dumper</span><span class="p">,</span> <span class="n">loader</span>
-<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">geometric_matrix</span><span class="p">,</span> <span class="n">unique_matrix</span><span class="p">,</span> <span class="n">joshian_matrix</span><span class="p">,</span> <span class="n">total_crosstalk_matrix</span><span class="p">,</span> <span class="n">total_crosstalk_matrix_exact</span><span class="p">,</span> <span class="n">omega_i_resonance_exact</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">geometric_matrix</span><span class="p">,</span> <span class="n">unique_matrix</span><span class="p">,</span> <span class="n">joshian_matrix</span><span class="p">,</span> <span class="n">total_crosstalk_matrix</span><span class="p">,</span> <span class="n">total_crosstalk_matrix_exact</span><span class="p">,</span> <span class="n">omega_i_resonance_exact</span><span class="p">,</span> <span class="n">C_n_resonance_exact</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
@@ -296,10 +296,8 @@
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">azimuthal_equidistant_projection_with_orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float_</span><span class="p">]:</span>
-        <span class="n">qs</span> <span class="o">=</span> <span class="n">numba_quaternion</span><span class="o">.</span><span class="n">Quaternion</span><span class="p">(</span>
-            <span class="n">numba_quaternion</span><span class="o">.</span><span class="n">lastcol_quat_to_canonical</span><span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">quat</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-            <span class="p">)</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">numba_quaternion</span><span class="o">.</span><span class="n">Quaternion</span><span class="o">.</span><span class="n">from_lastcol_array</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">quat</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">qs</span><span class="o">.</span><span class="n">azimuthal_equidistant_projection_with_orientation</span>
 
@@ -407,7 +405,15 @@
         <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.</span><span class="p">,</span>
         <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.</span><span class="p">,</span>
         <span class="n">fontname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;TeX Gyre Schola&#39;</span><span class="p">,</span>
+        <span class="n">wire</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">wire_TB</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">wire_connectionstyle</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot the detectors in Azimuthal equidistant projection with orientation.</span>
+
+<span class="sd">        For `wire_connectionstyle`, use &#39;arc3&#39; to draw straight-line.</span>
+<span class="sd">        See more in https://matplotlib.org/stable/gallery/userdemo/connectionstyle_demo.html#sphx-glr-gallery-userdemo-connectionstyle-demo-py</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe_with_azimuthal_equidistant_projection_with_orientation</span>
         <span class="n">x_min</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="n">x_max</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
@@ -427,9 +433,19 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Degrees&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;large&quot;</span><span class="p">,</span> <span class="n">fontname</span><span class="o">=</span><span class="n">fontname</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Degrees&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;large&quot;</span><span class="p">,</span> <span class="n">fontname</span><span class="o">=</span><span class="n">fontname</span><span class="p">)</span>
-        <span class="n">bleed</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">fwhm</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="mf">60.</span>
+        <span class="n">bleed</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">fwhm</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="mf">40.</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">x_min</span> <span class="o">-</span> <span class="n">bleed</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">+</span> <span class="n">bleed</span><span class="p">])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">y_min</span> <span class="o">-</span> <span class="n">bleed</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">+</span> <span class="n">bleed</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">wire</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">wire_TB</span><span class="p">:</span>
+                <span class="n">prev_head_x</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">prev_head_y</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">prev_orient_angle</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">r2d</span> <span class="o">=</span> <span class="mf">180.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">prev_x</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">prev_y</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">prev_pixel</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">x</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">y</span>
@@ -456,9 +472,11 @@
 
             <span class="n">dx</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">orient_angle_x</span>
             <span class="n">dy</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">orient_angle_y</span>
+            <span class="n">current_tail_x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">dx</span>
+            <span class="n">current_tail_y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">dy</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span>
-                <span class="n">x</span> <span class="o">-</span> <span class="n">dx</span><span class="p">,</span>
-                <span class="n">y</span> <span class="o">-</span> <span class="n">dy</span><span class="p">,</span>
+                <span class="n">current_tail_x</span><span class="p">,</span>
+                <span class="n">current_tail_y</span><span class="p">,</span>
                 <span class="mf">2.</span> <span class="o">*</span> <span class="n">dx</span><span class="p">,</span>
                 <span class="mf">2.</span> <span class="o">*</span> <span class="n">dy</span><span class="p">,</span>
                 <span class="n">width</span><span class="o">=</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">radius</span><span class="p">,</span>
@@ -468,6 +486,59 @@
                 <span class="n">ec</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
                 <span class="n">length_includes_head</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="k">if</span> <span class="n">wire</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">wire_TB</span><span class="p">:</span>
+                    <span class="n">orient_angle</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">orient_angle</span> <span class="o">*</span> <span class="n">r2d</span>
+                    <span class="k">if</span> <span class="n">prev_orient_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">connectionstyle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;angle3,angleA=</span><span class="si">{</span><span class="n">prev_orient_angle</span> <span class="o">+</span> <span class="mf">90.</span><span class="si">}</span><span class="s2">,angleB=</span><span class="si">{</span><span class="n">orient_angle</span> <span class="o">+</span> <span class="mf">90.</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">wire_connectionstyle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">wire_connectionstyle</span>
+                        <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                            <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">current_tail_x</span><span class="p">,</span> <span class="n">current_tail_y</span><span class="p">),</span>
+                            <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">prev_head_x</span><span class="p">,</span> <span class="n">prev_head_y</span><span class="p">),</span>
+                            <span class="n">xycoords</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span>
+                            <span class="n">textcoords</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span>
+                            <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                                <span class="n">arrowstyle</span><span class="o">=</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span>
+                                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.5&quot;</span><span class="p">,</span>
+                                <span class="n">connectionstyle</span><span class="o">=</span><span class="n">connectionstyle</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                    <span class="c1"># for next loop</span>
+                    <span class="n">prev_head_x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">dx</span>
+                    <span class="n">prev_head_y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">dy</span>
+                    <span class="n">prev_orient_angle</span> <span class="o">=</span> <span class="n">orient_angle</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pixel</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">pixel</span>
+                    <span class="k">if</span> <span class="n">prev_pixel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pixel</span> <span class="o">!=</span> <span class="n">prev_pixel</span><span class="p">:</span>
+                        <span class="n">connectionstyle</span> <span class="o">=</span> <span class="s1">&#39;arc3&#39;</span> <span class="k">if</span> <span class="n">wire_connectionstyle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">wire_connectionstyle</span>
+
+                        <span class="c1"># shorten arrow</span>
+                        <span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">prev_x</span>
+                        <span class="n">delta_y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">prev_y</span>
+                        <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">delta_y</span><span class="p">,</span> <span class="n">delta_x</span><span class="p">)</span>
+                        <span class="n">dx</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+                        <span class="n">dy</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+                        <span class="n">x_start</span> <span class="o">=</span> <span class="n">prev_x</span> <span class="o">+</span> <span class="n">dx</span>
+                        <span class="n">x_end</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">dx</span>
+                        <span class="n">y_start</span> <span class="o">=</span> <span class="n">prev_y</span> <span class="o">+</span> <span class="n">dy</span>
+                        <span class="n">y_end</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">dy</span>
+                        <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                            <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x_end</span><span class="p">,</span> <span class="n">y_end</span><span class="p">),</span>
+                            <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">x_start</span><span class="p">,</span> <span class="n">y_start</span><span class="p">),</span>
+                            <span class="n">xycoords</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span>
+                            <span class="n">textcoords</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span>
+                            <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                                <span class="n">arrowstyle</span><span class="o">=</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span>
+                                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.5&quot;</span><span class="p">,</span>
+                                <span class="n">connectionstyle</span><span class="o">=</span><span class="n">connectionstyle</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                    <span class="c1"># for next loop</span>
+                    <span class="n">prev_x</span> <span class="o">=</span> <span class="n">x</span>
+                    <span class="n">prev_y</span> <span class="o">=</span> <span class="n">y</span>
+                    <span class="n">prev_pixel</span> <span class="o">=</span> <span class="n">pixel</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">fig</span></div></div>
 
 
@@ -995,16 +1066,20 @@
 <span class="sd">    </span>
 <span class="sd">    Montgomery2020: Montgomery et al., “Performance and Characterization of the SPT-3G Digital Frequency Multiplexed Readout System Using an Improved Noise and Crosstalk Model.”</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">R_TES</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
-    <span class="n">r_s</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
+    <span class="n">R_TES</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]</span>
+    <span class="n">r_s</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]</span>
     <span class="n">L</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]</span>
-    <span class="n">C</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
     <span class="n">L_com</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">C</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">omega</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;You need to specify either C or omega.&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">=</span> <span class="n">omega_i_resonance_exact</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R_TES</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L_com</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">C_n_resonance_exact</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R_TES</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L_com</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">)</span>
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1070,7 +1145,7 @@
     </p>
     <p>
         &copy; Copyright 2021, Kolen Cheung.<br/>
-      Last updated on Mar 18, 2021.<br/>
+      Last updated on Mar 20, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
     </p>
   </div>
