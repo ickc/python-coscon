@@ -21,7 +21,7 @@ package,"
 [![Development Status](https://img.shields.io/pypi/status/python-coscon.svg)](https://pypi.python.org/pypi/python-coscon/)
 [![Downloads](https://img.shields.io/pypi/dm/python-coscon.svg)](https://pypi.python.org/pypi/python-coscon/)
 
-[![Commits since latest release](https://img.shields.io/github/commits-since/ickc/python-coscon/v0.1.0.svg)](https://github.com/ickc/python-coscon/compare/v0.1.0...master)
+[![Commits since latest release](https://img.shields.io/github/commits-since/ickc/python-coscon/v0.1.1.svg)](https://github.com/ickc/python-coscon/compare/v0.1.1...master)
 ![License](https://img.shields.io/pypi/l/python-coscon.svg)
 "
 conda-forge,"
