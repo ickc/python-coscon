@@ -187,10 +187,8 @@ class GenericFocalPlane(GenericDictStructure):
 
     @cached_property
     def azimuthal_equidistant_projection_with_orientation(self) -> np.ndarray[np.float_]:
-        qs = numba_quaternion.Quaternion(
-            numba_quaternion.lastcol_quat_to_canonical(
-                np.array(self.dataframe.quat.values.tolist())
-            )
+        qs = numba_quaternion.Quaternion.from_lastcol_array(
+            np.array(self.dataframe.quat.values.tolist())
         )
         return qs.azimuthal_equidistant_projection_with_orientation
 
