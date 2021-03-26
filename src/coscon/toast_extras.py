@@ -14,11 +14,11 @@ from toast.op import Operator
 from toast.utils import Logger
 
 if TYPE_CHECKING:
-    from typing import Optional, Tuple, List
+    from typing import Tuple, List
 
 
 @jit(nopython=True, nogil=True, cache=False)
-def fma(out, ws, *arrays):
+def fma(out: np.ndarray[np.float64], ws: np.ndarray[np.float64], *arrays: np.ndarray[np.float64]):
     """Simple FMA, compiled to avoid Python memory implications.
 
     :param out: must be zero array in the same shape of each array in `arrays`
@@ -51,7 +51,6 @@ class OpCrosstalk(Operator):
     name: str = "crosstalk"
 
     def __post_init__(self):
-        self._name = self.name
         self.comm, self.procs, self.rank = get_world()
         self.log = Logger.get()
 
@@ -65,7 +64,7 @@ class OpCrosstalk(Operator):
         return [name.decode() for name in self.crosstalk_names]
 
     @staticmethod
-    def read_serial(
+    def _read_serial(
         path: Path,
     ) -> Tuple[np.ndarray['S'], np.ndarray[np.float64]]:
         with h5py.File(path, 'r') as f:
@@ -74,7 +73,7 @@ class OpCrosstalk(Operator):
         return names, data
 
     @staticmethod
-    def read_mpi(
+    def _read_mpi(
         path: Path,
         comm: toast.mpi.Comm,
         procs: int,
@@ -84,7 +83,7 @@ class OpCrosstalk(Operator):
         comm, procs, rank = get_world()
 
         if rank == 0:
-            names, data = OpCrosstalk.read_serial(path)
+            names, data = OpCrosstalk._read_serial(path)
             lengths = np.array([names.size, names.dtype.itemsize], dtype=np.int64)
             # cast to int for boardcasting
             names_int = names.view(np.uint8)
@@ -116,33 +115,26 @@ class OpCrosstalk(Operator):
     ) -> OpCrosstalk:
         path = args.crosstalk_matrix
         comm, procs, rank = get_world()
-        names, data = cls.read_serial(path) if procs == 1 else cls.read_mpi(path, comm, procs, rank)
+        names, data = cls._read_serial(path) if procs == 1 else cls._read_mpi(path, comm, procs, rank)
         return cls(
             names,
             data,
             name=name,
         )
 
-    def get_tod_serial(
-        self,
-        tod: toast.tod.TOD,
-        signal_name: str,
-    ) -> np.ndarray[np.float64]:
-        raise NotImplementedError
-
-    def exec_serial(
+    def _exec_serial(
         self,
         data: toast.dist.Data,
         signal_name: str,
-        debug: bool = True,  # TODO
+        debug: bool = False,
     ):
         raise NotImplementedError
 
-    def exec_mpi(
+    def _exec_mpi(
         self,
         data: toast.dist.Data,
         signal_name: str,
-        debug: bool = True,  # TODO
+        debug: bool = False,
     ):
         log = self.log
         comm = self.comm
@@ -236,6 +228,6 @@ class OpCrosstalk(Operator):
         self,
         data: toast.dist.Data,
         signal_name: str,
-        debug: bool = True,  # TODO
+        debug: bool = False,
     ):
-        self.exec_serial(data, signal_name, debug=debug) if self.is_serial else self.exec_mpi(data, signal_name, debug=debug)
+        self._exec_serial(data, signal_name, debug=debug) if self.is_serial else self._exec_mpi(data, signal_name, debug=debug)
