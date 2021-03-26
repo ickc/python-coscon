@@ -750,7 +750,7 @@ class GenericMatrix:
         return self.data.shape[0]
 
     @property
-    def shape(self) -> int:
+    def shape(self) -> Tuple[int, ...]:
         return self.data.shape
 
     @cached_property
@@ -759,11 +759,12 @@ class GenericMatrix:
         return [name.decode() for name in self.names]
 
     @classmethod
-    def load(cls, path: Path):
+    def load(cls, path: Path, name: Optional[str]):
         with h5py.File(path, 'r') as f:
             names = f["names"][:]
             data = f["data"][:]
-        return cls(names, data)
+        _name = path.stem if name is None else name
+        return cls(names, data, name=_name)
 
     def dump(self, path: Path, compress_level: int = 9):
         with h5py.File(path, 'w', libver='latest') as f:
