@@ -18,7 +18,7 @@ from toast.utils import Logger
 from .io_helper import H5_CREATE_KW
 
 if TYPE_CHECKING:
-    from typing import Optional, Tuple
+    from typing import Optional, Tuple, List
 
 
 @jit(nopython=True, nogil=True, cache=False)
@@ -44,18 +44,6 @@ def add_crosstalk_args(parser: argparse.ArgumentParser):
         required=False,
         help="input path to crosstalk matrix in HDF5 container.",
     )
-    parser.add_argument(
-        "--crosstalk-write-tod-input",
-        type=Path,
-        required=False,
-        help="output path to write TOD input. For debug only.",
-    )
-    parser.add_argument(
-        "--crosstalk-write-tod-output",
-        type=Path,
-        required=False,
-        help="output path to write TOD input. For debug only.",
-    )
 
 
 @dataclass
@@ -64,8 +52,6 @@ class OpCrosstalk(Operator):
     """
     crosstalk_names: np.ndarray['S']
     crosstalk_data: np.ndarray[np.float64]
-    crosstalk_write_tod_input_path: Optional[Path] = None
-    crosstalk_write_tod_output_path: Optional[Path] = None
     name: str = "crosstalk"
 
     def __post_init__(self):
@@ -138,8 +124,6 @@ class OpCrosstalk(Operator):
         return cls(
             names,
             data,
-            crosstalk_write_tod_input_path=args.crosstalk_write_tod_input,
-            crosstalk_write_tod_output_path=args.crosstalk_write_tod_output,
             name=name,
         )
 
@@ -251,15 +235,6 @@ class OpCrosstalk(Operator):
         for obs in data.obs:
             tod = obs["tod"]
 
-            if self.crosstalk_write_tod_input_path:
-                if rank == 0:
-                    log.warning(f"Saving input TOD to {self.crosstalk_write_tod_input_path}. You should only use it for debug only!")
-                self.save_tod_mpi(
-                    self.crosstalk_write_tod_input_path,
-                    tod,
-                    signal_name,
-                )
-
             n_samples = tod.total_samples
             local_dets = tod.local_dets
             n_local_dets = len(local_dets)
@@ -335,15 +310,6 @@ class OpCrosstalk(Operator):
             for name in local_dets:
                 tod.cache.destroy(f"{signal_name}_{name}")
                 tod.cache.add_alias(f"{signal_name}_{name}", f"{crosstalk_name}_{name}")
-
-            if self.crosstalk_write_tod_output_path:
-                if rank == 0:
-                    log.warning(f"Saving input TOD to {self.crosstalk_write_tod_output_path}. You should only use it for debug only!")
-                self.save_tod_mpi(
-                    self.crosstalk_write_tod_output_path,
-                    tod,
-                    signal_name,
-                )
 
     def exec(
         self,
