@@ -26,7 +26,7 @@ test:
 		tests
 
 test-mpi:
-	mpirun -n $(N_MPI) $(_python) -m pytest -vv --with-mpia \
+	mpirun -n $(N_MPI) $(_python) -m pytest -vv --with-mpi \
 		--capture=no \
 		tests
 
