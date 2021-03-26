@@ -1,5 +1,3 @@
-
-
 from __future__ import annotations
 
 import argparse
@@ -14,8 +12,6 @@ from numba import jit
 from toast.mpi import get_world
 from toast.op import Operator
 from toast.utils import Logger
-
-from .io_helper import H5_CREATE_KW
 
 if TYPE_CHECKING:
     from typing import Optional, Tuple, List
@@ -133,81 +129,6 @@ class OpCrosstalk(Operator):
         signal_name: str,
     ) -> np.ndarray[np.float64]:
         raise NotImplementedError
-
-    def get_tod_mpi(
-        self,
-        tod: toast.tod.TOD,
-        signal_name: str,
-    ) -> Optional[np.ndarray[np.float64]]:
-        """Obtain the TOD as a contiguous array.
-
-        This is very inefficient as it is for debug only!
-        """
-        rank = self.rank
-        comm = self.comm
-        log = self.log
-        names = self.crosstalk_names_str
-        names_set = set(names)
-        n = len(names)
-        n_samples = tod.total_samples
-
-        local_dets = tod.local_dets
-        send_data = [(det, tod.cache.reference(f"{signal_name}_{det}")) for det in local_dets if det in names_set]
-        log.debug(f"Rank {rank} collected local TOD from {local_dets}")
-        if rank == 0:
-            log.debug(f"Gathering TOD to root.")
-        data = comm.gather(send_data, root=0)
-        if rank == 0:
-            log.debug(f"Gathered TOD to root, constructing dict")
-            tod_dict = {}
-            for datum in data:
-                for name, t in datum:
-                    tod_dict[name] = t
-            # assume all names are found in tod!
-            tod_array = np.array([tod_dict[name] for name in names])
-            assert tod_array.shape == (n, n_samples)
-            log.debug(f"TOD array constructed with shape {(n, n_samples)}.")
-            return tod_array
-        else:
-            return None
-
-    def save_tod_serial(
-        self,
-        path: Path,
-        tod: toast.tod.TOD,
-        signal_name: str,
-    ):
-        raise NotImplementedError
-
-    def save_tod_mpi(
-        self,
-        path: Path,
-        tod: toast.tod.TOD,
-        signal_name: str,
-        compress_level: int = 1,
-    ):
-        log = self.log
-        rank = self.rank
-        # non-root should have None
-        tod_array = self.get_tod_mpi(
-            tod,
-            signal_name,
-        )
-        if rank == 0:
-            log.debug(f"Writing TOD array to file {path}.")
-            with h5py.File(path, 'w', libver='latest') as f:
-                f.create_dataset(
-                    'names',
-                    data=self.crosstalk_names,
-                    compression_opts=compress_level,
-                    **H5_CREATE_KW
-                )
-                f.create_dataset(
-                    'data',
-                    data=tod_array,
-                    compression_opts=compress_level,
-                    **H5_CREATE_KW
-                )
 
     def exec_serial(
         self,
