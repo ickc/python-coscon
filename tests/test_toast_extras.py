@@ -40,6 +40,7 @@ tod_array_random = rng.standard_normal((n_detectors, n_samples))
 crosstalk_data_2 = np.identity(n_detectors) + np.reciprocal(np.arange(10, 10 + n_detectors * n_detectors)).reshape((n_detectors, n_detectors))
 tod_crosstalked_random = crosstalk_data_2 @ tod_array_random
 
+
 @dataclass
 class FakeData:
     obs: List[dict]
