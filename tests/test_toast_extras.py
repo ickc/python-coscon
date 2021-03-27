@@ -11,7 +11,7 @@ import toast
 from toast.mpi import get_world
 from toast.utils import Logger
 
-from coscon.toast_extras import OpCrosstalk
+from coscon.toast_extras import SimpleCrosstalkMatrix, OpCrosstalk
 
 if TYPE_CHECKING:
     from typing import List
@@ -67,7 +67,11 @@ def test_op_crosstalk(
     crosstalk_data: np.ndarray[np.float64],
     tod_crosstalked: np.ndarray[np.float64],
 ):
-    op_crosstalk = OpCrosstalk(names, crosstalk_data)
+    if rank == 0:
+        crosstalk_matrices = [SimpleCrosstalkMatrix(names, crosstalk_data)]
+    else:
+        crosstalk_matrices = []
+    op_crosstalk = OpCrosstalk(1, crosstalk_matrices)
 
     tod = toast.tod.TODCache(mpiworld, names_str, n_samples, detranks=procs)
 
