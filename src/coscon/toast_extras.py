@@ -110,7 +110,7 @@ class OpCrosstalk(Operator):
     name: str = "crosstalk"
 
     def _get_crosstalk_matrix(self, i: int) -> SimpleCrosstalkMatrix:
-        """Mainly used in MPI to get the i-th crosstalk matrix.
+        """Get the i-th crosstalk matrix, used this with MPI only.
         """
         rank_owner = i % PROCS
         # index of the i-th matrix in the local rank
@@ -197,12 +197,15 @@ class OpCrosstalk(Operator):
             n = crosstalk_data.shape[0]
             for obs in data.obs:
                 tod = obs["tod"]
+                # TODO: should we only check this only `if debug`?
+                # all ranks need to check this as they need to perform the same action
                 detectors_set = set(tod.detectors)
                 if not (names_set & detectors_set):
                     LOGGER.info(f"Crosstalk: skipping tod {tod} as it does not include detectors from crosstalk matrix with these detectors: {names}.")
                     continue
                 elif not (names_set <= detectors_set):
                     raise ValueError(f"Crosstalk: tod {tod} only include some detectors from the crosstalk matrix with these detectors: {names}.")
+                del detectors_set
 
                 n_samples = tod.total_samples
                 local_crosstalk_dets_set = set(tod.local_dets) & names_set
@@ -238,7 +241,7 @@ class OpCrosstalk(Operator):
                     for j in range(n):
                         if global_has_det[i, j]:
                             det_lut[names[j]] = i
-                del global_has_det
+                del global_has_det, i, j
                 tod.cache.destroy(f"{crosstalk_name}_global_has_det_{RANK}")
 
                 LOGGER.debug(f'Rank {RANK} has detectors LUT: {det_lut}')
@@ -267,9 +270,11 @@ class OpCrosstalk(Operator):
                     if RANK == rank_owner:
                         row_global_total = tod.cache.create(f"{crosstalk_name}_{name}", np.float64, (n_samples,))
                         COMM.Reduce(row_local_total, row_global_total, root=rank_owner)
+                        # it is reduced into tod.cache and the python reference can be safely deleted
+                        del row_global_total
                     else:
                         COMM.Reduce(row_local_total, None, root=rank_owner)
-                del row_local_total
+                del det_lut, row_local_total, name, row, rank_owner
                 tod.cache.destroy(f"{crosstalk_name}_row_local_total_{RANK}")
                 if n_local_dets > 0:
                     del row_local_weights, local_det_idxs, tods_list
