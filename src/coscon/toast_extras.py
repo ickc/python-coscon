@@ -185,7 +185,6 @@ class OpCrosstalk(Operator):
             names = crosstalk_matrix.names_str
             names_set = set(names)
             crosstalk_data = crosstalk_matrix.data
-            n = crosstalk_data.shape[0]
             for obs in data.obs:
                 tod = obs["tod"]
                 # TODO: should we only check this only `if debug`?
@@ -200,6 +199,11 @@ class OpCrosstalk(Operator):
                 n_samples = tod.total_samples
 
                 # mat-mul
+                # This follows the _exec_mpi mat-mul algorithm
+                # but not put them in a contiguous array and use real mat-mul @
+                # The advantage is to reduce memory use
+                # (if creating an intermediate contiguous array that would requires one more copy of tod then needed below)
+                # and perhaps served as a easier-to-understand version of _exec_mpi below
                 for name, row in zip(names, crosstalk_data):
                     row_global_total = tod.cache.create(f"{crosstalk_name}_{name}", np.float64, (n_samples,))
                     tods_list = [tod.cache.reference(f"{signal_name}_{name_j}") for name_j in names]
