@@ -46,7 +46,6 @@ class FakeData:
     obs: List[dict]
 
 
-@pytest.mark.mpi
 @pytest.mark.parametrize(
     "tod_array,crosstalk_data,tod_crosstalked",
     [
@@ -102,7 +101,6 @@ names_2_str = [f'B{i}' for i in range(n_detectors)]
 names_2 = np.array(names_str, dtype='S')
 
 
-@pytest.mark.mpi
 @pytest.mark.parametrize(
     "names,names_strs,tods_array,crosstalk_datas,tods_crosstalked",
     [

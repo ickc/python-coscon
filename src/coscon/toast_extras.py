@@ -178,7 +178,37 @@ class OpCrosstalk(Operator):
         signal_name: str,
         debug: bool = False,
     ):
-        raise NotImplementedError
+        crosstalk_name = self.name
+
+        # loop over crosstalk matrices
+        for crosstalk_matrix in self.crosstalk_matrices:
+            names = crosstalk_matrix.names_str
+            names_set = set(names)
+            crosstalk_data = crosstalk_matrix.data
+            n = crosstalk_data.shape[0]
+            for obs in data.obs:
+                tod = obs["tod"]
+                # TODO: should we only check this only `if debug`?
+                detectors_set = set(tod.detectors)
+                if not (names_set & detectors_set):
+                    LOGGER.info(f"Crosstalk: skipping tod {tod} as it does not include detectors from crosstalk matrix with these detectors: {names}.")
+                    continue
+                elif not (names_set <= detectors_set):
+                    raise ValueError(f"Crosstalk: tod {tod} only include some detectors from the crosstalk matrix with these detectors: {names}.")
+                del detectors_set
+
+                n_samples = tod.total_samples
+
+                # mat-mul
+                for name, row in zip(names, crosstalk_data):
+                    row_global_total = tod.cache.create(f"{crosstalk_name}_{name}", np.float64, (n_samples,))
+                    tods_list = [tod.cache.reference(f"{signal_name}_{name_j}") for name_j in names]
+                    fma(row_global_total, row, *tods_list)
+                for name in names:
+                    # overwrite it in-place
+                    # not using tod.cache.put as that will destroy and create
+                    tod.cache.reference(f"{signal_name}_{name}")[:] = tod.cache.reference(f"{crosstalk_name}_{name}")
+                    tod.cache.destroy(f"{crosstalk_name}_{name}")
 
     def _exec_mpi(
         self,
