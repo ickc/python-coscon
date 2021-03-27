@@ -276,14 +276,10 @@ class OpCrosstalk(Operator):
                     tod.cache.destroy(f"{crosstalk_name}_row_local_weights_{RANK}")
                     tod.cache.destroy(f"{crosstalk_name}_local_det_idxs_{RANK}")
 
-                # overwrite original tod from cache
-                # TODO: overwrite instead of alias
                 for name in local_crosstalk_dets_set:
-                    tod.cache.put(
-                        f"{signal_name}_{name}",
-                        tod.cache.reference(f"{crosstalk_name}_{name}"),
-                        replace=True,
-                    )
+                    # overwrite it in-place
+                    # not using tod.cache.put as that will destroy and create
+                    tod.cache.reference(f"{signal_name}_{name}")[:] = tod.cache.reference(f"{crosstalk_name}_{name}")
                     tod.cache.destroy(f"{crosstalk_name}_{name}")
 
     def exec(
