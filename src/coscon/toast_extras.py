@@ -202,7 +202,7 @@ class OpCrosstalk(Operator):
                 # This follows the _exec_mpi mat-mul algorithm
                 # but not put them in a contiguous array and use real mat-mul @
                 # The advantage is to reduce memory use
-                # (if creating an intermediate contiguous array that would requires one more copy of tod then needed below)
+                # (if creating an intermediate contiguous array that would requires one more copy of tod than needed below)
                 # and perhaps served as a easier-to-understand version of _exec_mpi below
                 for name, row in zip(names, crosstalk_data):
                     row_global_total = tod.cache.create(f"{crosstalk_name}_{name}", np.float64, (n_samples,))
