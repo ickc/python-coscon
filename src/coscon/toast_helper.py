@@ -215,6 +215,27 @@ class GenericFocalPlane(GenericDictStructure):
         df['orient_angle'] = azimuthal_equidistant_projection_with_orientation[:, 2]
         return df
 
+    @cached_property
+    def x_min(self) -> float:
+        return self.dataframe_with_azimuthal_equidistant_projection_with_orientation.x.min()
+
+    @cached_property
+    def x_max(self) -> float:
+        return self.dataframe_with_azimuthal_equidistant_projection_with_orientation.x.max()
+
+    @cached_property
+    def y_min(self) -> float:
+        return self.dataframe_with_azimuthal_equidistant_projection_with_orientation.y.min()
+
+    @cached_property
+    def y_max(self) -> float:
+        return self.dataframe_with_azimuthal_equidistant_projection_with_orientation.y.max()
+
+    @cached_property
+    def bleed(self) -> float:
+        """Bleeding for plotting from FWHM."""
+        return self.dataframe_with_azimuthal_equidistant_projection_with_orientation.fwhm.max() / 40.
+
     def iplot(
         self,
         scale: float = 1.,
@@ -306,11 +327,12 @@ class AvesDetectors(GenericFocalPlane):
 
     def plot(
         self,
-        x_min: Optional[int] = None,
-        x_max: Optional[int] = None,
-        y_min: Optional[int] = None,
-        y_max: Optional[int] = None,
-        width: Optional[int] = None,
+        x_min: Optional[float] = None,
+        x_max: Optional[float] = None,
+        y_min: Optional[float] = None,
+        y_max: Optional[float] = None,
+        width: Optional[float] = None,
+        bleed: Optional[float] = None,
         fontname: str = 'TeX Gyre Schola',
         wire: bool = False,
         wire_TB: bool = False,
@@ -321,21 +343,24 @@ class AvesDetectors(GenericFocalPlane):
         For `wire_connectionstyle`, use 'arc3' to draw straight-line.
         See more in https://matplotlib.org/stable/gallery/userdemo/connectionstyle_demo.html#sphx-glr-gallery-userdemo-connectionstyle-demo-py
         """
-        df = self.dataframe_with_azimuthal_equidistant_projection_with_orientation
         if x_min is None:
-            x_min = df.x.min()
+            x_min = self.x_min
         if x_max is None:
-            x_max = df.x.max()
+            x_max = self.x_max
         if y_min is None:
-            y_min = df.y.min()
+            y_min = self.y_min
         if y_max is None:
-            y_max = df.y.max()
+            y_max = self.y_max
+        if bleed is None:
+            bleed = self.bleed
         if width is None:
             inch_per_degree = 1.
-            width = (x_max - x_min) * inch_per_degree
+            width = (x_max - x_min + 2. * bleed) * inch_per_degree
         else:
-            inch_per_degree = width / (x_max - x_min)
-        height = (y_max - y_min) * inch_per_degree
+            inch_per_degree = width / (x_max - x_min + 2. * bleed)
+        height = (y_max - y_min + 2. * bleed) * inch_per_degree
+
+        df = self.dataframe_with_azimuthal_equidistant_projection_with_orientation
         df['orient_angle_x'] = np.cos(df.orient_angle.values)
         df['orient_angle_y'] = np.sin(df.orient_angle.values)
 
@@ -350,7 +375,6 @@ class AvesDetectors(GenericFocalPlane):
         ax.set_aspect(1.)
         ax.set_xlabel("Degrees", fontsize="large", fontname=fontname)
         ax.set_ylabel("Degrees", fontsize="large", fontname=fontname)
-        bleed = df.fwhm.max() / 40.
         ax.set_xlim([x_min - bleed, x_max + bleed])
         ax.set_ylim([y_min - bleed, y_max + bleed])
         if wire:
