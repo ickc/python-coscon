@@ -190,6 +190,10 @@ class GenericFocalPlane(GenericDictStructure):
         return np.array(self.dataframe.quat.values.tolist())
 
     @cached_property
+    def Quat(self) -> numba_quaternion.Quaternion:
+        return numba_quaternion.Quaternion.from_lastcol_array(self.quat)
+
+    @cached_property
     def dist_spherical_pairwise(self) -> np.ndarray[np.float_]:
         """Pair-wise great circle distances between detector quaternions.
 
@@ -202,8 +206,7 @@ class GenericFocalPlane(GenericDictStructure):
 
     @cached_property
     def azimuthal_equidistant_projection_with_orientation(self) -> np.ndarray[np.float_]:
-        qs = numba_quaternion.Quaternion.from_lastcol_array(self.quat)
-        return qs.azimuthal_equidistant_projection_with_orientation
+        return self.Quat.azimuthal_equidistant_projection_with_orientation
 
     @cached_property
     def dataframe_with_azimuthal_equidistant_projection_with_orientation(self) -> pd.DataFrame:
@@ -583,7 +586,9 @@ class AvesHardware(GenericDictStructure):
         self.bands = AvesBands(data['bands'])
         self.detectors = AvesDetectors(data['detectors'])
 
+        # convenient alias to detectors' methods
         self.quat = self.detectors.quat
+        self.Quat = self.detectors.Quat
         self.plot = self.detectors.plot
         self.iplot = self.detectors.iplot
 
