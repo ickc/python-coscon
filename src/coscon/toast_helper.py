@@ -186,10 +186,23 @@ class GenericFocalPlane(GenericDictStructure):
         super().__post_init__()
 
     @cached_property
+    def quat(self) -> np.ndarray[np.float_]:
+        return np.array(self.dataframe.quat.values.tolist())
+
+    @cached_property
+    def dist_spherical_pairwise(self) -> np.ndarray[np.float_]:
+        """Pair-wise great circle distances between detector quaternions.
+
+        Assume input is a 1-dim array of quarternions (2d-array)
+        and return pairwise distance in 1d-array,
+        ordered in "row-major" and "j>i" directions.
+        E.g. for 3 detectors, [(0, 1), (0, 2), (1, 2)] ordering.
+        """
+        return numba_quaternion.dist_spherical_pairwise_from_lastcol_array(self.quat)
+
+    @cached_property
     def azimuthal_equidistant_projection_with_orientation(self) -> np.ndarray[np.float_]:
-        qs = numba_quaternion.Quaternion.from_lastcol_array(
-            np.array(self.dataframe.quat.values.tolist())
-        )
+        qs = numba_quaternion.Quaternion.from_lastcol_array(self.quat)
         return qs.azimuthal_equidistant_projection_with_orientation
 
     @cached_property
@@ -293,8 +306,11 @@ class AvesDetectors(GenericFocalPlane):
 
     def plot(
         self,
-        width: float = 20.,
-        height: float = 20.,
+        x_min: Optional[int] = None,
+        x_max: Optional[int] = None,
+        y_min: Optional[int] = None,
+        y_max: Optional[int] = None,
+        width: Optional[int] = None,
         fontname: str = 'TeX Gyre Schola',
         wire: bool = False,
         wire_TB: bool = False,
@@ -306,10 +322,20 @@ class AvesDetectors(GenericFocalPlane):
         See more in https://matplotlib.org/stable/gallery/userdemo/connectionstyle_demo.html#sphx-glr-gallery-userdemo-connectionstyle-demo-py
         """
         df = self.dataframe_with_azimuthal_equidistant_projection_with_orientation
-        x_min = df.x.min()
-        x_max = df.x.max()
-        y_min = df.y.min()
-        y_max = df.y.max()
+        if x_min is None:
+            x_min = df.x.min()
+        if x_max is None:
+            x_max = df.x.max()
+        if y_min is None:
+            y_min = df.y.min()
+        if y_max is None:
+            y_max = df.y.max()
+        if width is None:
+            inch_per_degree = 1.
+            width = (x_max - x_min) * inch_per_degree
+        else:
+            inch_per_degree = width / (x_max - x_min)
+        height = (y_max - y_min) * inch_per_degree
         df['orient_angle_x'] = np.cos(df.orient_angle.values)
         df['orient_angle_y'] = np.sin(df.orient_angle.values)
 
@@ -348,18 +374,34 @@ class AvesDetectors(GenericFocalPlane):
             orient_angle_x = row.orient_angle_x
             orient_angle_y = row.orient_angle_y
 
-            color = color_dict[(
-                handed,
-                orient,
-                pol,
-            )]
+            if handed is None:
+                # some detectors has no handedness
+                # and default to A here
+                color = color_dict[(
+                    'A',
+                    orient,
+                    pol,
+                )]
+            else:
+                color = color_dict[(
+                    handed,
+                    orient,
+                    pol,
+                )]
 
             # put circle once per TB
             if pol == 'T':
                 circle = plt.Circle((x, y), radius=radius, color=color)
                 ax.add_artist(circle)
             else:
-                ax.text(x, y, pixel, horizontalalignment='center', verticalalignment='center', color=color, fontname=fontname)
+                ax.text(
+                    x, y, pixel,
+                    horizontalalignment='center',
+                    verticalalignment='center',
+                    color=color,
+                    fontname=fontname,
+                    fontsize=50. * radius * inch_per_degree,
+                )
 
             dx = 2. * radius * orient_angle_x
             dy = 2. * radius * orient_angle_y
@@ -516,6 +558,8 @@ class AvesHardware(GenericDictStructure):
         self.pixels = AvesPixels(data['pixels'])
         self.bands = AvesBands(data['bands'])
         self.detectors = AvesDetectors(data['detectors'])
+
+        self.quat = self.detectors.quat
         self.plot = self.detectors.plot
         self.iplot = self.detectors.iplot
 
