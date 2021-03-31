@@ -6,7 +6,7 @@ EXTRAS ?=
 COVHTML ?= --cov-report html
 # for bump2version, valid options are: major, minor, patch
 PART ?= patch
-N_MPI ?= 2
+N_MPI ?= 4
 
 _pandoc = pandoc
 pandocArgs = --toc -M date="`date "+%B %e, %Y"`" --filter=pantable --wrap=none
