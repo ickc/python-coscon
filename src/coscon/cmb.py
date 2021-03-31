@@ -51,6 +51,14 @@ class Maps:
     def n_maps(self) -> int:
         return self.maps.shape[0]
 
+    @property
+    def n_pix(self) -> int:
+        return self.maps.shape[1]
+
+    @cached_property
+    def n_side(self) -> int:
+        return hp.npix2nside(self.n_pix)
+
     @cached_property
     def f_sky(self) -> float:
         try:
@@ -118,16 +126,39 @@ class Maps:
         # healpy tried to be smart and return 1D array only if there's only 1 map
         return res.reshape(1, -1) if self.n_maps == 1 else res
 
-    @property
-    def to_spectra(self) -> PowerSpectra:
+    @cached_property
+    def pwf(self) -> np.ndarray:
+        """Calculate pixel window function using pixwin."""
+        return hp.sphtfunc.pixwin(
+            self.n_side,
+            pol=self.n_maps == 3,
+        )
+
+    def to_spectra(self, apply_pwf=False) -> PowerSpectra:
+        """Convert to PowerSpectra.
+
+        :param bool apply_pwf: if True, correct the spectra for pwf.
+        """
         n_maps = self.n_maps
+        spectra = self.spectra
         if n_maps == 1:
             names = ['TT']
+            if apply_pwf:
+                pwf = self.pwf
+                # avoid changing self.spectra in-place
+                spectra = spectra / np.square(pwf)
         elif n_maps == 3:
             names = ['TT', 'EE', 'BB', 'TE', 'EB', 'TB']
+            if apply_pwf:
+                t_pwf, p_pwf = self.pwf
+                temp = np.empty_like(spectra)
+                temp[0] = spectra[0] / np.square(t_pwf)
+                temp[[1, 2, 4]] = spectra[[1, 2, 4]] / np.square(p_pwf)
+                temp[[3, 5]] = spectra[[3, 5]] / (t_pwf * p_pwf)
+                spectra = temp
         else:
             raise ValueError(f'There are {n_maps} maps where I can only understand 1 map or 3 maps.')
-        return PowerSpectra(names, self.spectra, scale='Cl', name=self.name)
+        return PowerSpectra(names, spectra, scale='Cl', name=self.name)
 
     def write(
         self,
