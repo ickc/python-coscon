@@ -354,25 +354,46 @@ class PowerSpectra:
         return cls.from_dataframe(df)
 
     @classmethod
+    def from_planck(cls, url: str, year: int, calPlanck: Optional[float] = None) -> PowerSpectra:
+        """Use the Planck best-fit ΛCDM model
+
+        Officially released by Planck.
+        see http://pla.esac.esa.int/pla/#cosmology and its description
+        """
+        file = download_file(url, cache=True)
+
+        df = pd.read_csv(file, sep='\s+', names=['l', 'TT', 'TE', 'EE', 'BB', 'PP'], comment='#', index_col=0)
+        # planck's released spectra above 2500 has identically zero BB so it shouldn't be trusted
+        df = df.loc[pd.RangeIndex(2, 2501)]
+        if calPlanck is not None:
+            df *= 1. / (calPlanck * calPlanck)
+        df.columns.name = f'Planck {year} best-fit ΛCDM model'
+        return cls.from_dataframe(df)
+
+    @classmethod
+    def from_planck_2015(cls) -> PowerSpectra:
+        """Use the Planck 2015 best-fit ΛCDM model
+
+        Officially released by Planck up to l equals 2500.
+        see http://pla.esac.esa.int/pla/#cosmology and its description
+        """
+        return cls.from_planck(
+            'http://pla.esac.esa.int/pla/aio/product-action?COSMOLOGY.FILE_ID=COM_PowerSpect_CMB-base-plikHM-TT-lowTEB-minimum-theory_R2.02.txt',
+            2015,
+        )
+
+    @classmethod
     def from_planck_2018(cls) -> PowerSpectra:
         """Use the Planck 2018 best-fit ΛCDM model
 
-        Officially released by Planck up to l equals 2508.
+        Officially released by Planck up to l equals 2500.
         see http://pla.esac.esa.int/pla/#cosmology and its description
         """
-        # see http://pla.esac.esa.int/pla/#cosmology and its description
-        file = download_file(
+        return cls.from_planck(
             'http://pla.esac.esa.int/pla/aio/product-action?COSMOLOGY.FILE_ID=COM_PowerSpect_CMB-base-plikHM-TTTEEE-lowl-lowE-lensing-minimum-theory_R3.01.txt',
-            cache=True,
+            2018,
+            calPlanck=0.1000442E+01,
         )
-        calPlanck = 0.1000442E+01
-
-        df = pd.read_csv(file, sep='\s+', names=['l', 'TT', 'TE', 'EE', 'BB', 'PP'], comment='#', index_col=0)
-        # planck's 2018 released spectra above 2500 has identically zero BB so it shouldn't be trusted
-        df = df.loc[pd.RangeIndex(2, 2501)]
-        df *= 1. / (calPlanck * calPlanck)
-        df.columns.name = 'Planck 2018 best-fit ΛCDM model'
-        return cls.from_dataframe(df)
 
     @classmethod
     def from_planck_2018_extended(cls) -> PowerSpectra:
