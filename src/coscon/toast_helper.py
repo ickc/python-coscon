@@ -728,7 +728,62 @@ class AvesHardware(GenericDictStructure):
         final['detectors'] = df_detectors.to_dict(orient='index')
         return cls(final, validate_schema=validate_schema)
 
-    def reorder_to(
+    def reorder_QUAB(
+        self,
+        validate_schema: bool = False,
+    ) -> AvesHardware:
+        """Reorder detector orient & handed in alternate pixel order.
+
+        In the following orders:
+
+        QA
+        QA
+        UA
+        UA
+        QB
+        QB
+        UB
+        UB
+        ...
+        """
+
+        def orient_pol_to_angle(row):
+            return {
+                ('Q', 'T'): 0.,
+                ('U', 'T'): 0.25 * np.pi,
+                ('Q', 'B'): 0.5 * np.pi,
+                ('U', 'B'): 0.75 * np.pi,
+            }[(row.orient, row.pol)]
+
+        df = self.dataframe.copy()
+        N = df.shape[0]
+        orients = []
+        handeds = []
+        for i in range(N):
+            if i % 4 < 2:
+                orients.append('Q')
+            else:
+                orients.append('U')
+            if i % 8 < 4:
+                handeds.append('A')
+            else:
+                handeds.append('B')
+
+        df.orient = orients
+        df.handed = handeds
+        df.index = [f'{name[:8]}{orient}{handed}{name[10:]}' for name, orient, handed in zip(df.index, orients, handeds)]
+
+        # update quat
+        orients_ang = df.apply(orient_pol_to_angle, axis=1).values
+        quat = self.detectors.Quat
+        az_pol_orient = quat.azimuthal_equidistant_projection_polar_with_orientation
+        az_pol_orient[:, 2] = orients_ang
+        quat_new = numba_quaternion.Quaternion.from_azimuthal_equidistant_projection_polar_with_orientation(az_pol_orient)
+        df.quat = quat_new.lastcol_array.tolist()
+
+        return AvesHardware.from_dataframe(df, validate_schema=validate_schema)
+
+    def reorder_TB(
         self,
         pixels: List[int],
         TB_anti_alignment: bool = False,
@@ -776,7 +831,7 @@ class AvesHardware(GenericDictStructure):
                 names_full.append(f'{name}T')
         return AvesHardware.from_dataframe(df.loc[names_full], validate_schema=validate_schema)
 
-    def reorder_to_from_csv(
+    def reorder_TB_from_csv(
         self,
         path: Path,
         TB_anti_alignment: bool = False,
@@ -791,7 +846,7 @@ class AvesHardware(GenericDictStructure):
         """
         df_name = pd.read_csv(path, header=None)
         pixels = df_name.T.values[0]
-        return self.reorder_to(
+        return self.reorder_TB(
             pixels,
             TB_anti_alignment=TB_anti_alignment,
             TB_alternate_anti_alignment=TB_alternate_anti_alignment,
