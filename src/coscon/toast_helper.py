@@ -592,6 +592,10 @@ class AvesHardware(GenericDictStructure):
         self.plot = self.detectors.plot
         self.iplot = self.detectors.iplot
 
+    @property
+    def size(self) -> int:
+        return len(self.detectors.data)
+
     @cached_property
     def dataframe(self) -> pd.DataFrame:
         """DataFrame representation of the hardware
@@ -663,11 +667,21 @@ class AvesHardware(GenericDictStructure):
     def from_dataframe(cls, df: pd.DataFrame, validate_schema=True):
         """Create Hardware from a dataframe representation
         """
-        final: Dict[str, Dict[str, Dict[str, Any]]] = {}
-        case: List[str]
+        data: Dict[str, Dict[str, Dict[str, Any]]] = {}
+        # all List[str] are pair of names/keys
+        # that the 1st one is the dataframe columns,
+        # and the 2nd one is the key in the (nested) dict
+        keys: List[str]
+        # these are the columns in the dataframe
+        # that after groupby the keys[0] above,
+        # would be unique (have one row only)
         unique_cols: List[List[str]]
+        # these are the columns in the dataframe
+        # that after groupby the keys[0] above,
+        # would have multiple values (rows)
         non_unique_cols: List[List[str]]
-        for case, unique_cols, non_unique_cols in [
+        # all keys of data except detectors
+        for keys, unique_cols, non_unique_cols in [
             [
                 ['telescope', 'telescopes'],
                 [
@@ -712,21 +726,25 @@ class AvesHardware(GenericDictStructure):
                 [],
             ],
         ]:
-            final[case[1]] = temps = {}
-            for name, group in df.groupby(case[0]):
+            df_col_name, data_key = keys
+            data[data_key] = temps = {}
+            for name, group in df.groupby(df_col_name):
                 temps[name] = temp = {}
                 for col, col_new in unique_cols:
-                    values = group[col].unique()
-                    assert values.size == 1
-                    temp[col_new] = na_to_none(values[0])
+                    try:
+                        values = group[col].unique()
+                        assert values.size == 1
+                        temp[col_new] = na_to_none(values[0])
+                    except KeyError:
+                        temp[col_new] = None
                 for col, col_new in non_unique_cols:
                     values = group[col].unique()
                     temp[col_new] = values.tolist()
 
         # detectors
         df_detectors = df[['wafer', 'pixel', 'pixtype', 'band', 'fwhm', 'pol', 'handed', 'orient', 'quat', 'UID']]
-        final['detectors'] = df_detectors.to_dict(orient='index')
-        return cls(final, validate_schema=validate_schema)
+        data['detectors'] = df_detectors.to_dict(orient='index')
+        return cls(data, validate_schema=validate_schema)
 
     def reorder_QUAB(
         self,
