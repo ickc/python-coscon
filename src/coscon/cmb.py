@@ -457,8 +457,12 @@ class PowerSpectra:
         *others: PowerSpectra,
         show: bool = True,
         relative: bool = False,
-    ) -> List[plotly.graph_objs._figure.Figure]:
+        save: Optional[Path] = None,
+    ) -> Dict[str, plotly.graph_objs._figure.Figure]:
+        """Make comparison plots between self and others.
 
+        :param Path save: if specified, a directory to save the figures in HTML.
+        """
         df_tidy = self.compare(*others, relative=relative)
         figs = {}
         for name, group in df_tidy.groupby('spectra'):
@@ -467,6 +471,9 @@ class PowerSpectra:
         if show:
             for fig in figs.values():
                 fig.show()
+        if save:
+            for name, fig in figs.items():
+                fig.write_html(file=str(Path(save) / f'{name}.html'), include_plotlyjs='cdn', include_mathjax='cdn')
         return figs
 
 
