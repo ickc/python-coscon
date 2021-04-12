@@ -490,6 +490,11 @@ class PowerSpectra(PowerSpectraMatrix):
         power_spectra_matrix_rotated = power_spectra_matrix.rotate(angle)
         return PowerSpectra.from_powerspectramatrix(power_spectra_matrix_rotated)
 
+    def get_spectrum(self, name: str) -> np.ndarray[np.float_]:
+        """Obtain the spectrum with specific name.
+        """
+        return self.spectra[self.names.index(name)]
+
     def to_maps(self, nside: int, pixwin=False) -> Maps:
         """Use synfast to generate random maps
         """

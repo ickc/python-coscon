@@ -31,3 +31,15 @@ def test_synfast():
 def test_power_spectra_matrix():
     s2 = s1.rotate(0.)
     pd.testing.assert_frame_equal(s1.dataframe[['TT', 'EE', 'BB', 'TE']], s2.dataframe[['TT', 'EE', 'BB', 'TE']])
+    np.testing.assert_array_equal(s2.get_spectrum('TB'), 0.)
+    np.testing.assert_array_equal(s2.get_spectrum('EB'), 0.)
+
+
+def test_power_spectra_matrix_2():
+    s2 = s1.rotate(0.25 * np.pi)
+    np.testing.assert_array_equal(s1.get_spectrum('TT'), s2.get_spectrum('TT'))
+    np.testing.assert_array_equal(s1.get_spectrum('EE'), s2.get_spectrum('BB'))
+    np.testing.assert_array_equal(s1.get_spectrum('BB'), s2.get_spectrum('EE'))
+    np.testing.assert_array_equal(s1.get_spectrum('TE'), -s2.get_spectrum('TB'))
+    np.testing.assert_allclose(s2.get_spectrum('TE'), 0., atol=1e16)
+    np.testing.assert_allclose(s2.get_spectrum('EB'), 0., atol=1e16)
