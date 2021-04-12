@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from logging import getLogger
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union, ClassVar
 
 import defopt
 import healpy as hp
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 import coscon.fits_helper
 
-from .util import from_Cl_to_Dl, from_Dl_to_Cl
+from .util import from_Cl_to_Dl, from_Dl_to_Cl, rotate_power_spectra_matrix
 
 logger = getLogger('coscon')
 
@@ -237,8 +237,8 @@ class Maps:
 
 
 @dataclass
-class PowerSpectra:
-    """A class for power-spectra.
+class PowerSpectraMatrix:
+    """A class for power-spectra in matrix form.
 
     In [microK]^2 unit.
     """
@@ -248,6 +248,7 @@ class PowerSpectra:
     l: Optional[np.ndarray] = None
     scale: str = 'Dl'
     name: str = ''
+    ndim: ClassVar[int] = 3
 
     def __post_init__(self):
         # make sure l_min and l are self-consistent
@@ -256,8 +257,10 @@ class PowerSpectra:
             self.l_min = l[0]
 
         spectra = self.spectra
-        assert spectra.ndim == 2
+        assert self.ndim == spectra.ndim
         assert spectra.shape[0] == len(self.names)
+        if self.ndim == 3:
+            assert spectra.shape[0] == spectra.shape[1]
 
         if self.scale == 'Cl':
             logger.info('Converting from Cl scale to Dl scale automatically.')
@@ -265,23 +268,49 @@ class PowerSpectra:
             self.scale = 'Dl'
         assert self.scale == 'Dl'
 
+    @cached_property
+    def l_max(self) -> int:
+        """exclusive l_max"""
+        l = self.l
+        return self.l_min + self.spectra.shape[-1] if l is None else l[-1] + 1
+
+    @cached_property
+    def l_array(self) -> np.ndarray:
+        l = self.l
+        return np.arange(self.l_min, self.l_max) if l is None else l
+
+    @property
+    def n_spectra(self) -> int:
+        n = self.spectra.shape[0]
+        return n * (n + 1) // 2
+
+    def rotate(self, angle: float) -> PowerSpectraMatrix:
+        """Rotate the spectra by angle in radian
+        """
+        return PowerSpectraMatrix(
+            self.names,
+            rotate_power_spectra_matrix(self.spectra, angle),
+            self.l_min,
+            self.l,
+            self.scale,
+            self.name,
+        )
+
+
+@dataclass
+class PowerSpectra(PowerSpectraMatrix):
+    """A class for power-spectra.
+
+    In [microK]^2 unit.
+    """
+    ndim: ClassVar[int] = 2
+
     def _repr_html_(self) -> str:
         return self.dataframe._repr_html_()
 
     @property
     def n_spectra(self) -> int:
         return self.spectra.shape[0]
-
-    @cached_property
-    def l_max(self) -> int:
-        """exclusive l_max"""
-        l = self.l
-        return self.l_min + self.spectra.shape[1] if l is None else l[-1] + 1
-
-    @cached_property
-    def l_array(self) -> np.ndarray:
-        l = self.l
-        return np.arange(self.l_min, self.l_max) if l is None else l
 
     @cached_property
     def dataframe(self) -> pd.DataFrame:
@@ -406,11 +435,67 @@ class PowerSpectra:
             name='Planck 2018 best-fit ΛCDM model extended using CLASS'
         )
 
+    @classmethod
+    def from_powerspectramatrix(cls, power_spectra_matrix) -> PowerSpectra:
+        """Convert from matrix representation assuming TEB."""
+        assert power_spectra_matrix.names == ['T', 'E', 'B']
+        spectra_matrix = power_spectra_matrix.spectra
+        spectra = np.empty((6, spectra_matrix.shape[2]), dtype=spectra_matrix.dtype)
+        spectra[0, :] = spectra_matrix[0, 0]
+        spectra[1, :] = spectra_matrix[1, 1]
+        spectra[2, :] = spectra_matrix[2, 2]
+        spectra[3, :] = spectra_matrix[0, 1]
+        spectra[4, :] = spectra_matrix[1, 2]
+        spectra[5, :] = spectra_matrix[0, 2]
+        return PowerSpectra(
+            # "new"-order of healpy
+            ['TT', 'EE', 'BB', 'TE', 'EB', 'TB'],
+            spectra,
+            power_spectra_matrix.l_min,
+            power_spectra_matrix.l,
+            power_spectra_matrix.scale,
+            power_spectra_matrix.name,
+        )
+
+    def to_powerspectramatrix(self) -> PowerSpectraMatrix:
+        """Convert to matrix representation assuming TEB."""
+        names = self.names
+        spectra = self.spectra
+
+        spectra_matrix = np.zeros((3, 3, spectra.shape[1]), dtype=spectra.dtype)
+        spectra_matrix[0, 0, :] = spectra[names.index('TT')]
+        spectra_matrix[0, 1, :] = spectra[names.index('TE')]
+        spectra_matrix[1, 0, :] = spectra[names.index('TE')]
+        spectra_matrix[1, 1, :] = spectra[names.index('EE')]
+        spectra_matrix[2, 2, :] = spectra[names.index('BB')]
+        if 'TB' in names:
+            spectra_matrix[0, 2, :] = spectra[names.index('TB')]
+            spectra_matrix[2, 0, :] = spectra[names.index('TB')]
+        if 'EB' in names:
+            spectra_matrix[1, 2, :] = spectra[names.index('EB')]
+            spectra_matrix[2, 1, :] = spectra[names.index('EB')]
+        return PowerSpectraMatrix(
+            ['T', 'E', 'B'],
+            spectra_matrix,
+            self.l_min,
+            self.l,
+            self.scale,
+            self.name,
+        )
+
+    def rotate(self, angle: float) -> PowerSpectra:
+        """Rotate the spectra by angle in radian
+        """
+        power_spectra_matrix = self.to_powerspectramatrix()
+        power_spectra_matrix_rotated = power_spectra_matrix.rotate(angle)
+        return PowerSpectra.from_powerspectramatrix(power_spectra_matrix_rotated)
+
     def to_maps(self, nside: int, pixwin=False) -> Maps:
         """Use synfast to generate random maps
         """
+        names = self.names
         # new order
-        cols = ['TT', 'EE', 'BB', 'TE']
+        cols = ['TT', 'EE', 'BB', 'TE', 'EB', 'TB'] if 'EB' in names and 'TB' in names else ['TT', 'EE', 'BB', 'TE']
         spectra = self.dataframe[cols].values.T
         l = self.l_array
         cl = from_Dl_to_Cl(spectra, l)

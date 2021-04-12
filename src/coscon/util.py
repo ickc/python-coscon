@@ -18,13 +18,40 @@ def from_Cl_to_Dl(spectra, l):
     return ((0.5 / np.pi) * (l * (l + 1))).reshape(1, -1) * spectra
 
 
-@jit('float64[:, ::1](float64[:, ::1], int64[::1])', nopython=True, nogil=True, cache=True)
-def from_Dl_to_Cl(spectra, l):
+@jit(nopython=True, nogil=True, cache=True)
+def from_Dl_to_Cl(spectra: np.ndarray[np.float_], l: np.ndarray[np.int_]) -> np.ndarray[np.float_]:
     """Convert from Dl scale to Cl scale.
 
     D_l = [l(l+1)/2pi] C_l
     """
-    return ((2. * np.pi) / (l * (l + 1))).reshape(1, -1) * spectra
+    return ((2. * np.pi) / (l * (l + 1))) * spectra
+
+
+@jit('float64[:, :, ::1](float64[:, :, ::1], float64)', nopython=True, nogil=True, cache=True)
+def rotate_power_spectra_matrix(array: np.ndarray[np.float_], theta: float) -> np.ndarray[np.float_]:
+    """Rotate power-spectra in matrix representation assuming TEB-order and angle in radian.
+    """
+    n_b = array.shape[2]
+
+    R = np.zeros((3, 3))
+    R[0, 0] = 1.
+    cos_2theta = np.cos(2. * theta)
+    sin_2theta = np.sin(2. * theta)
+    R[1, 1] = cos_2theta
+    R[1, 2] = sin_2theta
+    R[2, 1] = -sin_2theta
+    R[2, 2] = cos_2theta
+
+    res = np.zeros_like(array)
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                R_ik = R[i, k]
+                for l in range(3):
+                    R_jl = R[j, l]
+                    for b in range(n_b):
+                        res[i, j, b] += R_ik * R_jl * array[k, l, b]
+    return res
 
 
 # generate some square matrices ################################################

@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from coscon.cmb import Maps, PowerSpectra
 
@@ -25,3 +26,8 @@ def test_synfast():
     s2 = m.to_spectra()
     df1, df2 = s1.intersect(s2)
     np.testing.assert_allclose(df2.values, df1.values, rtol=0.1, atol=1000.)
+
+
+def test_power_spectra_matrix():
+    s2 = s1.rotate(0.)
+    pd.testing.assert_frame_equal(s1.dataframe[['TT', 'EE', 'BB', 'TE']], s2.dataframe[['TT', 'EE', 'BB', 'TE']])
