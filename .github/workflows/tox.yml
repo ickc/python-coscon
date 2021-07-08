@@ -23,8 +23,9 @@ jobs:
     - name: Install dependencies—pip
       run: |
         pip install -U poetry setuptools
-        make editable EXTRAS=[extras,tests]
-        # make editable generated setup.py, let coverage read this instead of pyproject.toml
+        python -m pip install .[extras,tests]
+        make setup.py
+        # let coverage read setup.py instead of pyproject.toml
         mv pyproject.toml .pyproject.toml
     - name: Sanity check
       run: |
