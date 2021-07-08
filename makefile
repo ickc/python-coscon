@@ -1,8 +1,9 @@
 SHELL = /usr/bin/env bash
 
 _python ?= python
-PYTESTPARALLEL ?= --workers auto
-EXTRAS ?=
+# use pytest-parallel if python < 3.9 else pytest-xdist
+# as pytest-parallel is faster but doesn't support python 3.9 yet
+PYTESTARGS ?= $(shell python -c 'import sys; print("--workers auto" if sys.version_info < (3, 9) else "-n auto")')
 COVHTML ?= --cov-report html
 # for bump2version, valid options are: major, minor, patch
 PART ?= patch
@@ -21,7 +22,7 @@ docs: $(RSTs)
 html: dist/docs/
 
 test:
-	$(_python) -m pytest -vv $(PYTESTPARALLEL) \
+	$(_python) -m pytest -vv $(PYTESTARGS) \
 		--cov=src --cov-report term $(COVHTML) --no-cov-on-fail --cov-branch \
 		tests
 
@@ -86,15 +87,18 @@ print-%:
 
 # poetry #######################################################################
 
-# since poetry doesn't support editable, we can build and extract the setup.py,
-# temporary remove pyproject.toml and ask pip to install from setup.py instead.
-editable:
+setup.py:
 	poetry build
 	cd dist; tar -xf coscon-0.1.1.tar.gz coscon-0.1.1/setup.py
 	mv dist/coscon-0.1.1/setup.py .
 	rm -rf dist/coscon-0.1.1
+
+# since poetry doesn't support editable, we can build and extract the setup.py,
+# temporary remove pyproject.toml and ask pip to install from setup.py instead.
+editable: setup.py
 	mv pyproject.toml .pyproject.toml
-	$(_python) -m pip install -e .$(EXTRAS); mv .pyproject.toml pyproject.toml
+	$(_python) -m pip install --no-dependencies -e .
+	mv .pyproject.toml pyproject.toml
 
 # releasing ####################################################################
 
