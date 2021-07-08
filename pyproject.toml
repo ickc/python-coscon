@@ -27,9 +27,9 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Utilities",
 ]
-homepage = "https://github.com/ickc/coscon"
-repository = "https://github.com/ickc/coscon"
-documentation = "https://ickc.github.io/coscon"
+homepage = "https://github.com/ickc/python-coscon"
+repository = "https://github.com/ickc/python-coscon"
+documentation = "https://ickc.github.io/python-coscon"
 authors = ["Kolen Cheung <christian.kolen@gmail.com>"]
 readme = "README.rst"
 packages = [
@@ -58,7 +58,7 @@ pyyaml = "^5"
 yamlloader = ">=0.5"
 matplotlib = "^3"
 h5py = "^3"
-plotly = "^4"
+plotly = ">=4,<6"
 numba_quaternion = ">=0.2,<1"
 
 # extras
