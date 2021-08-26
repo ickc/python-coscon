@@ -76,7 +76,6 @@ pytest-mpi = {optional = true, version = "*"}
 # docs: sync this with tox.testenv.docs below
 sphinx = {optional = true, version = "^3.3"}
 sphinx-bootstrap-theme = {optional = true, version = "*"}
-pygments-style-solarized = {optional = true, version = "*"}
 sphinxcontrib-apidoc = {optional = true, version = "*"}
 
 # mpi
@@ -102,7 +101,6 @@ tests = [
 docs = [
     "sphinx",
     "sphinx-bootstrap-theme",
-    "pygments-style-solarized",
     "sphinxcontrib-apidoc",
 ]
 
@@ -233,7 +231,6 @@ usedevelop = false
 deps =
     sphinx >=3.3,<4
     sphinx-bootstrap-theme
-    pygments-style-solarized
     sphinxcontrib-apidoc
     defopt = ">=6"
     astropy = ">=4"
