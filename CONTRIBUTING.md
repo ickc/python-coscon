@@ -21,5 +21,5 @@ If you prefer not to use pixi, `uv run pytest` also works.
 ## Releasing
 
 1. Bump the version with `uv version --bump patch` (or `minor`/`major`) and update `CHANGELOG.md`.
-2. Commit, tag and push, e.g. `git tag v0.1.2 && git push --follow-tags`.
+2. Commit, tag and push, e.g. `git tag v0.2.0 && git push --follow-tags`.
 3. The `Release` workflow tests, builds, publishes to PyPI via trusted publishing, and creates a GitHub release.

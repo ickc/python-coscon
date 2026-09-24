@@ -80,3 +80,4 @@ dask-worker-space/
 
 # pixi environments
 .pixi/
+uv.lock
