@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, List, Optional, Union, ClassVar
 
 import defopt
 import healpy as hp
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly

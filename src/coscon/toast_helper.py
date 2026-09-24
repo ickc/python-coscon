@@ -1113,7 +1113,7 @@ class SQUID:
 
     def __post_init__(self):
         if (self.C is None) is (self.omega is None):
-            raise ValueError(f'You need to specify either C or omega.')
+            raise ValueError('You need to specify either C or omega.')
         elif self.omega is None:
             self.omega = omega_i_resonance_exact(self.R_TES, self.r_s, self.L, self.C, self.L_com)
         elif self.C is None:
