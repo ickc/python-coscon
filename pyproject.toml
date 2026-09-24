@@ -121,6 +121,8 @@ addopts = [
     "--tb=short",
 ]
 testpaths = ["tests"]
+# registered also here to run the tests without pytest-xdist
+markers = ["xdist_group: run tests in the same group on the same pytest-xdist worker"]
 
 [tool.ruff]
 line-length = 140
