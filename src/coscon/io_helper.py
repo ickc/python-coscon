@@ -102,7 +102,7 @@ def loader(path: Union[Path, str]) -> dict:
         path (str): The file to read.
 
     Returns:
-        data (dict): The data read.
+        dict: The data read.
 
     """
     path = Path(path)
@@ -110,7 +110,7 @@ def loader(path: Union[Path, str]) -> dict:
     ext = path.suffix.lower()
 
     if ext == '.gz':
-        logger.info(f'Extension is .gz, assume gzip compression is used.')
+        logger.info('Extension is .gz, assume gzip compression is used.')
         compress = True
         exts = path.suffixes
         if len(exts) != 2:

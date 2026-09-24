@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from numba import jit, generated_jit, types
+from numba import jit, types
+from numba.extending import overload
 
 if TYPE_CHECKING:
     from typing import Union
@@ -19,7 +20,7 @@ def from_Cl_to_Dl(spectra, l):
 
 
 @jit(nopython=True, nogil=True, cache=True)
-def from_Dl_to_Cl(spectra: np.ndarray[np.float_], l: np.ndarray[np.int_]) -> np.ndarray[np.float_]:
+def from_Dl_to_Cl(spectra: np.ndarray[np.floating], l: np.ndarray[np.int_]) -> np.ndarray[np.floating]:
     """Convert from Dl scale to Cl scale.
 
     D_l = [l(l+1)/2pi] C_l
@@ -28,7 +29,7 @@ def from_Dl_to_Cl(spectra: np.ndarray[np.float_], l: np.ndarray[np.int_]) -> np.
 
 
 @jit('float64[:, :, ::1](float64[:, :, ::1], float64)', nopython=True, nogil=True, cache=True)
-def rotate_power_spectra_matrix(array: np.ndarray[np.float_], theta: float) -> np.ndarray[np.float_]:
+def rotate_power_spectra_matrix(array: np.ndarray[np.floating], theta: float) -> np.ndarray[np.floating]:
     """Rotate power-spectra in matrix representation assuming TEB-order and angle in radian.
     """
     n_b = array.shape[2]
@@ -521,16 +522,24 @@ def _leakage_power_crosstalk_array(
     return res
 
 
-@generated_jit(nopython=True, nogil=True, cache=True)
 def leakage_power_crosstalk(
     R_TES_i: Union[float, np.ndarray[np.float64]],
     Z_n_omega_i: np.ndarray[np.complex128],
     Z_com_omega_n: np.ndarray[np.complex128],
 ) -> np.ndarray[np.complex128]:
-    if isinstance(R_TES_i, types.Float):
-        return _leakage_power_crosstalk_float
+    """Dispatch to `_leakage_power_crosstalk_float` or `_leakage_power_crosstalk_array` depending on `R_TES_i`."""
+    if np.ndim(R_TES_i) == 0:
+        return _leakage_power_crosstalk_float(float(R_TES_i), Z_n_omega_i, Z_com_omega_n)
     else:
-        return _leakage_power_crosstalk_array
+        return _leakage_power_crosstalk_array(R_TES_i, Z_n_omega_i, Z_com_omega_n)
+
+
+@overload(leakage_power_crosstalk, jit_options={'nogil': True, 'cache': True})
+def _leakage_power_crosstalk_jit(R_TES_i, Z_n_omega_i, Z_com_omega_n):
+    if isinstance(R_TES_i, types.Float):
+        return lambda R_TES_i, Z_n_omega_i, Z_com_omega_n: _leakage_power_crosstalk_float(R_TES_i, Z_n_omega_i, Z_com_omega_n)
+    else:
+        return lambda R_TES_i, Z_n_omega_i, Z_com_omega_n: _leakage_power_crosstalk_array(R_TES_i, Z_n_omega_i, Z_com_omega_n)
 
 
 @jit('complex128[:, ::1](float64, complex128[:, ::1], complex128[::1])', nopython=True, nogil=True, cache=True)
@@ -571,16 +580,24 @@ def _leakage_power_crosstalk_exact_array(
     return res
 
 
-@generated_jit(nopython=True, nogil=True, cache=True)
 def leakage_power_crosstalk_exact(
     R_TES_i: Union[float, np.ndarray[np.float64]],
     Z_n_omega_i: np.ndarray[np.complex128],
     Z_com_omega_n: np.ndarray[np.complex128],
 ) -> np.ndarray[np.complex128]:
-    if isinstance(R_TES_i, types.Float):
-        return _leakage_power_crosstalk_exact_float
+    """Dispatch to `_leakage_power_crosstalk_exact_float` or `_leakage_power_crosstalk_exact_array` depending on `R_TES_i`."""
+    if np.ndim(R_TES_i) == 0:
+        return _leakage_power_crosstalk_exact_float(float(R_TES_i), Z_n_omega_i, Z_com_omega_n)
     else:
-        return _leakage_power_crosstalk_exact_array
+        return _leakage_power_crosstalk_exact_array(R_TES_i, Z_n_omega_i, Z_com_omega_n)
+
+
+@overload(leakage_power_crosstalk_exact, jit_options={'nogil': True, 'cache': True})
+def _leakage_power_crosstalk_exact_jit(R_TES_i, Z_n_omega_i, Z_com_omega_n):
+    if isinstance(R_TES_i, types.Float):
+        return lambda R_TES_i, Z_n_omega_i, Z_com_omega_n: _leakage_power_crosstalk_exact_float(R_TES_i, Z_n_omega_i, Z_com_omega_n)
+    else:
+        return lambda R_TES_i, Z_n_omega_i, Z_com_omega_n: _leakage_power_crosstalk_exact_array(R_TES_i, Z_n_omega_i, Z_com_omega_n)
 
 
 @jit(

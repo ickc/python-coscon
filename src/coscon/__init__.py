@@ -1,12 +1,13 @@
 import logging
 import os
+from importlib.metadata import version
 
 try:
     from coloredlogs import ColoredFormatter as Formatter
 except ImportError:
     from logging import Formatter
 
-__version__ = '0.1.1'
+__version__ = version('coscon')
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()

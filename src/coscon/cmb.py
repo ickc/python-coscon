@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, List, Optional, Union, ClassVar
 
 import defopt
 import healpy as hp
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly
@@ -341,7 +340,7 @@ class PowerSpectra(PowerSpectraMatrix):
         '''read from CLASS' .dat output
 
         :param bool camb: if True, assumed ``format = camb`` is used when
-        generating the .dat from CLASS
+            generating the .dat from CLASS
 
         To self: migrated from abx's convert_theory.py
         '''
@@ -375,7 +374,7 @@ class PowerSpectra(PowerSpectraMatrix):
         names = [name.split(':')[1] for name in comment.strip().split()]
 
         with io.StringIO(text) as f:
-            df = pd.read_csv(f, delim_whitespace=True, index_col=0, comment='#', header=None, names=names)
+            df = pd.read_csv(f, sep=r'\s+', index_col=0, comment='#', header=None, names=names)
         # to [microK]^2
         if not camb:
             df *= 1.e12
@@ -391,7 +390,7 @@ class PowerSpectra(PowerSpectraMatrix):
         """
         file = download_file(url, cache=True)
 
-        df = pd.read_csv(file, sep='\s+', names=['l', 'TT', 'TE', 'EE', 'BB', 'PP'], comment='#', index_col=0)
+        df = pd.read_csv(file, sep=r'\s+', names=['l', 'TT', 'TE', 'EE', 'BB', 'PP'], comment='#', index_col=0)
         # planck's released spectra above 2500 has identically zero BB so it shouldn't be trusted
         df = df.loc[pd.RangeIndex(2, 2501)]
         if calPlanck is not None:
@@ -490,7 +489,7 @@ class PowerSpectra(PowerSpectraMatrix):
         power_spectra_matrix_rotated = power_spectra_matrix.rotate(angle)
         return PowerSpectra.from_powerspectramatrix(power_spectra_matrix_rotated)
 
-    def get_spectrum(self, name: str) -> np.ndarray[np.float_]:
+    def get_spectrum(self, name: str) -> np.ndarray[np.floating]:
         """Obtain the spectrum with specific name.
         """
         return self.spectra[self.names.index(name)]
