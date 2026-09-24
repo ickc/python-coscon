@@ -186,7 +186,7 @@ class GenericFocalPlane(GenericDictStructure):
         super().__post_init__()
 
     @cached_property
-    def quat(self) -> np.ndarray[np.float_]:
+    def quat(self) -> np.ndarray[np.floating]:
         return np.array(self.dataframe.quat.values.tolist())
 
     @cached_property
@@ -194,7 +194,7 @@ class GenericFocalPlane(GenericDictStructure):
         return numba_quaternion.Quaternion.from_lastcol_array(self.quat)
 
     @cached_property
-    def dist_spherical_pairwise(self) -> np.ndarray[np.float_]:
+    def dist_spherical_pairwise(self) -> np.ndarray[np.floating]:
         """Pair-wise great circle distances between detector quaternions.
 
         Assume input is a 1-dim array of quarternions (2d-array)
@@ -205,7 +205,7 @@ class GenericFocalPlane(GenericDictStructure):
         return numba_quaternion.dist_spherical_pairwise_from_lastcol_array(self.quat)
 
     @cached_property
-    def azimuthal_equidistant_projection_with_orientation(self) -> np.ndarray[np.float_]:
+    def azimuthal_equidistant_projection_with_orientation(self) -> np.ndarray[np.floating]:
         return self.Quat.azimuthal_equidistant_projection_with_orientation
 
     @cached_property
@@ -1156,7 +1156,7 @@ class SQUID:
         data = total_crosstalk_matrix(self.R_TES, self.r_s, self.L, self.C, self.L_com, self.omega)
         if names is None:
             # use the numerical value of freq in MHz as names
-            names = (self.freq * 1.e-6).astype(np.int).astype('S')
+            names = (self.freq * 1.e-6).astype(int).astype('S')
         return CrosstalkMatrix(names, data)
 
     def to_crosstalk_matrix_exact(
@@ -1167,5 +1167,5 @@ class SQUID:
         data = total_crosstalk_matrix_exact(self.R_TES, self.r_s, self.L, self.C, self.L_com, self.omega)
         if names is None:
             # use the numerical value of freq in MHz as names
-            names = (self.freq * 1.e-6).astype(np.int).astype('S')
+            names = (self.freq * 1.e-6).astype(int).astype('S')
         return CrosstalkMatrix(names, data)

@@ -1,3 +1,8 @@
+import pytest
+
+# toast 2 is only installable on Python<=3.9
+pytest.importorskip("toast.tod")
+
 from coscon.toast_helper import FakeFocalPlane, fake_focalplane
 
 

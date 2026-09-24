@@ -7,6 +7,9 @@ import numpy as np
 from numpy.random import default_rng
 import pytest
 
+# toast 2 is only installable on Python<=3.9
+pytest.importorskip("toast.tod")
+
 import toast
 from toast.mpi import get_world
 from toast.utils import Logger
