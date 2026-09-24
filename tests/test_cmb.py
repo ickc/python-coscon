@@ -1,3 +1,6 @@
+import urllib.error
+from contextlib import contextmanager
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -8,19 +11,36 @@ from coscon.cmb import Maps, PowerSpectra
 pytestmark = pytest.mark.xdist_group("planck")
 
 
+@contextmanager
+def skip_on_timeout():
+    """Skip when downloading external data times out, which is out of our control.
+
+    Other errors such as HTTP 404 still fail.
+    """
+    try:
+        yield
+    except urllib.error.URLError as e:
+        if "timed out" in str(e):
+            pytest.skip(f"download timed out: {e}")
+        raise
+
+
 @pytest.fixture(scope="module")
 def s1():
-    return PowerSpectra.from_planck_2018()
+    with skip_on_timeout():
+        return PowerSpectra.from_planck_2018()
 
 
 def test_planck_2018_extended(s1):
-    s2 = PowerSpectra.from_planck_2018_extended()
+    with skip_on_timeout():
+        s2 = PowerSpectra.from_planck_2018_extended()
     df1, df2 = s1.intersect(s2)
     np.testing.assert_allclose(df2.values, df1.values, rtol=0.15, atol=0.1)
 
 
 def test_pysm(s1):
-    m = Maps.from_pysm(140, 128)
+    with skip_on_timeout():
+        m = Maps.from_pysm(140, 128)
     s2 = m.to_spectra()
     df1, df2 = s1.intersect(s2)
     np.testing.assert_allclose(df2.values, df1.values, rtol=0.1, atol=1000.)
