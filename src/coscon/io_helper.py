@@ -102,7 +102,7 @@ def loader(path: Union[Path, str]) -> dict:
         path (str): The file to read.
 
     Returns:
-        data (dict): The data read.
+        dict: The data read.
 
     """
     path = Path(path)

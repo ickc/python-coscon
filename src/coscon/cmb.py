@@ -340,7 +340,7 @@ class PowerSpectra(PowerSpectraMatrix):
         '''read from CLASS' .dat output
 
         :param bool camb: if True, assumed ``format = camb`` is used when
-        generating the .dat from CLASS
+            generating the .dat from CLASS
 
         To self: migrated from abx's convert_theory.py
         '''

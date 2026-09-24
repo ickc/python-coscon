@@ -1,50 +1,36 @@
-import sphinx_bootstrap_theme
+import sys
+import types
+from importlib.metadata import version as get_version
 
-html_css_files = [
-    "https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/css/_table.min.css",
-    "https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css/fonts/fonts.min.css",
-]
+project = "coscon"
+author = "Kolen Cheung"
+copyright = f"2021, {author}"
+version = release = get_version("coscon")
 
 extensions = [
+    "myst_parser",
+    "sphinx.ext.apidoc",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.coverage",
-    "sphinx.ext.doctest",
-    "sphinx.ext.extlinks",
-    "sphinx.ext.ifconfig",
     "sphinx.ext.napoleon",
-    "sphinx.ext.todo",
     "sphinx.ext.viewcode",
-    "sphinxcontrib.apidoc",
 ]
-source_suffix = ".rst"
-master_doc = "index"
-project = "coscon"
-year = "2021"
-author = "Kolen Cheung"
-copyright = f"{year}, {author}"
-version = release = "0.1.1"
+source_suffix = {".md": "markdown", ".rst": "restructuredtext"}
+exclude_patterns = ["_build"]
 
-pygments_style = "solarized-light"
-html_theme = "bootstrap"
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-html_theme_options = {
-    "navbar_links": [("GitHub", "https://github.com/ickc/coscon/", True,)],
-    "source_link_position": None,
-    "bootswatch_theme": "readable",
-    "bootstrap_version": "3",
-}
+html_theme = "furo"
+html_title = f"{project} {version}"
 
-html_use_smartypants = True
-html_last_updated_fmt = "%b %d, %Y"
-html_split_index = False
-html_short_title = f"{project}-{version}"
-
-napoleon_use_ivar = True
-napoleon_use_rtype = False
-napoleon_use_param = False
-
-# sphinxcontrib.apidoc
-apidoc_module_dir = '../src/coscon'
-apidoc_separate_modules = True
-apidoc_module_first = True
+apidoc_modules = [
+    {
+        "path": "../src/coscon",
+        "destination": "api",
+        "separate_modules": True,
+        "module_first": True,
+    },
+]
+# toast 2 is not installable on the Python versions sphinx supports
+autodoc_mock_imports = ["toast"]
+# coscon.toast_extras unpacks toast.mpi.get_world() on import, which a mock cannot do
+_toast_mpi = types.ModuleType("toast.mpi")
+_toast_mpi.get_world = lambda: (None, 1, 0)
+sys.modules["toast.mpi"] = _toast_mpi

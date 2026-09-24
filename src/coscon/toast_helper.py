@@ -811,7 +811,7 @@ class AvesHardware(GenericDictStructure):
         """Reorder pixels according its integer assignment
 
         :param bool TB_anti_alignment: if True, assume TB pixels ordering BTTBBTTBBT..
-        else BTBTBTBT...
+            else BTBTBTBT...
         """
         df = self.dataframe
         num_to_name = {}
@@ -860,7 +860,7 @@ class AvesHardware(GenericDictStructure):
 
         :param Path path: a csv or txt file that has the pixel numbers per line
         :param bool TB_anti_alignment: if True, assume TB pixels ordering BTTBBTTBBT..
-        else BTBTBTBT...
+            else BTBTBTBT...
         """
         df_name = pd.read_csv(path, header=None)
         pixels = df_name.T.values[0]
