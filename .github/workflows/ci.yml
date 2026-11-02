@@ -37,6 +37,12 @@ jobs:
           locked: true
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
+      # external data downloaded by astropy, e.g. from the Planck Legacy Archive and NERSC, which can time out
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.astropy/cache
+          key: astropy-cache-${{ runner.os }}-${{ hashFiles('src/coscon/cmb.py') }}
+          restore-keys: astropy-cache-${{ runner.os }}-
       - run: pixi run -e ${{ matrix.environment }} test
       - if: matrix.environment == 'legacy'
         run: pixi run -e legacy test-mpi
